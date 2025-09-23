@@ -3,6 +3,8 @@ import { DashboardActivitiesLayout } from "../layout/DashboardActivitiesLayout";
 import { HomePage } from "../pages/homePages/HomePage";
 import { LoginPage } from "../pages/loginPages/LoginPage";
 import { AboutPage } from "../pages/aboutPages/AboutPage";
+import { AdminAcivitiesPage } from "../pages/homePages/activities/components/adminActivitiesPage/AdminAcivitiesPage";
+
 
 
 export const router = createBrowserRouter([
@@ -12,8 +14,12 @@ export const router = createBrowserRouter([
     children:
     [
         {
-            path: "",
+            path: "activities",
             element: <HomePage/>
+        },
+        {
+            path: "activities/admin-activities",
+            element: <AdminAcivitiesPage/>
         },
     ]
     },

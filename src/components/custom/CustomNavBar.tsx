@@ -18,9 +18,9 @@ export function CustomNavBar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-gradient-to-br from-blue-50 to-purple-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 max-w-screen-2xl items-center ml-8">
+      <div className="container flex h-16 max-w-screen-2xl items-center ">
         {/* Logo */}
-        <div className="mr-8 flex">
+        <div className="mr-8 flex ml-8">
           <Link to="/" className="mr-6 flex items-center space-x-2">
             <div className="h-6 w-6 bg-foreground rounded-sm flex items-center justify-center">
               <div className="h-3 w-3 bg-background rounded-sm" />

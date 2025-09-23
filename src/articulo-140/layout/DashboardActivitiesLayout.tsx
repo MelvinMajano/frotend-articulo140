@@ -1,8 +1,15 @@
 import { CustomNavBar } from "@/components/custom/CustomNavBar"
-import { Outlet } from "react-router"
+import { useEffect } from "react";
+import { Outlet, useLocation } from "react-router"
 
 
 export const DashboardActivitiesLayout = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   return (
     <>
     <CustomNavBar/>

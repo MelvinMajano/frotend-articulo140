@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Calendar, Clock, MapPin, User } from 'lucide-react'
+import { Link } from 'react-router'
 
 const activities = [
   {
@@ -126,10 +127,15 @@ export const CardActivities = () => {
                         </div>
                       </CardContent>
 
-                      <CardFooter className="p-5 pt-0 mt-auto">
+                      <CardFooter className="flex flex-col p-5 pt-0 mt-auto">
                         <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-2.5 transition-colors duration-200 ">
                           Inscribirse
                         </Button>
+                        <Link to='/activities/admin-activities' className="block w-full">
+                          <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 transition-colors duration-200 ">
+                          Administrar
+                        </Button>
+                        </Link>
                       </CardFooter>
                     </Card>
                   ))}
