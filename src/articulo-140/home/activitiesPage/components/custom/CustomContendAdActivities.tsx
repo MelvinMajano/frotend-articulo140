@@ -1,12 +1,11 @@
 
 import { SidebarProvider, SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar"
-import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
-import { Code, Settings} from "lucide-react"
+import { Code, Settings, GraduationCap, UserCog,} from "lucide-react"
 
 const sections = [
   {
@@ -14,6 +13,18 @@ const sections = [
     title: "General",
     icon: Settings,
     group: "Access",
+  },
+  {
+    id: "students",
+    title: "Estudiantes",
+    icon: GraduationCap,
+    group: "Access",
+  },
+  {
+    id: "controlZona",
+    title: "Zona de Control",
+    icon: UserCog,
+    group: "Configuraciones avanzadas",
   },
 ]
 
@@ -37,11 +48,11 @@ export const CustomContendAdActivities = () => {
     <div className="min-h-screen bg-background">
       <SidebarProvider defaultOpen={true}>
         <div className="flex w-full">
-          <div className="w-80 p-6">
-            <Card className="h-[calc(100vh-3rem)]">
+          <div className="w-70">
+            <div className="h-[calc(100vh-3rem)]">
               <div className="flex h-full">
                 <div className="w-full border-r-0">
-                  <div className="bg-sidebar text-sidebar-foreground flex h-full w-full flex-col rounded-l-xl">
+                  <div className=" text-sidebar-foreground flex h-full w-full flex-col rounded-l-xl">
 
                     <SidebarContent className="flex-1 overflow-auto">
                       {Object.entries(groupedSections).map(([groupName, groupSections]) => (
@@ -70,12 +81,12 @@ export const CustomContendAdActivities = () => {
                   </div>
                 </div>
               </div>
-            </Card>
+            </div>
           </div>
 
-          <div className="flex-1 p-6 pl-0">
-            <Card className="h-[calc(100vh-3rem)]">
-              <div className="h-full overflow-auto">
+          <div className="flex-1 pl-0">
+            <div className="h-[calc(100vh-3rem)]">
+              <div className="h-full">
                 <div className="p-8 space-y-12">
                   {/* General Section */}
                   <section className="space-y-6">
@@ -140,7 +151,7 @@ export const CustomContendAdActivities = () => {
 
                 </div>
               </div>
-            </Card>
+            </div>
           </div>
         </div>
       </SidebarProvider>

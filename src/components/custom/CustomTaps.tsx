@@ -1,7 +1,6 @@
 import { TabsContent } from "@radix-ui/react-tabs"
 import { CardContent } from "../ui/card"
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs"
-import { CustomContendAdActivities } from "@/articulo-140/pages/homePages/activities/components/custom/CustomContendAdActivities"
 
 
 export const CustomTaps = () => {
@@ -15,14 +14,8 @@ export const CustomTaps = () => {
             </TabsList>
             </div>
             <TabsContent value="overview" className="mt-4">
-              <div className="p-4 bg-muted rounded-lg">
-              {/* <CustomContendAdActivities/> */}
-              </div>
             </TabsContent>
-            <TabsContent value="analytics" className="mt-4">
-              <div className="p-4 bg-muted rounded-lg">
-                {/* <CustomContendAdActivities/> */}
-              </div>
+            <TabsContent value="analytics" className="mt-4"> 
             </TabsContent>
           </Tabs>
         </CardContent>
