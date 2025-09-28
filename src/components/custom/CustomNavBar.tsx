@@ -43,7 +43,20 @@ export function CustomNavBar() {
         </nav>
 
         {/* Right side */}
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+        <div className="flex flex-1 items-center justify-end space-x-2 mr-8">
+          {/* CTA Button */}
+          <div className="hidden md:flex items-center space-x-2">
+            <Link to="/auth/login">
+            <Button variant="ghost" size="sm">
+              Iniciar Sesión
+            </Button>
+            </Link>
+            <Link to="/admin">
+            <Button size="sm" className="bg-red-500 text-background hover:bg-red-700">
+              Administrar
+            </Button>
+            </Link>
+          </div>
 
           {/* Mobile menu */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
