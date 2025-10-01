@@ -6,7 +6,7 @@ export const StudentsAdActivities = () => {
   return (
     <section className="space-y-6">
                     <div>
-                      <h1 className="text-2xl font-bold mb-2">Studiantes</h1>
+                      <h1 className="text-2xl font-bold mb-2">Estudiantes</h1>
                     </div>
 
                     <div className="space-y-6">

@@ -1,11 +1,12 @@
 import type { PropsWithChildren } from "react"
-import { createContext, useState } from "react"
+import { createContext} from "react"
+import { useSearchParams } from "react-router";
 
 export type item = 'General' | 'Students' | 'controlZona';
 
 interface SideBarActivitiesContext{
    //props
-   itemsSelected:item | undefined;
+   itemsSelected:item | string | null;
 
    //methods
    onSelection: (value:item)=>void;
@@ -17,17 +18,21 @@ interface SideBarActivitiesContext{
 export const SideBarActivitiesContext = createContext({} as SideBarActivitiesContext)
 
 export const SideBarActivitiesProvider = ({children}:PropsWithChildren) => {
-    const [itemSelected, setitemSelected] = useState<item>('General')
-
-    const handleSelectionItem =(value:item)=>{ 
-        setitemSelected(value)
-    }
+    const [searchParams, setSerchParams] = useSearchParams();
     
+    const handleSelectionItem =(value:item)=>{ 
+        setSerchParams((prev)=>{
+            prev.set('seccionDetails',value);
+            return prev
+        })
+    }
 
+    const selectSeccion = searchParams.get("seccionDetails");
+    
     return (
     <SideBarActivitiesContext
     value={{
-        itemsSelected:itemSelected,
+        itemsSelected:selectSeccion,
         onSelection: handleSelectionItem,
     }}
     >

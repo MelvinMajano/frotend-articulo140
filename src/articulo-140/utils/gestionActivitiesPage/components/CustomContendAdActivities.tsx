@@ -2,13 +2,10 @@
 import { SidebarProvider} from "@/components/ui/sidebar"
 import { CustomSidebarAdActivities } from "./CustomSidebarAdActivities"
 import { GeneralSeccionAdActivities } from "./sectionsActivities/GeneralSeccionAdActivities"
-import { use } from "react"
 import { SideBarActivitiesContext } from "../context/SideBarActivitiesContext"
 import { StudentsAdActivities } from "./sectionsActivities/StudentsSecctionActivities"
 import { ControlZoneAdActivities } from "./sectionsActivities/ControlZone"
-
-
-
+import { use } from "react"
 
 
 
@@ -34,11 +31,11 @@ export const CustomContendAdActivities = () => {
             <div className="h-[calc(100vh-3rem)]">
               <div className="h-full">
                 <div className="p-8 space-y-12">
-                  {itemsSelected==='General'?(
-                    <GeneralSeccionAdActivities/>
+                  {itemsSelected==='controlZona'?(
+                    <ControlZoneAdActivities/>
                   ):itemsSelected==='Students'?(
                   <StudentsAdActivities/>):
-                  (<ControlZoneAdActivities/>)}
+                  (<GeneralSeccionAdActivities/>)}
                 </div>
               </div>
             </div>

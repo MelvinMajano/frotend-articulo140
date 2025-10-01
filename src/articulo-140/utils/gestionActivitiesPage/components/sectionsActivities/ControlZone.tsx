@@ -1,11 +1,28 @@
+import { useActivities } from "@/articulo-140/hooks/activities/useActivities"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Label } from "@radix-ui/react-label"
-import { Link } from "react-router"
-
+import { Link, useParams} from "react-router"
+import { gestionActivitiesStore } from "../../stores/gestionActivitiesStore"
 
 export const ControlZoneAdActivities = () => {
+  const {stateFunDisableActivity,stateFunEnableActivity,isDisable} = gestionActivitiesStore();
+  const {activityMutation} = useActivities();
+  const {id} = useParams();
+
+  const handleHabiltar = () =>{ 
+    const isDisableSet= 0;
+    stateFunEnableActivity();
+    activityMutation.mutate({id,isDisableSet})
+  };
+          
+
+  const handleDeshabiltar = () =>{
+    const isDisableSet=1;
+    stateFunDisableActivity();
+    activityMutation.mutate({id,isDisableSet})
+  };
   return (
     <section className="space-y-6">
                     <div>
@@ -24,9 +41,25 @@ export const ControlZoneAdActivities = () => {
                             </p>
                           </div>
                         </div>
-                        <Button className="m-auto text-red-600 w-1/6" variant={"ghost"} >
+                        {isDisable===0?(<Button className="m-auto text-red-600 w-1/6 " variant={"ghost"} 
+                        onClick={handleDeshabiltar}
+                        >
+                              Deshabilitar actividad
+                        </Button>):(
+                          <div className="flex flex-col">
+                          <Button className="m-auto text-red-600 w-1/6 " variant={"ghost"} 
+                        onClick={handleDeshabiltar}
+                        disabled={true}
+                        >
                               Deshabilitar actividad
                         </Button>
+                        <Button className="m-auto text-black w-1/6" variant={"ghost"} 
+                        onClick={handleHabiltar}
+                        >
+                              Habilitar actividad
+                        </Button>
+                        </div>)}
+                        
                         
                       </Card>
                     </div>
