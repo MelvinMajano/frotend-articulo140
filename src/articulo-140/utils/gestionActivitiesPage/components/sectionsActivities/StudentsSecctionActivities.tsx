@@ -8,7 +8,7 @@ export const StudentsAdActivities = () => {
                     <div>
                       <h1 className="text-2xl font-bold mb-2">Estudiantes</h1>
                     </div>
-
+                    <Separator />
                     <div className="space-y-6">
                       <div className="space-y-2">
                         <Label htmlFor="repo-name"></Label>
@@ -45,7 +45,6 @@ export const StudentsAdActivities = () => {
                       </div>
                     </div>
 
-                    <Separator />
 
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold"></h3>
