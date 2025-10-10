@@ -4,10 +4,10 @@ import { AboutPage } from "../home/aboutPage/AboutPage";
 import { HomePage } from "../home/HomePage";
 import { LoginPage } from "../auth/pages/login/LoginPage";
 import { RegisterPage } from "../auth/pages/register/RegisterPage";
-import { AdminActivities } from "../admin/pages/adminActivities/AdminActivities";
+import { AdminPage } from "../admin/AdminPage";
 import { AdminStudents } from "../admin/pages/adminStudents/AdminStudents";
 import { AdminSupervisor } from "../admin/pages/adminSupervisor/AdminSupervisor";
-import { AdminPage } from "../admin/AdminPage";
+import { AdminActivities } from "../admin/pages/adminActivities/AdminActivities";
 import { GestionAcivitiesPage } from "../utils/gestionActivitiesPage/GestionAcivitiesPage";
 import { ActivitiesDeletedPage } from "../admin/pages/activitiesDeleted/ActivitiesDeletedPage";
 
