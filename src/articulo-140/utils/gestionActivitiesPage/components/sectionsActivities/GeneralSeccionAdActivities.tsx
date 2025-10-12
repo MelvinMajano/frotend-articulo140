@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
 
 let startDateValue: Date | undefined = new Date('2025-10-15T09:00:00');
 let endDateValue: Date | undefined = new Date('2025-10-15T09:00:00');
@@ -29,7 +30,8 @@ const endDateProps = {
 
 export const GeneralSeccionAdActivities = () => {
   return (
-    <section className="space-y-6">
+    <>
+    <section className="space-y-6 pb-20">
                     <div className="flex flex-row justify-between">
                       <h1 className="text-2xl font-bold mb-2">General</h1>
                       <Badge className="h-min my-auto mr-6 w-fit bg-yellow-300 text-black" >Pendiente</Badge>
@@ -94,8 +96,18 @@ export const GeneralSeccionAdActivities = () => {
                     <div className="space-y-6 grid grid-cols-2 ">
                       <div className="space-y-2 w-sm">
                         <Label htmlFor="repo-name" className="font-medium">Ámbitos</Label>
-                          <Checkbox id="ambito1" />
-                          <Label htmlFor="ambito1" >Deporte</Label>
+                          <div className="flex flex-row">
+                            <Checkbox id="ambito1" />
+                            <Label htmlFor="ambito1" className="font-normal ml-0.5">Deporte</Label></div>
+                            <div className="flex flex-row">
+                            <Checkbox id="ambito1" />
+                            <Label htmlFor="ambito1" className="font-normal ml-0.5">Cultural</Label></div>
+                            <div className="flex flex-row">
+                            <Checkbox id="ambito1" />
+                            <Label htmlFor="ambito1" className="font-normal ml-0.5">Social</Label></div>
+                            <div className="flex flex-row">
+                            <Checkbox id="ambito1" />
+                            <Label htmlFor="ambito1" className="font-normal ml-0.5">Cientifico</Label></div>
                           <p className="text-sm text-muted-foreground">
                               Al hacer clic en las horas podrá editarlo según sus preferencias.   
                           </p>
@@ -111,5 +123,25 @@ export const GeneralSeccionAdActivities = () => {
                       
 
                   </section>
+
+                  {/* Footer Sticky con botones */}
+                  <footer className="sticky bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t border-border/40 transition-all duration-300 ease-in-out transform translate-y-0 animate-in slide-in-from-bottom-2">
+                    <div className="container mx-auto px-6 py-4">
+                      <div className="flex items-center justify-end gap-3">
+                        <Button 
+                          variant="outline" 
+                          className="flex items-center gap-2 hover:bg-red-50 hover:border-red-200 hover:text-red-700 transition-all duration-200"
+                        >
+                          Cancelar
+                        </Button>
+                        <Button 
+                          className="flex items-center gap-2 text-white transition-all duration-200 shadow-md hover:shadow-lg"
+                        >
+                          Aceptar
+                        </Button>
+                      </div>
+                    </div>
+                  </footer>
+                  </>
   )
 }

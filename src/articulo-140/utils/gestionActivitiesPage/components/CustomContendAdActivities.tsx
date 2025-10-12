@@ -12,14 +12,14 @@ import { use } from "react"
 export const CustomContendAdActivities = () => {
       const {itemsSelected} = use(SideBarActivitiesContext);
     return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
       <SidebarProvider defaultOpen={true}>
         <div className="flex w-full">
           <div className="w-70">
-            <div className="h-[calc(100vh-3rem)]">
+            <div className="min-h-screen">
               <div className="flex h-full">
                 <div className="w-full border-r-0">
-                  <div className=" text-sidebar-foreground flex h-full w-full flex-col rounded-l-xl">
+                  <div className="text-sidebar-foreground flex h-full w-full flex-col rounded-l-xl">
                   <CustomSidebarAdActivities/>
                   </div>
                 </div>
@@ -28,9 +28,9 @@ export const CustomContendAdActivities = () => {
           </div>
 
           <div className="flex-1 pl-0">
-            <div className="h-[calc(100vh-3rem)]">
+            <div className="min-h-screen">
               <div className="h-full">
-                <div className="p-8 space-y-12">
+                <div className="p-6 pt-4 space-y-8">
                   {itemsSelected==='controlZona'?(
                     <ControlZoneAdActivities/>
                   ):itemsSelected==='Students'?(
