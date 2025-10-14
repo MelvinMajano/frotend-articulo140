@@ -3,7 +3,8 @@ import { CustomImput } from "@/components/custom/CustomImput"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Loader2, PenLine, PlusCircle, Trash2 } from "lucide-react"
+import { Loader2, PenLine, Trash2, PlusCircle } from "lucide-react"
+import { Link } from "react-router"
 
 export const AdminSupervisor = () => {
   const { query } = useSupervisors()
@@ -17,10 +18,12 @@ export const AdminSupervisor = () => {
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <CustomImput />
           </div>
-          <Button className="bg-teal-600 hover:bg-teal-700 text-white flex items-center">
-            <PlusCircle className="w-4 h-4 mr-1" />
-            Agregar Supervisor
-          </Button>
+          <Link to="/admin/supervisor/create">
+            <Button className="bg-teal-600 hover:bg-teal-700 text-white flex items-center">
+              <PlusCircle className="w-4 h-4 mr-1" />
+              Agregar Supervisor
+            </Button>
+          </Link>
         </CardHeader>
 
         {/* Contenido */}
@@ -34,48 +37,42 @@ export const AdminSupervisor = () => {
           ) : (
             <div className="overflow-x-auto">
               <Table>
-                <table className="min-w-full border-collapse">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead><span className="text-gray-700"># Cuenta</span></TableHead>
-                      <TableHead><span className="text-gray-700">Nombre</span></TableHead>
-                      <TableHead><span className="text-gray-700">Correo</span></TableHead>
-                      <TableHead><span className="text-gray-700">Identidad</span></TableHead>
-                      <TableHead><span className="text-gray-700">Carrera</span></TableHead>
-                      <TableHead><span className="text-gray-700 text-center">Acciones</span></TableHead>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead># Cuenta</TableHead>
+                    <TableHead>Nombre</TableHead>
+                    <TableHead>Correo</TableHead>
+                    <TableHead>Identidad</TableHead>
+                    <TableHead>Carrera</TableHead>
+                    <TableHead className="text-center">Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data?.data.map((supervisor) => (
+                    <TableRow key={supervisor.accountNumber}>
+                      <TableCell>{supervisor.accountNumber}</TableCell>
+                      <TableCell>{supervisor.name}</TableCell>
+                      <TableCell>{supervisor.email}</TableCell>
+                      <TableCell>{supervisor.identityNumber}</TableCell>
+                      <TableCell>{supervisor.career}</TableCell>
+                      <TableCell>
+                        <div className="flex justify-center gap-2">
+                          <Button
+                            variant="outline"
+                            className="border-teal-600 text-teal-600 hover:bg-teal-50 flex items-center"
+                          >
+                            <PenLine className="w-4 h-4 mr-1" />
+                            Editar
+                          </Button>
+                          <Button className="bg-red-600 hover:bg-red-700 text-white flex items-center">
+                            <Trash2 className="w-4 h-4 mr-1" />
+                            Eliminar
+                          </Button>
+                        </div>
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {data?.data.map((student) => (
-                      <TableRow key={student.accountNumber}>
-                        <TableCell>
-                          <span className="font-medium">{student.accountNumber}</span>
-                        </TableCell>
-                        <TableCell>{student.name}</TableCell>
-                        <TableCell>{student.email}</TableCell>
-                        <TableCell>{student.identityNumber}</TableCell>
-                        <TableCell>{student.career}</TableCell>
-                        <TableCell>
-                          <div className="flex justify-center gap-2">
-                            <Button
-                              variant="outline"
-                              className="border-teal-600 text-teal-600 hover:bg-teal-50 flex items-center"
-                            >
-                              <PenLine className="w-4 h-4 mr-1" />
-                              Editar
-                            </Button>
-                            <Button
-                              className="bg-teal-600 hover:bg-teal-700 text-white flex items-center"
-                            >
-                              <Trash2 className="w-4 h-4 mr-1" />
-                              Eliminar
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </table>
+                  ))}
+                </TableBody>
               </Table>
             </div>
           )}

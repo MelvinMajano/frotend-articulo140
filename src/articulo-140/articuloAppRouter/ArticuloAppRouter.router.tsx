@@ -8,6 +8,7 @@ import { RegisterPage } from "../auth/pages/register/RegisterPage";
 import { AdminPage } from "../admin/AdminPage";
 import { AdminStudents } from "../admin/pages/adminStudents/AdminStudents";
 import { AdminSupervisor } from "../admin/pages/adminSupervisor/AdminSupervisor";
+import { AdminSupervisorForm } from "../admin/components/AdminSupervisorForm";
 import { AdminActivities } from "../admin/pages/adminActivities/AdminActivities";
 import { GestionAcivitiesPage } from "../utils/gestionActivitiesPage/GestionAcivitiesPage";
 import { ActivitiesDeletedPage } from "../admin/pages/activitiesDeleted/ActivitiesDeletedPage";
@@ -70,6 +71,13 @@ export const router = createBrowserRouter([
                 path:"supervisor/",
                 element:<AdminSupervisor/>
             },
+            {
+                path:"supervisor/create",
+                element:<AdminSupervisorForm/>
+            },
+            {
+              path:"supervisor/edit/:id"  
+            }
         ]
     },
 ]);
