@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router";
 import { DashboardActivitiesLayout } from "../layout/DashboardActivitiesLayout";
+import { AuthLayout } from "../layout/AuthLayout";
 import { AboutPage } from "../home/aboutPage/AboutPage";
 import { HomePage } from "../home/HomePage";
 import { LoginPage } from "../auth/pages/login/LoginPage";
@@ -33,7 +34,7 @@ export const router = createBrowserRouter([
     },
     {
         path:"auth/",
-        element: <DashboardActivitiesLayout/>,
+        element: <AuthLayout/>,
         children:[
             {
                 path:"login/",
