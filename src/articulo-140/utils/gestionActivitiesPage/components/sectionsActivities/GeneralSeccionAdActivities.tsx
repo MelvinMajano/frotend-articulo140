@@ -81,14 +81,14 @@ export const GeneralSeccionAdActivities = () => {
                         <Label htmlFor="repo-name" className="font-medium">Fecha y Hora de Inicio</Label>
                           <DateTimePicker {...startDateProps}/>
                           <p className="text-sm text-muted-foreground">
-                              Al hacer clic en las horas podrá editarlo según sus preferencias.   
+                              Al hacer clic en la hora de inicio podrá editarlo según sus preferencias.   
                           </p>
                       </div>
                       <div className="space-y-2 w-sm">
                         <Label htmlFor="repo-name" className="font-medium">Fecha y Hora de Finalizacion</Label>
                         <DateTimePicker {...endDateProps}/>
                           <p className="text-sm text-muted-foreground">
-                              Al hacer clic en la cantidad de cupos podrá editarlo según sus preferencias.   
+                              Al hacer clic en la hora de finalización podrá editarlo según sus preferencias.   
                           </p>
                       </div>
                     </div>
@@ -107,16 +107,16 @@ export const GeneralSeccionAdActivities = () => {
                             <Label htmlFor="ambito1" className="font-normal ml-0.5">Social</Label></div>
                             <div className="flex flex-row">
                             <Checkbox id="ambito1" />
-                            <Label htmlFor="ambito1" className="font-normal ml-0.5">Cientifico</Label></div>
+                            <Label htmlFor="ambito1" className="font-normal ml-0.5">Científico</Label></div>
                           <p className="text-sm text-muted-foreground">
-                              Al hacer clic en las horas podrá editarlo según sus preferencias.   
+                              Puede seleccionar los ámbitos a los que pertenezca la actividad.
                           </p>
                       </div>
                       <div className="space-y-2 w-sm">
                         <Label htmlFor="repo-name" className="font-medium">Supervisor</Label>
                         <Combobox/>
                           <p className="text-sm text-muted-foreground">
-                              Al hacer clic en la cantidad de cupos podrá editarlo según sus preferencias.   
+                              Puede seleccionar otro supervisor si así lo desea.   
                           </p>
                       </div>
                     </div>

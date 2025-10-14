@@ -13,7 +13,6 @@ export function CustomNavBar() {
   const navItems = [
     { name: "Inicio", href: "/" },
     { name: "Actividades", href: "/activities" },
-    { name: "Estudiantes", href: "/students" },
   ]
 
   return (

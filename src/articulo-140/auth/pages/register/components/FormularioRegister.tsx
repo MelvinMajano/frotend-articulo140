@@ -64,7 +64,7 @@ export const RegisterForm =() => {
               id="name"
               name="name"
               type="text"
-              placeholder="Juan Pérez"
+              placeholder="José Pérez"
               value={formData.name}
               onChange={handleChange}
               required
@@ -77,7 +77,7 @@ export const RegisterForm =() => {
               id="email"
               name="email"
               type="email"
-              placeholder="tu@ejemplo.com"
+              placeholder="example@unah.hn"
               value={formData.email}
               onChange={handleChange}
               required
@@ -90,7 +90,6 @@ export const RegisterForm =() => {
               id="accountNumber"
               name="accountNumber"
               type="text"
-              placeholder="1234567890"
               value={formData.accountNumber}
               onChange={handleChange}
               required
@@ -103,7 +102,7 @@ export const RegisterForm =() => {
               id="identityNumber"
               name="identityNumber"
               type="text"
-              placeholder="0801-1990-12345"
+              placeholder="0801199012345"
               value={formData.identityNumber}
               onChange={handleChange}
               required
@@ -138,7 +137,7 @@ export const RegisterForm =() => {
             {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col gap-4">
+        <CardFooter className="flex flex-col gap-4 mt-3">
           <Button type="submit" className="w-full">
             Registrarse
           </Button>

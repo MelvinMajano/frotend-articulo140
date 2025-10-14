@@ -73,7 +73,7 @@ export const ControlZoneAdActivities = () => {
                                 Eliminar
                             </Label>
                             <p className="text-sm text-muted-foreground">
-                              Al presionar eliminar, la actividad tampoco se mostrará para ningún usuario, pero el administrador podrá encontrar las actividades eliminadas aquí. 
+                              Al presionar eliminar, la actividad tampoco se mostrará para ningún usuario, pero el administrador podrá encontrar las actividades eliminadas aquí{"  "}
                               <Link to="/admin/activities-deleted">
                               <span className="underline text-blue-800">Actividades Eliminadas</span>
                               </Link>
