@@ -1,32 +1,29 @@
-import { useState } from "react"
+import { useState, type FormEvent } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Link } from "react-router"
+import type { role } from "../registerInterfaces/register.interface"
+import { authStore } from "@/articulo-140/auth/store/authStore"
+import { toast } from "sonner"
+
+interface formdataRegister{
+      name:string;
+      email:string;
+      accountNumber:number;
+      identityNumber:string;
+      password:string;
+      confirmPassword:string;
+      role:role;
+      degreeId:number
+}
 
 export const RegisterForm =() => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    accountNumber: "",
-    identityNumber: "",
-    password: "",
-    confirmPassword: "",
-  })
-
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const {register} = authStore();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-    // Limpiar error del campo cuando el usuario empieza a escribir
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }))
-    }
-  }
-
-  const validateForm = () => {
+  const validateForm = (formData:formdataRegister) => {
     const newErrors: Record<string, string> = {}
 
     if (formData.password !== formData.confirmPassword) {
@@ -37,16 +34,46 @@ export const RegisterForm =() => {
       newErrors.password = "La contraseña debe tener al menos 8 caracteres"
     }
 
+    const specialCharRegex = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/
+    if (!specialCharRegex.test(formData.password)) {
+      newErrors.password = newErrors.password 
+        ? `${newErrors.password} y debe contener al menos un carácter especial` 
+        : "Debe contener al menos un carácter especial"
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
 
-    if (validateForm()) {
-      // Aquí irá la lógica de registro
-      console.log("Registro:", formData)
+    const role:role = "student";
+    const degreeId = 1
+    const formDataObject:formdataRegister = {
+      name:formData.get('name') as string,
+      email:formData.get('email') as string,
+      accountNumber:Number(formData.get('accountNumber')) ,
+      identityNumber:formData.get('identityNumber') as string,
+      password:formData.get('password') as string,
+      confirmPassword:formData.get('confirmPassword') as string,
+      role:role,
+      degreeId:degreeId
+    }
+
+    if(validateForm(formDataObject)){
+      const { confirmPassword, ...dataToSend } = formDataObject;
+      try {
+        const message = await register(dataToSend);
+        if (message.includes('Error') || message.includes('error')) {
+          toast.error(message);
+        } else {
+          toast.success(message);
+        }
+      } catch (error) {
+        toast.error('Error inesperado en el registro');
+      }
     }
   }
 
@@ -65,8 +92,6 @@ export const RegisterForm =() => {
               name="name"
               type="text"
               placeholder="José Pérez"
-              value={formData.name}
-              onChange={handleChange}
               required
             />
           </div>
@@ -78,8 +103,6 @@ export const RegisterForm =() => {
               name="email"
               type="email"
               placeholder="example@unah.hn"
-              value={formData.email}
-              onChange={handleChange}
               required
             />
           </div>
@@ -90,8 +113,6 @@ export const RegisterForm =() => {
               id="accountNumber"
               name="accountNumber"
               type="text"
-              value={formData.accountNumber}
-              onChange={handleChange}
               required
             />
           </div>
@@ -103,8 +124,6 @@ export const RegisterForm =() => {
               name="identityNumber"
               type="text"
               placeholder="0801199012345"
-              value={formData.identityNumber}
-              onChange={handleChange}
               required
             />
           </div>
@@ -116,8 +135,6 @@ export const RegisterForm =() => {
               name="password"
               type="password"
               placeholder="••••••••"
-              value={formData.password}
-              onChange={handleChange}
               required
             />
             {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
@@ -130,8 +147,6 @@ export const RegisterForm =() => {
               name="confirmPassword"
               type="password"
               placeholder="••••••••"
-              value={formData.confirmPassword}
-              onChange={handleChange}
               required
             />
             {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}

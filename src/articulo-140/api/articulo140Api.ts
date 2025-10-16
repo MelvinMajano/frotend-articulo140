@@ -5,5 +5,12 @@ const articulo140Api = axios.create({
 });
 
 //TODO: Crear los intersectores
+articulo140Api.interceptors.request.use((config)=>{
+    const token = localStorage.getItem('token');
+    if(token){
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
 
 export {articulo140Api};

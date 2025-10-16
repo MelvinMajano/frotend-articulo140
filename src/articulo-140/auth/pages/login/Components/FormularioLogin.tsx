@@ -2,16 +2,31 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { useState } from "react"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
+import type { FormEvent } from "react"
+import { authStore } from "@/articulo-140/auth/store/authStore"
 
 export const LoginForm = () => {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const {login} = authStore();
+  const navigate = useNavigate()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log("Login:", { email, password })
+    const formData = new FormData(e.target as HTMLFormElement);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+    const isValid = await login(email,password);
+
+    if(isValid){
+      navigate('/activities')
+    }
+
+    try{
+      
+      
+    }catch(error){
+
+    }
   }
 
   return (
@@ -27,9 +42,8 @@ export const LoginForm = () => {
             <Input
               id="email"
               type="email"
+              name="email"
               placeholder="example@unah.hn"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
@@ -38,9 +52,8 @@ export const LoginForm = () => {
             <Input
               id="password"
               type="password"
+              name="password"
               placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>

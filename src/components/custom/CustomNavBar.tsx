@@ -5,16 +5,21 @@ import { Link } from "react-router"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu} from "lucide-react"
+import { authStore } from "@/articulo-140/auth/store/authStore"
 
 
 export function CustomNavBar() {
   const [isOpen, setIsOpen] = useState(false)
+  const {state,isAdmin,logout} = authStore();
+  let navItems =[{ name: "Inicio", href: "/" }];
 
-  const navItems = [
+  if(state==="authenticated"){
+    navItems = [
     { name: "Inicio", href: "/" },
     { name: "Actividades", href: "/activities" },
   ]
-
+  }
+  
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-gradient-to-br from-blue-50 to-purple-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 max-w-screen-2xl items-center ">
@@ -45,16 +50,20 @@ export function CustomNavBar() {
         <div className="flex flex-1 items-center justify-end space-x-2 mr-8">
           {/* CTA Button */}
           <div className="hidden md:flex items-center space-x-2">
-            <Link to="/auth/login">
+            {state==="no-authenticated"?(<Link to="/auth/login">
             <Button variant="ghost" size="sm">
               Iniciar Sesión
             </Button>
-            </Link>
-            <Link to="/admin">
+            </Link>):<Link to="/">
+            <Button variant="ghost" size="sm" onClick={logout}>
+              Cerrar Sesión
+            </Button>
+            </Link>}
+            {isAdmin() && ( <Link to="/admin">
             <Button size="sm" className="bg-red-500 text-background hover:bg-red-700">
               Administrar
             </Button>
-            </Link>
+            </Link>)} 
           </div>
 
           {/* Mobile menu */}
