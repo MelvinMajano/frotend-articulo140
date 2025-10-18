@@ -1,3 +1,4 @@
+import { authStore } from '@/articulo-140/auth/store/authStore'
 import { useActivities } from '@/articulo-140/hooks/activities/useActivities'
 import type { Message } from '@/articulo-140/interfaces/activities.response'
 import { Badge } from '@/components/ui/badge'
@@ -9,8 +10,11 @@ import { Link } from 'react-router'
 
 
 export const CardActivities = () => {
+  const {isAdmin} = authStore();
   const {query} = useActivities();
   const message:Message[]|undefined= query?.data?.message
+
+
   return (
                 <CardContent className="px-0 pb-0">
                 {/* Activities Grid */}
@@ -65,14 +69,17 @@ export const CardActivities = () => {
                       </CardContent>
 
                       <CardFooter className="flex flex-col p-5 pt-0 mt-auto">
-                        <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-2.5 transition-colors duration-200 ">
-                          Inscribirse
-                        </Button>
-                        <Link to={`/activities-details/${activity.id}`} className="block w-full">
+                        {isAdmin()?(<Link to={`/activities-details/${activity.id}`} className="block w-full">
                           <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 transition-colors duration-200 ">
                           Administrar
                         </Button>
-                        </Link>
+                        </Link>):(<Link to={``} className="block w-full">
+                        <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-2.5 transition-colors duration-200 ">
+                          Inscribirse
+                        </Button>
+                        </Link>)}
+                        
+                        
                       </CardFooter>
                     </Card>
                   ))}

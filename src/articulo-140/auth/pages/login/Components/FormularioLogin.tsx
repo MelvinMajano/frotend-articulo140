@@ -3,8 +3,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Link, useNavigate } from "react-router"
-import type { FormEvent } from "react"
+import { type FormEvent } from "react"
 import { authStore } from "@/articulo-140/auth/store/authStore"
+import { toast } from "sonner"
 
 export const LoginForm = () => {
   const {login} = authStore();
@@ -12,20 +13,33 @@ export const LoginForm = () => {
 
   const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const formData = new FormData(e.target as HTMLFormElement);
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
+    
     const isValid = await login(email,password);
 
     if(isValid){
+      // Limpiar el formulario cuando el login sea exitoso
+      form.reset();
+      
       navigate('/activities')
-    }
-
-    try{
-      
-      
-    }catch(error){
-
+      toast.success(`Bienvenido`, {
+        style: {
+          background: '#10b981', 
+          color: 'white',
+          border: '1px solid #059669'
+        }
+      })
+    } else {
+      toast.error('Credenciales incorrectas', {
+        style: {
+          background: '#ef4444', 
+          color: 'white',
+          border: '1px solid #dc2626'
+        }
+      })
     }
   }
 

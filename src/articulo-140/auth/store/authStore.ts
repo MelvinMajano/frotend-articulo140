@@ -28,7 +28,6 @@ export const authStore = create<authState>()((set,get)=>({
     token: null,
     state:"checking",
 
-
     isAdmin:()=>{
         const role = get().user?.role;
         return role === "admin" ? true:false
@@ -47,7 +46,7 @@ export const authStore = create<authState>()((set,get)=>({
             localStorage.setItem('token',data.token);
             return true
         }catch(err){
-            set({user: null, token:null,state:"no-authenticated"});
+            set({user: null, token:null, state:"no-authenticated",});
             localStorage.removeItem('token');
             return false
         }
