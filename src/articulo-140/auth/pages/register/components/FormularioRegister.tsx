@@ -34,6 +34,12 @@ export const RegisterForm =() => {
       newErrors.password = "La contraseña debe tener al menos 8 caracteres"
     }
 
+    if (!/^[A-Z]/.test(formData.password)) {
+      newErrors.password = newErrors.password 
+        ? `${newErrors.password}, debe comenzar con mayúscula` 
+        : "Debe comenzar con mayúscula"
+    }
+
     const specialCharRegex = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/
     if (!specialCharRegex.test(formData.password)) {
       newErrors.password = newErrors.password 
@@ -47,7 +53,8 @@ export const RegisterForm =() => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
 
     const role:role = "student";
     const degreeId = 1
@@ -67,9 +74,24 @@ export const RegisterForm =() => {
       try {
         const message = await register(dataToSend);
         if (message.includes('Error') || message.includes('error')) {
-          toast.error(message);
+            toast.error(message,{
+          style: {
+            background: '#ef4444', 
+            color: 'white',
+            border: '1px solid #dc2626'
+          }
+        });
         } else {
-          toast.success(message);
+          form.reset();
+          setErrors({});
+          
+          toast.success(message,{
+            style: {
+              background: '#10b981', 
+              color: 'white',
+              border: '1px solid #059669'
+            }
+          });
         }
       } catch (error) {
         toast.error('Error inesperado en el registro');

@@ -17,8 +17,7 @@ export const registerActions = async(dataUser:userComplete):Promise<string>=>{
         console.log('Respuesta exitosa:', data)
         return data.message 
     } catch (error:any) {
-        console.error('Error response:', error.response?.data)
-
+        console.error('Error response:', error.response?.data);
         return "Error en el registro" 
     }
     
