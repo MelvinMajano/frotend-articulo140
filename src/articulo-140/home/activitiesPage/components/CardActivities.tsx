@@ -73,11 +73,11 @@ export const CardActivities = () => {
                           <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 transition-colors duration-200 ">
                           Administrar
                         </Button>
-                        </Link>):(<Link to={``} className="block w-full">
+                        </Link>):(
                         <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-2.5 transition-colors duration-200 ">
                           Inscribirse
                         </Button>
-                        </Link>)}
+                        )}
                         
                         
                       </CardFooter>
