@@ -73,13 +73,13 @@ export const CardActivities = () => {
                       <CardFooter className="flex flex-col p-5 pt-0 mt-auto">
                         {isAdmin()?(<Link to={`/activities-details/${activity.id}`} className="block w-full">
                           <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 transition-colors duration-200 ">
-                          Administrar
+                          Gestionar
                         </Button>
                         </Link>):(
                         <MinimalModal
                         trigger={
                           <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-2.5 transition-colors duration-200 ">
-                            Inscribirse
+                            Ver Detalles
                           </Button>
                         }
                         >

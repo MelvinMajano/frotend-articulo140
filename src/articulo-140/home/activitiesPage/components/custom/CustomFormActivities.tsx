@@ -52,7 +52,7 @@ export const ActivityForm=()=> {
   }
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-xl mx-auto">
       <CardHeader className="pb-4">
         <CardTitle className="text-xl">Información de la Actividad</CardTitle>
       </CardHeader>
