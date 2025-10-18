@@ -1,6 +1,6 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ClipboardList,Users, Trash2, UserCog, Briefcase, FileStack } from "lucide-react"
+import { ClipboardList,Users, Trash2, UserCog, GraduationCap, FileStack } from "lucide-react"
 import { Link } from "react-router"
 
 const adminModules = [
@@ -29,7 +29,7 @@ const adminModules = [
     id: 4,
     title: "Carreras",
     description: "Gestiona las carreras disponibles.",
-    icon: <Briefcase className="w-8 h-8 text-teal-600" />,
+    icon: <GraduationCap className="w-8 h-8 text-teal-600" />,
     route: "/admin/careers",
   },
   {

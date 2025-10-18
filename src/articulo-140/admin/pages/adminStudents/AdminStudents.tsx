@@ -3,7 +3,8 @@ import { CustomImput } from "@/components/custom/CustomImput"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Loader2, UserRoundSearch, PlusCircle } from "lucide-react"
+import { Loader2, UserRoundSearch, PlusCircle, ArrowLeft } from "lucide-react"
+import { Link } from "react-router"
 
 export const AdminStudents = () => {
   const { query } = useStudents()
@@ -14,7 +15,16 @@ export const AdminStudents = () => {
       <Card className="bg-white shadow-lg border-0 w-full">
         {/* Header */}
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-4 w-full">
+           <Link to = '/admin'>
+            <Button
+              variant="ghost"
+              className="text-gray-600 hover:text-teal-600 hover:bg-teal-50"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Regresar
+            </Button>
+            </Link>
             <CustomImput />
           </div>
         </CardHeader>
@@ -38,7 +48,7 @@ export const AdminStudents = () => {
                       <TableHead><span className="text-gray-700">Correo</span></TableHead>
                       <TableHead><span className="text-gray-700">Identidad</span></TableHead>
                       <TableHead><span className="text-gray-700">Carrera</span></TableHead>
-                      <TableHead><span className="text-gray-700 text-center">Acciones</span></TableHead>
+                      <TableHead className="text-center"><span className="text-gray-700">Acciones</span></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -53,13 +63,15 @@ export const AdminStudents = () => {
                         <TableCell>{student.career}</TableCell>
                         <TableCell>
                           <div className="flex justify-center gap-2">
-                            <Button
-                              variant="outline"
-                              className="border-teal-600 text-teal-600 hover:bg-teal-50 flex items-center"
-                            >
-                              <UserRoundSearch className="w-4 h-4 mr-1" />
-                              Consultar
-                            </Button>
+                           <Link to={`/admin/students/${student.id}`}>
+                              <Button
+                                variant="outline"
+                                className="border-teal-600 text-teal-600 hover:bg-teal-50 flex items-center"
+                              >
+                                <UserRoundSearch className="w-4 h-4 mr-1" />
+                                Consultar
+                              </Button>
+                            </Link>
                             <Button
                               className="bg-teal-600 hover:bg-teal-700 text-white flex items-center"
                             >

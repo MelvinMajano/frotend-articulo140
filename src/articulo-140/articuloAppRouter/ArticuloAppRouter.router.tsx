@@ -7,8 +7,11 @@ import { LoginPage } from "../auth/pages/login/LoginPage";
 import { RegisterPage } from "../auth/pages/register/RegisterPage";
 import { AdminPage } from "../admin/AdminPage";
 import { AdminStudents } from "../admin/pages/adminStudents/AdminStudents";
+import { AdminStudentDetail } from "../admin/pages/adminStudents/AdminStudentsResume";
 import { AdminSupervisor } from "../admin/pages/adminSupervisor/AdminSupervisor";
+import { AdminCareers } from "../admin/pages/adminCareers/AdminCareers";
 import { AdminSupervisorForm } from "../admin/components/AdminSupervisorForm";
+import { AdminSupervisorEdit } from "../admin/pages/adminSupervisor/AdminSupervisorEdit";
 import { AdminActivities } from "../admin/pages/adminActivities/AdminActivities";
 import { GestionAcivitiesPage } from "../utils/gestionActivitiesPage/GestionAcivitiesPage";
 import { ActivitiesDeletedPage } from "../admin/pages/activitiesDeleted/ActivitiesDeletedPage";
@@ -68,6 +71,10 @@ export const router = createBrowserRouter([
                 element:<AdminStudents/>
             },
             {
+                path:"students/:id",
+                element:<AdminStudentDetail/>
+            },
+            {
                 path:"supervisor/",
                 element:<AdminSupervisor/>
             },
@@ -76,7 +83,24 @@ export const router = createBrowserRouter([
                 element:<AdminSupervisorForm/>
             },
             {
-              path:"supervisor/edit/:id"  
+              path:"supervisor/edit/:id",
+              element:<AdminSupervisorEdit/>
+            },
+            {
+                path: "careers/",
+                element: <AdminCareers/>,
+            },
+            {
+                path: "careers/create",
+                element: <div>Admin Career Create Page - To be implemented</div>,
+            },
+            {
+                path: "careers/edit/:id",
+                element: <div>Admin Career Edit Page - To be implemented</div>,
+            },
+            {
+                path: "files/",
+                element: <div>Admin Files Page - To be implemented</div>,
             }
         ]
     },

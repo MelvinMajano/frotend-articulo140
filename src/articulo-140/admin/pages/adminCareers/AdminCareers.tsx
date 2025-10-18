@@ -1,4 +1,4 @@
-import { useSupervisors } from "@/articulo-140/hooks/activities/admin/useSupervisors"
+import { useCareers } from "@/articulo-140/hooks/activities/admin/useCareers"
 import { CustomImput } from "@/components/custom/CustomImput"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
@@ -6,12 +6,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Loader2, PenLine, Trash2, PlusCircle, ArrowLeft } from "lucide-react"
 import { Link } from "react-router"
 
-export const AdminSupervisor = () => {
-  const { query } = useSupervisors()
-  const { data, isLoading, isError } = query
+export const AdminCareers = () => {
+    const { query } = useCareers()
+    const { data, isLoading, isError } = query
 
-  return (
-    <div className="p-4">
+    return (
+        <div className="p-4">
       <Card className="bg-white shadow-lg border-0 w-full">
         {/* Header */}
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
@@ -27,10 +27,10 @@ export const AdminSupervisor = () => {
             </Link>
             <CustomImput />
           </div>
-          <Link to="/admin/supervisor/create">
+          <Link to="/admin/careers/create">
             <Button className="bg-teal-600 hover:bg-teal-700 text-white flex items-center">
               <PlusCircle className="w-4 h-4 mr-1" />
-              Agregar Supervisor
+              Agregar Carrera
             </Button>
           </Link>
         </CardHeader>
@@ -42,31 +42,27 @@ export const AdminSupervisor = () => {
               <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
             </div>
           ) : isError ? (
-            <p className="text-red-500 text-center py-6">Error al cargar los supervisores</p>
+            <p className="text-red-500 text-center py-6">Error al cargar las carreras</p>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead><span className="text-gray-700"># Cuenta</span></TableHead>
+                    <TableHead><span className="text-gray-700"># Codigo</span></TableHead>
                     <TableHead><span className="text-gray-700">Nombre</span></TableHead>
-                    <TableHead><span className="text-gray-700">Correo</span></TableHead>
-                    <TableHead><span className="text-gray-700">Identidad</span></TableHead>
-                    <TableHead><span className="text-gray-700">Carrera</span></TableHead>
+                    <TableHead><span className="text-gray-700">Facultad</span></TableHead>
                     <TableHead className="text-center"><span className="text-gray-700">Acciones</span></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data?.data.map((supervisor) => (
-                    <TableRow key={supervisor.accountNumber}>
-                      <TableCell><span className="font-medium">{supervisor.accountNumber}</span></TableCell>
-                      <TableCell>{supervisor.name}</TableCell>
-                      <TableCell>{supervisor.email}</TableCell>
-                      <TableCell>{supervisor.identityNumber}</TableCell>
-                      <TableCell>{supervisor.career}</TableCell>
+                  {data?.data.map((career) => (
+                    <TableRow key={career.code}>
+                      <TableCell><span className="font-medium">{career.code}</span></TableCell>
+                      <TableCell>{career.name}</TableCell>
+                      <TableCell>{career.faculty}</TableCell>
                       <TableCell>
                         <div className="flex justify-center gap-2">
-                          <Link to={`/admin/supervisor/edit/${supervisor.accountNumber}`}>
+                          <Link to={`/admin/careers/edit/${career.code}`}>
                               <Button
                                 variant="outline"
                                 className="border-teal-600 text-teal-600 hover:bg-teal-50 flex items-center"
@@ -90,5 +86,5 @@ export const AdminSupervisor = () => {
         </CardContent>
       </Card>
     </div>
-  )
+)
 }

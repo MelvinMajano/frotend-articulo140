@@ -4,6 +4,7 @@ export interface StudentsResponse {
 }
 
 export interface Student {
+  id: string
   name: string
   email: string
   accountNumber: number
