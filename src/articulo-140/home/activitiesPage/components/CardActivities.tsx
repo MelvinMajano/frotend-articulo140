@@ -1,11 +1,13 @@
 import { authStore } from '@/articulo-140/auth/store/authStore'
 import { useActivities } from '@/articulo-140/hooks/activities/useActivities'
 import type { Message } from '@/articulo-140/interfaces/activities.response'
+import { MinimalModal } from '@/components/custom/CustomModal'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Calendar, CalendarX, Gem, User } from 'lucide-react'
 import { Link } from 'react-router'
+import { DetailsInscriptionsActivity } from './custom/CustomDetailsInscriptionActivitys'
 
 
 
@@ -74,9 +76,15 @@ export const CardActivities = () => {
                           Administrar
                         </Button>
                         </Link>):(
-                        <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-2.5 transition-colors duration-200 ">
-                          Inscribirse
-                        </Button>
+                        <MinimalModal
+                        trigger={
+                          <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-2.5 transition-colors duration-200 ">
+                            Inscribirse
+                          </Button>
+                        }
+                        >
+                          <DetailsInscriptionsActivity/>
+                        </MinimalModal>
                         )}
                         
                         
