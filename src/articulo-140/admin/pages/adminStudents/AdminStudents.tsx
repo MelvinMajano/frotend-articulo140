@@ -68,16 +68,18 @@ export const AdminStudents = () => {
                                 variant="outline"
                                 className="border-teal-600 text-teal-600 hover:bg-teal-50 flex items-center"
                               >
-                                <UserRoundSearch className="w-4 h-4 mr-1" />
+                                 <UserRoundSearch className="w-4 h-4 mr-1" />
                                 Consultar
                               </Button>
                             </Link>
-                            <Button
-                              className="bg-teal-600 hover:bg-teal-700 text-white flex items-center"
-                            >
-                              <PlusCircle className="w-4 h-4 mr-1" />
-                              Agregar actividad
-                            </Button>
+                           <Link to={`/admin/students/${student.id}/addActivity`}>
+                              <Button
+                                className="bg-teal-600 hover:bg-teal-700 text-white flex items-center"
+                              >
+                                <PlusCircle className="w-4 h-4 mr-1" />
+                                Agregar actividad
+                              </Button>
+                            </Link>
                           </div>
                         </TableCell>
                       </TableRow>
