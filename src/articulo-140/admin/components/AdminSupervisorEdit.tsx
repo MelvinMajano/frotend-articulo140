@@ -180,7 +180,7 @@ export const AdminSupervisorEdit = () => {
                   type="submit"
                   className="w-full sm:w-auto h-11 px-8 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold shadow-lg shadow-teal-200 transition-all"
                 >
-                  <UserPlus className="w-4 h-4 mr-2" />
+                  
                   Guardar Cambios
                 </Button>
               </div>
