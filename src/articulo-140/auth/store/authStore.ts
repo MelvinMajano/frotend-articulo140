@@ -13,8 +13,8 @@ interface authState {
     state:state;
 
     isAdmin:()=>boolean;
-    // isStudent:()=>boolean;
-    // isSupervisor:()=>boolean;
+    isStudent:()=>boolean;
+    isSupervisor:()=>boolean;
     
     register:(props:userComplete)=>Promise<string>;
 
@@ -31,6 +31,16 @@ export const authStore = create<authState>()((set,get)=>({
     isAdmin:()=>{
         const role = get().user?.role;
         return role === "admin" ? true:false
+    },
+
+     isStudent:()=>{
+        const role = get().user?.role;
+        return role === "student" ? true:false
+    },
+
+     isSupervisor:()=>{
+        const role = get().user?.role;
+        return role === "supervisor" ? true:false
     },
 
     register:async(data:userComplete)=>{

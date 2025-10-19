@@ -10,9 +10,10 @@ import { ActivityForm } from "./activitiesPage/components/custom/CustomFormActiv
 
 
 export const HomePage = () => {
-  const {isAdmin} = authStore();
+  const {state,isAdmin} = authStore();
   return (
-    <div>
+    <>
+    {state==="authenticated" && ( <div>
       <div className="flex justify-between ml-2 mr-4 mb-2">
         <CustomImput/>
         {isAdmin() && (
@@ -26,6 +27,7 @@ export const HomePage = () => {
            )}
       </div>
       <ActivitiesPage/>
-    </div>
+    </div>)}
+    </>
   )
 }

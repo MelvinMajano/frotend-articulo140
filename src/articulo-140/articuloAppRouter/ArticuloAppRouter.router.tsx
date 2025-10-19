@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import { DashboardActivitiesLayout } from "../layout/DashboardActivitiesLayout";
 import { AuthLayout } from "../layout/AuthLayout";
 import { AboutPage } from "../home/aboutPage/AboutPage";
@@ -26,12 +26,14 @@ import { AdminCareerEdit } from "../admin/components/AdminCareersEdit";
 import { AdminActivities } from "../admin/pages/adminActivities/AdminActivities";
 import { GestionAcivitiesPage } from "../utils/gestionActivitiesPage/GestionAcivitiesPage";
 import { ActivitiesDeletedPage } from "../admin/pages/activitiesDeleted/ActivitiesDeletedPage";
+import { AuthenticatedRoute,NotAuthenticatedRoute, AdminRoute,SupervisorRoute} from "./ProtetedRoutes";
 
 
 export const router = createBrowserRouter([
     {
         path:"/",
-        element: <DashboardActivitiesLayout/>,
+        element: <DashboardActivitiesLayout/>
+        ,
         children:[
             {
                 index:true,
@@ -39,17 +41,28 @@ export const router = createBrowserRouter([
             },
             {
                 path:"activities/",
-                element:<HomePage/>,
+                element:
+                <AuthenticatedRoute>
+                    <HomePage/>
+                </AuthenticatedRoute>
+                ,
             },
             {
                 path:"activities-details/:id",
-                element:<GestionAcivitiesPage/>,
+                element:
+                <AuthenticatedRoute>
+                    <GestionAcivitiesPage/>
+                </AuthenticatedRoute>
+                ,
             },
         ]
     },
     {
         path:"auth/",
-        element: <AuthLayout/>,
+        element: 
+        <NotAuthenticatedRoute>
+            <AuthLayout/>
+        </NotAuthenticatedRoute>,
         children:[
             {
                 path:"login/",
@@ -63,7 +76,11 @@ export const router = createBrowserRouter([
     },
         {
         path:"admin/",
-        element: <DashboardActivitiesLayout/>,
+        element: 
+        <AdminRoute>
+            <DashboardActivitiesLayout/>
+        </AdminRoute>
+        ,
         children:[
             {
                 index:true,
@@ -119,4 +136,22 @@ export const router = createBrowserRouter([
             }
         ]
     },
+    {
+        path:"supervisor/",
+        element: 
+        <SupervisorRoute>
+            <DashboardActivitiesLayout/>
+        </SupervisorRoute>,
+        children:[
+            {
+                path:"attendance/",
+                element:<HomePage/>,
+            },
+        ]
+    },
+    {
+        path: '*',
+        element: <Navigate to="/" />
+    },
+    
 ]);
