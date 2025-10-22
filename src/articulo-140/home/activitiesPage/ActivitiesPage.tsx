@@ -6,7 +6,7 @@ import { CustomPagination } from "@/components/custom/CustomPagination"
 
 export const ActivitiesPage = () => {
   return (
-    <CustomMainCard CardActivities={<CardActivities/>} 
+    <CustomMainCard Contentd={<CardActivities/>} 
           HeaderCardActivities={<CustomHeaderCardActivities/>}
           CustomPagination={<CustomPagination/>}
           ></CustomMainCard>

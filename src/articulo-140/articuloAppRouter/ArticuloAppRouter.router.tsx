@@ -27,6 +27,7 @@ import { AdminActivities } from "../admin/pages/adminActivities/AdminActivities"
 import { GestionAcivitiesPage } from "../utils/gestionActivitiesPage/GestionAcivitiesPage";
 import { ActivitiesDeletedPage } from "../admin/pages/activitiesDeleted/ActivitiesDeletedPage";
 import { AuthenticatedRoute,NotAuthenticatedRoute, AdminRoute,SupervisorRoute} from "./ProtetedRoutes";
+import { InscriptionsAttendacePage } from "../supervisor/InscriptionsAttendacePage";
 
 
 export const router = createBrowserRouter([
@@ -144,8 +145,8 @@ export const router = createBrowserRouter([
         </SupervisorRoute>,
         children:[
             {
-                path:"attendance/",
-                element:<HomePage/>,
+                path:"incriptions-attendance/:id",
+                element:<InscriptionsAttendacePage/>,
             },
         ]
     },

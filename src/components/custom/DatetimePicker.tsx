@@ -12,19 +12,23 @@ interface DateTimePickerProps {
   date?: Date
   setDate: (date: Date | undefined) => void
   placeholder?: string
+  className?: string
+  isModified?: boolean
 }
 
-export function DateTimePicker({ date, setDate, placeholder = "Seleccionar fecha y hora" }: DateTimePickerProps) {
+export function DateTimePicker({ date, setDate, placeholder = "Seleccionar fecha y hora", className, isModified = false }: DateTimePickerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [timeStep, setTimeStep] = useState<"calendar" | "hour" | "minute">("calendar")
-  const [selectedHour, setSelectedHour] = useState(date?.getHours() || 12)
-  const [selectedMinute, setSelectedMinute] = useState(date?.getMinutes() || 0)
-  const [period, setPeriod] = useState<"AM" | "PM">(date ? (date.getHours() >= 12 ? "PM" : "AM") : "AM")
+  const [selectedHour, setSelectedHour] = useState(date instanceof Date ? date.getHours() : 12)
+  const [selectedMinute, setSelectedMinute] = useState(date instanceof Date ? date.getMinutes() : 0)
+  const [period, setPeriod] = useState<"AM" | "PM">(
+    date instanceof Date ? (date.getHours() >= 12 ? "PM" : "AM") : "AM"
+  )
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
     if (selectedDate) {
       const newDate = new Date(selectedDate)
-      if (date) {
+      if (date instanceof Date) {
         newDate.setHours(date.getHours())
         newDate.setMinutes(date.getMinutes())
       } else {
@@ -47,7 +51,7 @@ export function DateTimePicker({ date, setDate, placeholder = "Seleccionar fecha
   }
 
   const handleTimeConfirm = () => {
-    if (date) {
+    if (date instanceof Date) {
       const newDate = new Date(date)
       const hour24 =
         period === "PM" && selectedHour !== 12
@@ -91,10 +95,15 @@ export function DateTimePicker({ date, setDate, placeholder = "Seleccionar fecha
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}
+          className={cn(
+            "w-full justify-start text-left", 
+            isModified ? "font-bold" : "font-normal",
+            !date && "text-muted-foreground", 
+            className
+          )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPP 'a las' p", { locale: es }) : <span>{placeholder}</span>}
+          {date instanceof Date ? format(date, "PPP 'a las' p", { locale: es }) : <span>{placeholder}</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">

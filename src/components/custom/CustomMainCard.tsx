@@ -4,7 +4,7 @@ import type { JSX } from "react"
 interface props{
   HeaderCardActivities
 ?: JSX.Element,
-  CardActivities
+  Contentd
 ?:JSX.Element,
   CustomPagination
 ?:JSX.Element,
@@ -13,7 +13,7 @@ interface props{
 
 
 export const CustomMainCard = (
-  {HeaderCardActivities,CardActivities,CustomPagination,ContendSideBar}:props
+  {HeaderCardActivities,Contentd,CustomPagination,ContendSideBar}:props
 ) => {
   return (
             <Card className="bg-white shadow-lg border-0 p-6">
@@ -21,7 +21,7 @@ export const CustomMainCard = (
                 {HeaderCardActivities}
                 </CardHeader>
 
-                {CardActivities}
+                {Contentd}
                 {CustomPagination}
                 {ContendSideBar}
             </Card>

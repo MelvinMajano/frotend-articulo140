@@ -124,7 +124,6 @@ export const GeneralSeccionAdActivities = () => {
 
                   </section>
 
-                  {/* Footer Sticky con botones */}
                   <footer className="sticky bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t border-border/40 transition-all duration-300 ease-in-out transform translate-y-0 animate-in slide-in-from-bottom-2">
                     <div className="container mx-auto px-6 py-4">
                       <div className="flex items-center justify-end gap-3">

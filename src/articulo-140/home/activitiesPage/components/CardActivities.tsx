@@ -12,7 +12,7 @@ import { DetailsInscriptionsActivity } from './custom/CustomDetailsInscriptionAc
 
 
 export const CardActivities = () => {
-  const {isAdmin} = authStore();
+  const {isAdmin,isSupervisor,isStudent} = authStore();
   const {query} = useActivities();
   const message:Message[]|undefined= query?.data?.message
 
@@ -71,11 +71,17 @@ export const CardActivities = () => {
                       </CardContent>
 
                       <CardFooter className="flex flex-col p-5 pt-0 mt-auto">
-                        {isAdmin()?(<Link to={`/activities-details/${activity.id}`} className="block w-full">
+                       {isAdmin() && (<Link to={`/activities-details/${activity.id}`} className="block w-full">
                           <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 transition-colors duration-200 ">
                           Gestionar
                         </Button>
-                        </Link>):(
+                        </Link>)}
+                        {isSupervisor() && (<Link to={`/supervisor/incriptions-attendance/${activity.id}`} className="block w-full">
+                          <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-2.5 transition-colors duration-200 ">
+                          Supervisar
+                        </Button>
+                        </Link>)}
+                        {isStudent() && (
                         <MinimalModal
                         trigger={
                           <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-2.5 transition-colors duration-200 ">
@@ -86,9 +92,7 @@ export const CardActivities = () => {
                           <DetailsInscriptionsActivity/>
                         </MinimalModal>
                         )}
-                        
-                        
-                      </CardFooter>
+                        </CardFooter>
                     </Card>
                   ))}
                 </div>

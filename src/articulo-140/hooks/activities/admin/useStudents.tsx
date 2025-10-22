@@ -9,3 +9,4 @@ export const useStudents = () => {
 
   return { query }
 }
+
