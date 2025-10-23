@@ -8,7 +8,8 @@ export const ActivitiesPage = () => {
   return (
     <CustomMainCard Contentd={<CardActivities/>} 
           HeaderCardActivities={<CustomHeaderCardActivities/>}
-          CustomPagination={<CustomPagination/>}
+          CustomFooter={<CustomPagination/>}
           ></CustomMainCard>
   )
 }
+ 

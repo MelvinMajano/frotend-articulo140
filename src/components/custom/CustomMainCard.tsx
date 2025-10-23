@@ -6,14 +6,14 @@ interface props{
 ?: JSX.Element,
   Contentd
 ?:JSX.Element,
-  CustomPagination
+  CustomFooter
 ?:JSX.Element,
   ContendSideBar?:JSX.Element,
 }
 
 
 export const CustomMainCard = (
-  {HeaderCardActivities,Contentd,CustomPagination,ContendSideBar}:props
+  {HeaderCardActivities,Contentd,CustomFooter,ContendSideBar}:props
 ) => {
   return (
             <Card className="bg-white shadow-lg border-0 p-6">
@@ -22,7 +22,7 @@ export const CustomMainCard = (
                 </CardHeader>
 
                 {Contentd}
-                {CustomPagination}
+                {CustomFooter}
                 {ContendSideBar}
             </Card>
   )

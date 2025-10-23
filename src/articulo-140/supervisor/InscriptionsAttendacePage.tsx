@@ -5,6 +5,7 @@ import { CardHeader } from "@/components/ui/card"
 import { ArrowLeft } from "lucide-react"
 import { Link } from "react-router"
 import { TableIncriptionsActivty } from "./components/TableIncriptionsActivty"
+import { CustomFooterInscription } from "./components/CustomFooterInscription"
 
 export const InscriptionsAttendacePage = () => {
   return (
@@ -23,7 +24,7 @@ export const InscriptionsAttendacePage = () => {
             <CustomImput />
           </div>
         </CardHeader>
-    <CustomMainCard Contentd={<TableIncriptionsActivty />}/>
+    <CustomMainCard Contentd={<TableIncriptionsActivty />} CustomFooter={<CustomFooterInscription/>}/>
    </>
   )
 }

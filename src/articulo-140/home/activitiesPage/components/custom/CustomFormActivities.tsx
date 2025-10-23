@@ -1,209 +1,238 @@
-"use client"
-
-import type React from "react"
-
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
+import { Card, CardHeader, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import {Select,SelectContent,SelectItem,SelectTrigger,SelectValue} from "@/components/ui/select"
+import { DateTimePicker } from "@/components/custom/DatetimePicker"
+import { Clock, User, FileText, Award, PlusCircle } from "lucide-react"
 
-// Mock data - reemplazar con datos reales del sistema
-const supervisores = [
-  { id: "1", nombre: "Dr. Juan Pérez" },
-  { id: "2", nombre: "Dra. María González" },
-  { id: "3", nombre: "Lic. Carlos Rodríguez" },
-  { id: "4", nombre: "Prof. Ana Martínez" },
-]
-
-const ambitos = [
-  { id: "cultural", label: "Cultural" },
-  { id: "cientificoAcademico", label: "Científico-Académico" },
-  { id: "social", label: "Social" },
-  { id: "deporte", label: "Deporte" },
-]
-
-export const ActivityForm=()=> {
+export const ActivityForm = () => {
   const [formData, setFormData] = useState({
-    titulo: "",
-    descripcion: "",
-    horaInicio: "",
-    horaFinalizacion: "",
-    horasVoae: "",
-    cuposTotales: "",
+    title: "",
+    description: "",
+    degreeId: "",
+    startDate: undefined as Date | undefined,
+    endDate: undefined as Date | undefined,
+    voaeHours: "",
     supervisorId: "",
-    ambitos: [] as string[],
+    scopesId: [] as string[],
   })
 
-  const handleAmbitoChange = (ambitoId: string, checked: boolean) => {
+  // TODO: Reemplazar con datos reales desde la API
+
+
+  const supervisors = [
+    { id: "1", name: "Dr. Carlos Martínez" },
+    { id: "2", name: "Lic. Ana García" },
+    { id: "3", name: "Ing. Roberto López" },
+  ]
+
+  const scopes = [
+    { id: "1", name: "Cultural", value: "1" },
+    { id: "2", name: "Deportivo", value: "2" },
+    { id: "3", name: "Científico Académico", value: "3" },
+    { id: "4", name: "Social", value: "4" },
+  ]
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleCheckboxChange = (scopeId: string, checked: boolean) => {
     setFormData((prev) => ({
       ...prev,
-      ambitos: checked ? [...prev.ambitos, ambitoId] : prev.ambitos.filter((id) => id !== ambitoId),
+      scopesId: checked
+        ? [...prev.scopesId, scopeId]
+        : prev.scopesId.filter((id) => id !== scopeId),
     }))
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Datos del formulario:", formData)
-    // Aquí iría la lógica para enviar los datos al servidor
+
+    // TODO : Enviar formData a la API
   }
 
   return (
-    <Card className="w-full max-w-xl mx-auto">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-xl">Información de la Actividad</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Título */}
-          <div className="space-y-1.5">
-            <Label htmlFor="titulo" className="text-sm">
-              Título
-            </Label>
-            <Input
-              id="titulo"
-              placeholder="Ingrese el título de la actividad"
-              value={formData.titulo}
-              onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
-              required
-            />
-          </div>
+    <div className="p-6 flex items-center justify-center">
+      <Card className="w-full max-w-4xl bg-white shadow-xl border-0 overflow-hidden">
+        <CardHeader>
+            <div className="text-center">
+              <h2 className="text-2xl font-bold">Agregar Actividad</h2>
+              <p className="text-sm mt-1">
+                Complete la información de la actividad
+              </p>
+            </div>
+        </CardHeader>
 
-          {/* Descripción */}
-          <div className="space-y-1.5">
-            <Label htmlFor="descripcion" className="text-sm">
-              Descripción
-            </Label>
-            <Textarea
-              id="descripcion"
-              placeholder="Describa la actividad"
-              value={formData.descripcion}
-              onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
-              rows={3}
-              required
-            />
-          </div>
-
-          {/* Horas */}
-          <div className="grid gap-3 grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="horaInicio" className="text-sm">
-                Hora de Inicio
-              </Label>
+        <CardContent className="p-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Título */}
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-teal-600" />
+                Título de la actividad
+              </label>
               <Input
-                id="horaInicio"
-                type="time"
-                value={formData.horaInicio}
-                onChange={(e) => setFormData({ ...formData, horaInicio: e.target.value })}
+                type="text"
+                name="title"
+                placeholder="Ej. Charla sobre circuitos"
+                value={formData.title}
+                onChange={handleChange}
+                className="h-10 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
                 required
               />
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="horaFinalizacion" className="text-sm">
-                Hora de Finalización
-              </Label>
-              <Input
-                id="horaFinalizacion"
-                type="time"
-                value={formData.horaFinalizacion}
-                onChange={(e) => setFormData({ ...formData, horaFinalizacion: e.target.value })}
-                required
-              />
-            </div>
-          </div>
 
-          {/* Horas VOAE y Cupos */}
-          <div className="grid gap-3 grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="horasVoae" className="text-sm">
-                Horas VOAE
-              </Label>
-              <Input
-                id="horasVoae"
-                type="number"
-                min="0"
-                step="0.5"
-                placeholder="0"
-                value={formData.horasVoae}
-                onChange={(e) => setFormData({ ...formData, horasVoae: e.target.value })}
+            {/* Descripción */}
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-teal-600" />
+                Descripción
+              </label>
+              <Textarea
+                name="description"
+                placeholder="Ej. Charla de estudiantes sobre circuitos electrónicos"
+                value={formData.description}
+                onChange={handleChange}
+                className="min-h-[80px] border-gray-300 focus:border-teal-500 focus:ring-teal-500 resize-none"
                 required
               />
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="cuposTotales" className="text-sm">
-                Cupos Totales
-              </Label>
-              <Input
-                id="cuposTotales"
-                type="number"
-                min="1"
-                placeholder="0"
-                value={formData.cuposTotales}
-                onChange={(e) => setFormData({ ...formData, cuposTotales: e.target.value })}
-                required
-              />
-            </div>
-          </div>
 
-          {/* Supervisor */}
-          <div className="space-y-1.5">
-            <Label htmlFor="supervisor" className="text-sm">
-              Supervisor
-            </Label>
-            <Select
-              value={formData.supervisorId}
-              onValueChange={(value) => setFormData({ ...formData, supervisorId: value })}
-              required
-            >
-              <SelectTrigger id="supervisor">
-                <SelectValue placeholder="Seleccione un supervisor" />
-              </SelectTrigger>
-              <SelectContent>
-                {supervisores.map((supervisor) => (
-                  <SelectItem key={supervisor.id} value={supervisor.id}>
-                    {supervisor.nombre}
-                  </SelectItem>
+            {/* Carrera, Supervisor y Horas VOAE en Grid de 3 columnas */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              {/* Supervisor */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <User className="w-4 h-4 text-teal-600" />
+                  Supervisor
+                </label>
+                <Select
+                  value={formData.supervisorId}
+                  onValueChange={(value) => handleSelectChange("supervisorId", value)}
+                  required
+                >
+                  <SelectTrigger className="h-10 border-gray-300 focus:border-teal-500 focus:ring-teal-500">
+                    <SelectValue placeholder="Seleccione un supervisor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {supervisors.map((supervisor) => (
+                      <SelectItem key={supervisor.id} value={supervisor.id}>
+                        {supervisor.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Horas VOAE */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-teal-600" />
+                  Horas VOAE
+                </label>
+                <Input
+                  type="number"
+                  name="voaeHours"
+                  placeholder="Ej. 5"
+                  min="1"
+                  value={formData.voaeHours}
+                  onChange={handleChange}
+                  className="h-10 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Fechas y horas */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Fecha de inicio */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-teal-600" />
+                  Fecha y hora de inicio
+                </label>
+                <DateTimePicker
+                  date={formData.startDate}
+                  setDate={(date: Date | undefined) => setFormData((prev) => ({ ...prev, startDate: date }))}
+                  placeholder="Seleccionar fecha y hora de inicio"
+                />
+              </div>
+
+              {/* Fecha de fin */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-teal-600" />
+                  Fecha y hora de fin
+                </label>
+                <DateTimePicker
+                  date={formData.endDate}
+                  setDate={(date: Date | undefined) => setFormData((prev) => ({ ...prev, endDate: date }))}
+                  placeholder="Seleccionar fecha y hora de fin"
+                />
+              </div>
+            </div>
+
+            {/* Ámbitos (Checkboxes) */}
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <Award className="w-4 h-4 text-teal-600" />
+                Ámbitos
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                {scopes.map((scope) => (
+                  <div key={scope.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={scope.id}
+                      checked={formData.scopesId.includes(scope.value)}
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange(scope.value, checked as boolean)
+                      }
+                      className="border-gray-400 data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600"
+                    />
+                    <Label
+                      htmlFor={scope.id}
+                      className="text-sm font-medium text-gray-700 cursor-pointer"
+                    >
+                      {scope.name}
+                    </Label>
+                  </div>
                 ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Ámbitos */}
-          <div className="space-y-2">
-            <Label className="text-sm">Ámbitos</Label>
-            <p className="text-xs text-muted-foreground">
-              Seleccione uno o más ámbitos a los que pertenece la actividad
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              {ambitos.map((ambito) => (
-                <div key={ambito.id} className="flex items-center gap-2">
-                  <Checkbox
-                    id={ambito.id}
-                    checked={formData.ambitos.includes(ambito.id)}
-                    onCheckedChange={(checked) => handleAmbitoChange(ambito.id, checked as boolean)}
-                  />
-                  <Label htmlFor={ambito.id} className="cursor-pointer font-normal text-sm">
-                    {ambito.label}
-                  </Label>
-                </div>
-              ))}
+              </div>
             </div>
-          </div>
 
-          {/* Botón de envío */}
-          <div className="flex justify-end gap-3 pt-2">
-            <Button type="button" variant="outline" size="sm">
-              Cancelar
-            </Button>
-            <Button type="submit" size="sm">
-              Guardar Actividad
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+            {/* Botones */}
+            <div className="border-t border-gray-200 pt-5 mt-6">
+              <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full sm:w-auto h-10 px-6 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-colors"
+                  >
+                    Cancelar
+                  </Button>
+                <Button
+                  type="submit"
+                  className="w-full sm:w-auto h-10 px-8 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold shadow-lg shadow-teal-200 transition-all"
+                >
+                  <PlusCircle className="w-4 h-4 mr-2" />
+                  Agregar Actividad
+                </Button>
+              </div>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

@@ -51,7 +51,7 @@ export function CustomNavBar() {
           {/* CTA Button */}
           <div className="hidden md:flex items-center space-x-2">
             {state==="no-authenticated"?(<Link to="/auth/login">
-            <Button variant="ghost" size="sm">
+            <Button size="sm">
               Iniciar Sesión
             </Button>
             </Link>):<Link to="/">
