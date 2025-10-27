@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useQuery } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
 import { useParams } from "react-router"
-import { getEstudentsIncriptionsActivity } from "../actions/GetEstudentsInscroptionsActivity.actios"
+import { getEstudentsIncriptionsActivity } from "../actions/GetstudentsInscriptionsActivity.actios"
 import { DateTimePicker } from "@/components/custom/DatetimePicker"
 import { useState } from "react"
 

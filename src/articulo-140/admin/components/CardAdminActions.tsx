@@ -1,6 +1,6 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ClipboardList,Users, Trash2, UserCog, GraduationCap, FileStack } from "lucide-react"
+import {ClipboardList,Users, Trash2, UserCog, GraduationCap, FileStack } from "lucide-react"
 import { Link } from "react-router"
 
 const adminModules = [

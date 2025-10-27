@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { useStudents } from "@/articulo-140/hooks/activities/admin/useStudents"
 import { CustomImput } from "@/components/custom/CustomImput"
 import { Button } from "@/components/ui/button"
@@ -5,10 +6,18 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Loader2, UserRoundSearch, PlusCircle, ArrowLeft } from "lucide-react"
 import { Link } from "react-router"
+import { AddActivityModal } from "../../components/AddActivityModel"
 
 export const AdminStudents = () => {
   const { query } = useStudents()
   const { data, isLoading, isError } = query
+  const [modalOpen, setModalOpen] = useState(false)
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null)
+
+  const handleAddActivity = (studentId: string) => {
+    setSelectedStudentId(studentId)
+    setModalOpen(true)
+  }
 
   return (
     <div className="p-4">
@@ -16,7 +25,7 @@ export const AdminStudents = () => {
         {/* Header */}
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="flex items-center gap-4 w-full">
-           <Link to = '/admin'>
+           <Link to='/admin'>
             <Button
               variant="ghost"
               className="text-gray-600 hover:text-teal-600 hover:bg-teal-50"
@@ -27,6 +36,12 @@ export const AdminStudents = () => {
             </Link>
             <CustomImput />
           </div>
+          <Link to="/admin/students/create">
+            <Button className="bg-teal-600 hover:bg-teal-700 text-white flex items-center">
+              <PlusCircle className="w-4 h-4 mr-1" />
+              Agregar Estudiante
+            </Button>
+          </Link>
         </CardHeader>
 
         {/* Contenido */}
@@ -72,14 +87,13 @@ export const AdminStudents = () => {
                                 Consultar
                               </Button>
                             </Link>
-                           <Link to={`/admin/students/${student.id}/addActivity`}>
-                              <Button
-                                className="bg-teal-600 hover:bg-teal-700 text-white flex items-center"
-                              >
-                                <PlusCircle className="w-4 h-4 mr-1" />
-                                Agregar actividad
-                              </Button>
-                            </Link>
+                            <Button
+                              onClick={() => handleAddActivity(student.id)}
+                              className="bg-teal-600 hover:bg-teal-700 text-white flex items-center"
+                            >
+                              <PlusCircle className="w-4 h-4 mr-1" />
+                              Agregar actividad
+                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -91,6 +105,15 @@ export const AdminStudents = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Modal para agregar actividad */}
+      {selectedStudentId && (
+        <AddActivityModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          studentId={selectedStudentId}
+        />
+      )}
     </div>
   )
 }

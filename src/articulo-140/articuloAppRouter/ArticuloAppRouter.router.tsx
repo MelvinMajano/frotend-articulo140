@@ -24,6 +24,7 @@ import { AdminCareerEdit } from "../admin/components/AdminCareersEdit";
 
 {/* Importaciones para Admin Activities */}
 import { AdminActivities } from "../admin/pages/adminActivities/AdminActivities";
+import { ActivityAttendance } from "../admin/pages/adminActivities/AdminActivitiesAttendance";
 import { GestionAcivitiesPage } from "../utils/gestionActivitiesPage/GestionAcivitiesPage";
 import { ActivitiesDeletedPage } from "../admin/pages/activitiesDeleted/ActivitiesDeletedPage";
 import { AuthenticatedRoute,NotAuthenticatedRoute, AdminRoute,SupervisorRoute} from "./ProtetedRoutes";
@@ -92,12 +93,20 @@ export const router = createBrowserRouter([
                 element:<AdminActivities/>
             },
             {
+                path:"activities/:id/attendance",
+                element: <ActivityAttendance/>
+            },
+            {
                 path:"activities-deleted/",
                 element:<ActivitiesDeletedPage/>
             },
             {
                 path:"students/",
                 element:<AdminStudents/>
+            },
+            {
+                path:"students/create",
+                // element: 
             },
             {
                 path:"students/:id",

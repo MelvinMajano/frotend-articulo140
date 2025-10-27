@@ -4,9 +4,9 @@ import { CustomImput } from "@/components/custom/CustomImput"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Loader2, PenLine, Trash2, PlusCircle, ArrowLeft, AlertTriangle } from "lucide-react"
+import { Loader2, PenLine, Lock, PlusCircle, ArrowLeft } from "lucide-react"
 import { Link } from "react-router"
-import { MinimalModal } from "@/components/custom/CustomModal"
+import { ConfirmActionModal } from "@/articulo-140/admin/components/custom/ConfirmActionModal"
 
 export const AdminCareers = () => {
   const { query } = useCareers()
@@ -15,19 +15,19 @@ export const AdminCareers = () => {
   const [selectedCareer, setSelectedCareer] = useState<any | null>(null)
   const [openModal, setOpenModal] = useState(false)
 
-  const handleDeleteClick = (career: any) => {
+  const handleDisableClick = (career: any) => {
     setSelectedCareer(career)
     setOpenModal(true)
   }
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDisable = async () => {
     try {
-      // 🔧 TODO: Implementar llamada DELETE al backend
-      console.log("Eliminando carrera:", selectedCareer)
+      // 🔧 TODO: Implementar llamada PUT al backend
+      console.log("Deshabilitando carrera:", selectedCareer)
       setOpenModal(false)
       setSelectedCareer(null)
     } catch (error) {
-      console.error("Error al eliminar carrera:", error)
+      console.error("Error al deshabilitar carrera:", error)
     }
   }
 
@@ -93,11 +93,11 @@ export const AdminCareers = () => {
                             </Button>
                           </Link>
                           <Button
-                            onClick={() => handleDeleteClick(career)}
-                            className="bg-red-600 hover:bg-red-700 text-white flex items-center"
+                            onClick={() => handleDisableClick(career)}
+                            className="bg-gray-500 hover:bg-gray-600 text-white flex items-center"
                           >
-                            <Trash2 className="w-4 h-4 mr-1" />
-                            Eliminar
+                            <Lock className="w-4 h-4 mr-1" />
+                            Deshabilitar
                           </Button>
                         </div>
                       </TableCell>
@@ -110,38 +110,24 @@ export const AdminCareers = () => {
         </CardContent>
       </Card>
 
-      {/* Modal de confirmación */}
-      <MinimalModal open={openModal} onOpenChange={setOpenModal} trigger={<></>}>
-        <div className="bg-white rounded-2xl shadow-2xl p-10 flex flex-col items-center justify-center text-center space-y-6">
-          <div className="bg-red-100 text-red-600 p-4 rounded-full">
-            <AlertTriangle className="w-10 h-10" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800">
-            ¿Deseas eliminar esta carrera?
-          </h2>
-          <p className="text-gray-600">
-            Esta acción no se puede deshacer. Se eliminará permanentemente la carrera{" "}
+      {/* Modal de Confirmación */}
+      <ConfirmActionModal
+        open={openModal}
+        onOpenChange={setOpenModal}
+        title="¿Deseas deshabilitar esta carrera?"
+        message={
+          <>
+            Esta acción no se puede deshacer. La carrera{" "}
             <span className="font-semibold text-gray-900">
               {selectedCareer?.name}
-            </span>.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 mt-6">
-            <Button
-              variant="outline"
-              onClick={() => setOpenModal(false)}
-              className="w-full sm:w-auto border-gray-300 text-gray-700 hover:bg-gray-50"
-            >
-              Cancelar
-            </Button>
-            <Button
-              onClick={handleConfirmDelete}
-              className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white font-semibold"
-            >
-              Sí, eliminar
-            </Button>
-          </div>
-        </div>
-      </MinimalModal>
+            </span>{" "}
+            será deshabilitada.
+          </>
+        }
+        confirmText="Sí, deshabilitar"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmDisable}
+      />
     </div>
   )
 }

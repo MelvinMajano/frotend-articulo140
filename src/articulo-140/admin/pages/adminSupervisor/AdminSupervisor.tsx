@@ -4,9 +4,9 @@ import { CustomImput } from "@/components/custom/CustomImput"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Loader2, PenLine, Trash2, PlusCircle, ArrowLeft, AlertTriangle } from "lucide-react"
+import { Loader2, PenLine, Lock, PlusCircle, ArrowLeft } from "lucide-react"
 import { Link } from "react-router"
-import { MinimalModal } from "@/components/custom/CustomModal"
+import { ConfirmActionModal } from "../../components/custom/ConfirmActionModal"
 
 export const AdminSupervisor = () => {
   const { query } = useSupervisors()
@@ -15,16 +15,16 @@ export const AdminSupervisor = () => {
   const [selectedSupervisor, setSelectedSupervisor] = useState<any | null>(null)
   const [openModal, setOpenModal] = useState(false)
 
-  const handleDeleteClick = (supervisor: any) => {
+  const handleDisableClick = (supervisor: any) => {
     setSelectedSupervisor(supervisor)
     setOpenModal(true)
   }
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDisable = async () => {
     try {
 
-      // TODO: Aquí irá la lógica para eliminar el supervisor
-     
+      // TODO: Aquí irá la lógica para deshabilitar el supervisor
+
       setOpenModal(false)
       setSelectedSupervisor(null)
     } catch (error) {
@@ -70,18 +70,18 @@ export const AdminSupervisor = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead># Cuenta</TableHead>
-                    <TableHead>Nombre</TableHead>
-                    <TableHead>Correo</TableHead>
-                    <TableHead>Identidad</TableHead>
-                    <TableHead>Carrera</TableHead>
-                    <TableHead className="text-center">Acciones</TableHead>
+                    <TableHead><span className="text-gray-700"># Cuenta</span></TableHead>
+                    <TableHead><span className="text-gray-700">Nombre</span></TableHead>
+                    <TableHead><span className="text-gray-700">Correo</span></TableHead>
+                    <TableHead><span className="text-gray-700">Identidad</span></TableHead>
+                    <TableHead><span className="text-gray-700">Carrera</span></TableHead>
+                    <TableHead className="text-center"><span className="text-gray-700">Acciones</span></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {data?.data.map((supervisor) => (
                     <TableRow key={supervisor.accountNumber}>
-                      <TableCell>{supervisor.accountNumber}</TableCell>
+                      <TableCell><span className="font-medium">{supervisor.accountNumber}</span></TableCell>
                       <TableCell>{supervisor.name}</TableCell>
                       <TableCell>{supervisor.email}</TableCell>
                       <TableCell>{supervisor.identityNumber}</TableCell>
@@ -98,11 +98,11 @@ export const AdminSupervisor = () => {
                             </Button>
                           </Link>
                           <Button
-                            onClick={() => handleDeleteClick(supervisor)}
-                            className="bg-red-600 hover:bg-red-700 text-white flex items-center"
+                            onClick={() => handleDisableClick(supervisor)}
+                            className="bg-gray-500 hover:bg-gray-600 text-white flex items-center"
                           >
-                            <Trash2 className="w-4 h-4 mr-1" />
-                            Eliminar
+                            <Lock className="w-4 h-4 mr-1" />
+                            Deshabilitar
                           </Button>
                         </div>
                       </TableCell>
@@ -115,38 +115,24 @@ export const AdminSupervisor = () => {
         </CardContent>
       </Card>
 
-      {/* Modal de confirmación */}
-      <MinimalModal open={openModal} onOpenChange={setOpenModal} trigger={<></>}>
-        <div className="bg-white rounded-2xl shadow-2xl p-10 flex flex-col items-center justify-center text-center space-y-6">
-          <div className="bg-red-100 text-red-600 p-4 rounded-full">
-            <AlertTriangle className="w-10 h-10" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800">
-            ¿Deseas eliminar este supervisor?
-          </h2>
-          <p className="text-gray-600">
-            Esta acción no se puede deshacer. Se eliminará permanentemente el registro de{" "}
+      {/* Modal de confirmación para deshabilitar supervisor */}
+      <ConfirmActionModal
+        open={openModal}
+        onOpenChange={setOpenModal}
+        title="¿Deseas deshabilitar este supervisor?"
+        message={
+          <>
+            Esta acción no se puede deshacer. El supervisor{" "}
             <span className="font-semibold text-gray-900">
               {selectedSupervisor?.name}
-            </span>.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 mt-6">
-            <Button
-              variant="outline"
-              onClick={() => setOpenModal(false)}
-              className="w-full sm:w-auto border-gray-300 text-gray-700 hover:bg-gray-50"
-            >
-              Cancelar
-            </Button>
-            <Button
-              onClick={handleConfirmDelete}
-              className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white font-semibold"
-            >
-              Sí, eliminar
-            </Button>
-          </div>
-        </div>
-      </MinimalModal>
+            </span>{" "}
+            será deshabilitado.
+          </>
+        }
+        confirmText="Sí, deshabilitar"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmDisable}
+      />
     </div>
   )
 }
