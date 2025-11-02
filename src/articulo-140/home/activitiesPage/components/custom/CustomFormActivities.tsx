@@ -1,4 +1,3 @@
-import { useState } from "react"
 import { Card, CardHeader, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -6,30 +5,51 @@ import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import {Select,SelectContent,SelectItem,SelectTrigger,SelectValue} from "@/components/ui/select"
+import { useForm, Controller } from 'react-hook-form';
 import { DateTimePicker } from "@/components/custom/DatetimePicker"
 import { Clock, User, FileText, Award, PlusCircle } from "lucide-react"
+import { useSupervisors } from "@/articulo-140/hooks/activities/admin/useSupervisors"
+import type { Supervisor } from "@/articulo-140/interfaces/admin.supervisors.response"
+import type { Datum } from "@/articulo-140/interfaces/activities.response"
+import { useActivities } from "@/articulo-140/hooks/activities/useActivities"
+import { toast } from "sonner"
+
+// Interfaz para el formulario
+interface ActivityFormData {
+  title: string
+  description: string
+  startDate: Date | undefined
+  endDate: Date | undefined
+  voaeHours: number
+  availableSpots: number
+  supervisorId: string | undefined
+  scopesId: string[]
+}
 
 export const ActivityForm = () => {
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    degreeId: "",
-    startDate: undefined as Date | undefined,
-    endDate: undefined as Date | undefined,
-    voaeHours: "",
-    supervisorId: "",
-    scopesId: [] as string[],
-  })
+  const { query } = useSupervisors()
+  const supervisors:Supervisor[]|undefined= query?.data?.data;
+  const {createActivityMutation} = useActivities();
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<ActivityFormData>({
+    defaultValues: {
+      title: "",
+      description: "",
+      startDate: undefined,
+      endDate: undefined,
+      voaeHours: 0,
+      availableSpots: 0,
+      supervisorId: undefined, // Cambiar de "" a undefined
+      scopesId: [],
+    }
+  });
 
   // TODO: Reemplazar con datos reales desde la API
-
-
-  const supervisors = [
-    { id: "1", name: "Dr. Carlos Martínez" },
-    { id: "2", name: "Lic. Ana García" },
-    { id: "3", name: "Ing. Roberto López" },
-  ]
-
   const scopes = [
     { id: "1", name: "Cultural", value: "1" },
     { id: "2", name: "Deportivo", value: "2" },
@@ -37,29 +57,46 @@ export const ActivityForm = () => {
     { id: "4", name: "Social", value: "4" },
   ]
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  const onSubmit = handleSubmit(async (data: ActivityFormData) => {
+    try {
+      if (!data.startDate || !data.endDate) {
+        toast.error('Las fechas de inicio y fin son obligatorias');
+        return;
+      }
 
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+      if (!data.supervisorId) {
+        toast.error('Debe seleccionar un supervisor');
+        return;
+      }
 
-  const handleCheckboxChange = (scopeId: string, checked: boolean) => {
-    setFormData((prev) => ({
-      ...prev,
-      scopesId: checked
-        ? [...prev.scopesId, scopeId]
-        : prev.scopesId.filter((id) => id !== scopeId),
-    }))
-  }
+      const formDataObject: Datum = {
+        title: data.title,
+        description: data.description,
+        startDate: data.startDate.toISOString(),
+        endDate: data.endDate.toISOString(),
+        voaeHours: data.voaeHours,
+        availableSpots: data.availableSpots,
+        supervisorId: data.supervisorId,
+        scopes: data.scopesId, // Enviar como array en lugar de string
+      } as unknown as Datum;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    // TODO : Enviar formData a la API
-  }
+      await createActivityMutation.mutateAsync(formDataObject, {
+        onSuccess: () => {
+          toast.success('Actividad creada correctamente', {
+            position: 'top-right',
+          });
+        },
+        onError: (error) => {
+          console.log(error);
+          toast.error('Error al crear la actividad');
+        },
+      });
+    } catch (error) {
+      console.error('Error en el formulario:', error);
+      toast.error('Error inesperado');
+    }
+  });
+    
 
   return (
     <div className="p-6 flex items-center justify-center">
@@ -74,7 +111,7 @@ export const ActivityForm = () => {
         </CardHeader>
 
         <CardContent className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={onSubmit} className="space-y-4">
             {/* Título */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
@@ -82,14 +119,14 @@ export const ActivityForm = () => {
                 Título de la actividad
               </label>
               <Input
+                {...register("title", { required: "El título es obligatorio" })}
                 type="text"
-                name="title"
                 placeholder="Ej. Charla sobre circuitos"
-                value={formData.title}
-                onChange={handleChange}
                 className="h-10 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
-                required
               />
+              {errors.title && (
+                <p className="text-sm text-red-600">{errors.title.message}</p>
+              )}
             </div>
 
             {/* Descripción */}
@@ -99,17 +136,17 @@ export const ActivityForm = () => {
                 Descripción
               </label>
               <Textarea
-                name="description"
+                {...register("description", { required: "La descripción es obligatoria" })}
                 placeholder="Ej. Charla de estudiantes sobre circuitos electrónicos"
-                value={formData.description}
-                onChange={handleChange}
                 className="min-h-[80px] border-gray-300 focus:border-teal-500 focus:ring-teal-500 resize-none"
-                required
               />
+              {errors.description && (
+                <p className="text-sm text-red-600">{errors.description.message}</p>
+              )}
             </div>
 
-            {/* Carrera, Supervisor y Horas VOAE en Grid de 3 columnas */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Grid de campos */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               
               {/* Supervisor */}
               <div className="space-y-2">
@@ -117,22 +154,31 @@ export const ActivityForm = () => {
                   <User className="w-4 h-4 text-teal-600" />
                   Supervisor
                 </label>
-                <Select
-                  value={formData.supervisorId}
-                  onValueChange={(value) => handleSelectChange("supervisorId", value)}
-                  required
-                >
-                  <SelectTrigger className="h-10 border-gray-300 focus:border-teal-500 focus:ring-teal-500">
-                    <SelectValue placeholder="Seleccione un supervisor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {supervisors.map((supervisor) => (
-                      <SelectItem key={supervisor.id} value={supervisor.id}>
-                        {supervisor.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name="supervisorId"
+                  control={control}
+                  rules={{ required: "Debe seleccionar un supervisor" }}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="h-10 border-gray-300 focus:border-teal-500 focus:ring-teal-500">
+                        <SelectValue placeholder="Seleccione un supervisor" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {supervisors?.filter(supervisor => supervisor.id && supervisor.id.trim() !== '').map((supervisor) => (
+                          <SelectItem key={supervisor.id} value={supervisor.id}>
+                            {supervisor.name}
+                          </SelectItem>
+                        ))}
+                        {(!supervisors || supervisors.length === 0) && (
+                          <div className="p-2 text-sm text-gray-500">No hay supervisores disponibles</div>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.supervisorId && (
+                  <p className="text-sm text-red-600">{errors.supervisorId.message}</p>
+                )}
               </div>
 
               {/* Horas VOAE */}
@@ -142,15 +188,41 @@ export const ActivityForm = () => {
                   Horas VOAE
                 </label>
                 <Input
+                  {...register("voaeHours", { 
+                    required: "Las horas VOAE son obligatorias",
+                    min: { value: 1, message: "Debe ser al menos 1 hora" },
+                    valueAsNumber: true
+                  })}
                   type="number"
-                  name="voaeHours"
                   placeholder="Ej. 5"
                   min="1"
-                  value={formData.voaeHours}
-                  onChange={handleChange}
                   className="h-10 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
-                  required
                 />
+                {errors.voaeHours && (
+                  <p className="text-sm text-red-600">{errors.voaeHours.message}</p>
+                )}
+              </div>
+
+              {/* Cupos disponibles */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <User className="w-4 h-4 text-teal-600" />
+                  Cupos disponibles
+                </label>
+                <Input
+                  {...register("availableSpots", { 
+                    required: "Los cupos disponibles son obligatorios",
+                    min: { value: 1, message: "Debe ser al menos 1 cupo" },
+                    valueAsNumber: true
+                  })}
+                  type="number"
+                  placeholder="Ej. 30"
+                  min="1"
+                  className="h-10 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                />
+                {errors.availableSpots && (
+                  <p className="text-sm text-red-600">{errors.availableSpots.message}</p>
+                )}
               </div>
             </div>
 
@@ -162,11 +234,21 @@ export const ActivityForm = () => {
                   <Clock className="w-4 h-4 text-teal-600" />
                   Fecha y hora de inicio
                 </label>
-                <DateTimePicker
-                  date={formData.startDate}
-                  setDate={(date: Date | undefined) => setFormData((prev) => ({ ...prev, startDate: date }))}
-                  placeholder="Seleccionar fecha y hora de inicio"
+                <Controller
+                  name="startDate"
+                  control={control}
+                  rules={{ required: "La fecha de inicio es obligatoria" }}
+                  render={({ field }) => (
+                    <DateTimePicker
+                      date={field.value}
+                      setDate={field.onChange}
+                      placeholder="Seleccionar fecha y hora de inicio"
+                    />
+                  )}
                 />
+                {errors.startDate && (
+                  <p className="text-sm text-red-600">{errors.startDate.message}</p>
+                )}
               </div>
 
               {/* Fecha de fin */}
@@ -175,11 +257,21 @@ export const ActivityForm = () => {
                   <Clock className="w-4 h-4 text-teal-600" />
                   Fecha y hora de fin
                 </label>
-                <DateTimePicker
-                  date={formData.endDate}
-                  setDate={(date: Date | undefined) => setFormData((prev) => ({ ...prev, endDate: date }))}
-                  placeholder="Seleccionar fecha y hora de fin"
+                <Controller
+                  name="endDate"
+                  control={control}
+                  rules={{ required: "La fecha de fin es obligatoria" }}
+                  render={({ field }) => (
+                    <DateTimePicker
+                      date={field.value}
+                      setDate={field.onChange}
+                      placeholder="Seleccionar fecha y hora de fin"
+                    />
+                  )}
                 />
+                {errors.endDate && (
+                  <p className="text-sm text-red-600">{errors.endDate.message}</p>
+                )}
               </div>
             </div>
 
@@ -189,26 +281,39 @@ export const ActivityForm = () => {
                 <Award className="w-4 h-4 text-teal-600" />
                 Ámbitos
               </label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                {scopes.map((scope) => (
-                  <div key={scope.id} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={scope.id}
-                      checked={formData.scopesId.includes(scope.value)}
-                      onCheckedChange={(checked) =>
-                        handleCheckboxChange(scope.value, checked as boolean)
-                      }
-                      className="border-gray-400 data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600"
-                    />
-                    <Label
-                      htmlFor={scope.id}
-                      className="text-sm font-medium text-gray-700 cursor-pointer"
-                    >
-                      {scope.name}
-                    </Label>
+              <Controller
+                name="scopesId"
+                control={control}
+                rules={{ required: "Debe seleccionar al menos un ámbito" }}
+                render={({ field }) => (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    {scopes.map((scope) => (
+                      <div key={scope.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={scope.id}
+                          checked={field.value?.includes(scope.value) || false}
+                          onCheckedChange={(checked) => {
+                            const updatedValue = checked
+                              ? [...(field.value || []), scope.value]
+                              : (field.value || []).filter((id: string) => id !== scope.value);
+                            field.onChange(updatedValue);
+                          }}
+                          className="border-gray-400 data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600"
+                        />
+                        <Label
+                          htmlFor={scope.id}
+                          className="text-sm font-medium text-gray-700 cursor-pointer"
+                        >
+                          {scope.name}
+                        </Label>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                )}
+              />
+              {errors.scopesId && (
+                <p className="text-sm text-red-600">{errors.scopesId.message}</p>
+              )}
             </div>
 
             {/* Botones */}

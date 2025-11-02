@@ -1,12 +1,13 @@
 export interface SupervisorsResponse {
-  message: string
-  data: Supervisor[]
+  message: string;
+  data:    Supervisor[];
 }
 
 export interface Supervisor {
-  name: string
-  email: string
-  accountNumber: number
-  identityNumber: string
-  career: string
+  id:             string;
+  name:           string;
+  email:          string;
+  accountNumber:  number;
+  identityNumber: string;
+  career:         string;
 }

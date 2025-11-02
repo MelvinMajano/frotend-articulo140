@@ -1,6 +1,6 @@
 import { authStore } from '@/articulo-140/auth/store/authStore'
 import { useActivities } from '@/articulo-140/hooks/activities/useActivities'
-import type { Message } from '@/articulo-140/interfaces/activities.response'
+import type { Datum } from '@/articulo-140/interfaces/activities.response'
 import { MinimalModal } from '@/components/custom/CustomModal'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -14,14 +14,14 @@ import { DetailsInscriptionsActivity } from './custom/CustomDetailsInscriptionAc
 export const CardActivities = () => {
   const {isAdmin,isSupervisor,isStudent} = authStore();
   const {query} = useActivities();
-  const message:Message[]|undefined= query?.data?.message
+  const activities:Datum[]|undefined= query?.data?.data.data
 
 
   return (
                 <CardContent className="px-0 pb-0">
                 {/* Activities Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ml-16 items-stretch">
-                  {message?.map((activity) => (
+                  {activities?.map((activity) => (
                     <Card
                       key={activity.id}
                       className="flex flex-col overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white border border-gray-100 max-w-xs w-64 h-full"
@@ -88,6 +88,8 @@ export const CardActivities = () => {
                             Ver Detalles
                           </Button>
                         }
+                        title="Detalles de la actividad"
+                        description="Información detallada y formulario de inscripción para la actividad"
                         >
                           <DetailsInscriptionsActivity/>
                         </MinimalModal>

@@ -21,6 +21,8 @@ export const HomePage = () => {
           trigger={
             <Button >Agregar actividad</Button>
           }
+          title="Agregar nueva actividad"
+          description="Formulario para crear una nueva actividad con todos los detalles requeridos"
           >
             <ActivityForm/>
           </MinimalModal>
