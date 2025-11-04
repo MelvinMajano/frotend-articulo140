@@ -22,6 +22,9 @@ import { AdminCareers } from "../admin/pages/adminCareers/AdminCareers";
 import { AdminCareerForm } from "../admin/components/AdminCareerForm";
 import { AdminCareerEdit } from "../admin/components/AdminCareersEdit";
 
+{/* Importaciones para Admin Files */}
+import { AdminFilesPage } from "../admin/pages/adminFiles/adminFiles";
+
 {/* Importaciones para Admin Activities */}
 import { AdminActivities } from "../admin/pages/adminActivities/AdminActivities";
 import { ActivityAttendance } from "../admin/pages/adminActivities/AdminActivitiesAttendance";
@@ -142,7 +145,7 @@ export const router = createBrowserRouter([
             },
             {
                 path: "files/",
-                element: <div>Admin Files Page - To be implemented</div>,
+                element: <AdminFilesPage />,
             }
         ]
     },
