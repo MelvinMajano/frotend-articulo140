@@ -1,9 +1,13 @@
-import { useState } from "react"
+import { useState, type FormEvent } from "react"
 import { Card, CardHeader, CardContent } from "@/components/ui/card"
+import { useCareers } from "@/articulo-140/hooks/activities/admin/useCareers"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Link } from "react-router"
-import { UserPlus, Mail, Hash, CreditCard, GraduationCap } from "lucide-react"
+import { Link, useNavigate } from "react-router"
+import { UserPlus,Mail,Hash,CreditCard,GraduationCap,Lock,Loader2} from "lucide-react"
+import { authStore } from "@/articulo-140/auth/store/authStore"
+import { toast } from "sonner"
+import type { Career } from "@/articulo-140/interfaces/admin.careers.response"
 
 export const AdminSupervisorForm = () => {
   const [formData, setFormData] = useState({
@@ -11,23 +15,102 @@ export const AdminSupervisorForm = () => {
     email: "",
     accountNumber: "",
     identityNumber: "",
-    career: "",
+    career: null as Career | null,
+    password: "",
   })
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const navigate = useNavigate()
+
+  const { query } = useCareers()
+  const { data, isLoading, isError } = query
+  const careers = data?.data || []
+
+  const { register } = authStore()
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    if (name === "career") {
+      const selectedCareer = careers.find((c) => c.id === Number(value)) || null
+      setFormData((prev) => ({ ...prev, career: selectedCareer }))
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }))
+    }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validatePassword = (password: string) => {
+    const errors: string[] = []
+    if (password.length < 8) errors.push("Debe tener al menos 8 caracteres")
+    if (!/^[A-Z]/.test(password)) errors.push("Debe comenzar con mayúscula")
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password))
+      errors.push("Debe contener al menos un carácter especial")
+    return errors
+  }
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // TODO: Implementar lógica de envío del formulario
+
+    const passwordErrors = validatePassword(formData.password)
+    if (passwordErrors.length > 0) {
+      toast.warning(passwordErrors.join(", "))
+      return
+    }
+
+    setIsSubmitting(true)
+
+    const supervisorData = {
+      name: formData.name,
+      email: formData.email,
+      accountNumber: Number(formData.accountNumber),
+      identityNumber: formData.identityNumber,
+      role: "supervisor" as const,
+      degreeId: formData.career?.id || 0,
+      password: formData.password,
+    }
+
+    try {
+      const message = await register(supervisorData)
+
+      if (message.toLowerCase().includes("error")) {
+        toast.error(message, {
+          duration: 3000,
+          position: "top-right",
+        })
+      } else {
+        toast.success("Supervisor registrado correctamente", {
+          style: {
+            background: "#10b981",
+            color: "white",
+            border: "1px solid #059669",
+          },
+        })
+
+        // Limpia los campos
+        setFormData({
+          name: "",
+          email: "",
+          accountNumber: "",
+          identityNumber: "",
+          career: null,
+          password: "",
+        })
+
+        setTimeout(() => {
+          navigate("/admin/supervisor")
+        }, 1000)
+      }
+    } catch (err) {
+      toast.error("Ocurrió un error al registrar el supervisor")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
     <div className="p-6 flex items-center justify-center">
       <Card className="w-full max-w-2xl bg-white shadow-xl border-0 overflow-hidden">
-        {/* Header con gradiente */}
         <CardHeader className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white py-8">
           <div className="flex items-center justify-center gap-5">
             <div className="p-4 bg-white/20 rounded-lg backdrop-blur-sm">
@@ -44,7 +127,7 @@ export const AdminSupervisorForm = () => {
 
         <CardContent className="p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Nombre completo */}
+            {/* Nombre */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                 <UserPlus className="w-4 h-4 text-teal-600" />
@@ -61,7 +144,7 @@ export const AdminSupervisorForm = () => {
               />
             </div>
 
-            {/* Correo electrónico */}
+            {/* Correo */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                 <Mail className="w-4 h-4 text-teal-600" />
@@ -78,9 +161,25 @@ export const AdminSupervisorForm = () => {
               />
             </div>
 
-            {/* Grid de 2 columnas */}
+            {/* Contraseña */}
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <Lock className="w-4 h-4 text-teal-600" />
+                Contraseña
+              </label>
+              <Input
+                type="password"
+                name="password"
+                placeholder="Ingrese una contraseña segura"
+                value={formData.password}
+                onChange={handleChange}
+                className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                required
+              />
+            </div>
+
+            {/* Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Número de cuenta */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                   <Hash className="w-4 h-4 text-teal-600" />
@@ -97,7 +196,6 @@ export const AdminSupervisorForm = () => {
                 />
               </div>
 
-              {/* Número de identidad */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                   <CreditCard className="w-4 h-4 text-teal-600" />
@@ -121,15 +219,27 @@ export const AdminSupervisorForm = () => {
                 <GraduationCap className="w-4 h-4 text-teal-600" />
                 Carrera
               </label>
-              <Input
-                type="text"
+              <select
+                id="career"
                 name="career"
-                placeholder="Ej. Ingeniería en Sistemas"
-                value={formData.career}
+                value={formData.career ? String(formData.career.id) : ""}
                 onChange={handleChange}
-                className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                className="w-full h-11 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-gray-700 bg-white transition duration-150"
                 required
-              />
+              >
+                <option value="">Seleccionar carrera</option>
+                {isLoading ? (
+                  <option disabled>Cargando carreras...</option>
+                ) : isError ? (
+                  <option disabled>Error al cargar carreras</option>
+                ) : (
+                  careers.map((career: Career) => (
+                    <option key={career.id} value={String(career.id)}>
+                      {career.name}
+                    </option>
+                  ))
+                )}
+              </select>
             </div>
 
             {/* Botones */}
@@ -144,11 +254,24 @@ export const AdminSupervisorForm = () => {
                     Cancelar
                   </Button>
                 </Link>
+
                 <Button
                   type="submit"
-                  className="w-full sm:w-auto h-11 px-8 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold shadow-lg shadow-teal-200 transition-all"
+                  disabled={isSubmitting}
+                  className={`w-full sm:w-auto h-11 px-8 text-white font-semibold transition-all ${
+                    isSubmitting
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 shadow-lg shadow-teal-200"
+                  }`}
                 >
-                  Registrar Supervisor
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Registrando...
+                    </span>
+                  ) : (
+                    "Registrar Supervisor"
+                  )}
                 </Button>
               </div>
             </div>

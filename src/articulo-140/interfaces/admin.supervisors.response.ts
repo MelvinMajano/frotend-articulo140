@@ -10,4 +10,5 @@ export interface Supervisor {
   accountNumber:  number;
   identityNumber: string;
   career:         string;
+  isDeleted:      string;
 }

@@ -3,8 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Loader2, Search, Calendar, MapPin, Users, ArrowLeft, Clock } from "lucide-react"
 import { useActivities } from "@/articulo-140/hooks/activities/useActivities"
-import type { Message } from "@/articulo-140/interfaces/activities.response"
-import type { UUID } from "crypto"
+import type { Datum } from "@/articulo-140/interfaces/activities.response"
 
 interface ExistingActivitySelectorProps {
   studentId: string
@@ -12,7 +11,7 @@ interface ExistingActivitySelectorProps {
   onClose: () => void
 }
 
-type Activity = Message & { id: UUID }
+type Activity = Datum
 
 export const ExistingActivitySelector = ({
   //studentId
@@ -33,7 +32,9 @@ export const ExistingActivitySelector = ({
     onClose()
   }
 
-  const activities = Array.isArray(data?.message) ? (data.message as Activity[]) : []
+  const activities: Activity[] = Array.isArray(data?.data?.data)
+  ? data.data.data
+  : []
 
   const filteredActivities = activities.filter((activity) => {
     const title = activity.title?.toLowerCase() || ""
