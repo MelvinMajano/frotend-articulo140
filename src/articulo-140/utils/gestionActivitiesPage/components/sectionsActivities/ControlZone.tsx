@@ -1,4 +1,4 @@
-import { useActivities } from "@/articulo-140/hooks/activities/useActivities"
+import { useActivities } from "@/articulo-140/hooks/activities/activities/useActivities"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"

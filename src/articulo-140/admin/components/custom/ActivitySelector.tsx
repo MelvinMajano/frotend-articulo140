@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Loader2, Search, Calendar, MapPin, Users, ArrowLeft, Clock } from "lucide-react"
-import { useActivities } from "@/articulo-140/hooks/activities/useActivities"
+import { useActivities } from "@/articulo-140/hooks/activities/activities/useActivities"
 import type { Datum } from "@/articulo-140/interfaces/activities.response"
 
 interface ExistingActivitySelectorProps {

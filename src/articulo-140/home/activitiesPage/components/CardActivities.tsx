@@ -1,5 +1,5 @@
 import { authStore } from '@/articulo-140/auth/store/authStore'
-import { useActivities } from '@/articulo-140/hooks/activities/useActivities'
+import { useActivities } from '@/articulo-140/hooks/activities/activities/useActivities'
 import type { Datum } from '@/articulo-140/interfaces/activities.response'
 import { MinimalModal } from '@/components/custom/CustomModal'
 import { Badge } from '@/components/ui/badge'

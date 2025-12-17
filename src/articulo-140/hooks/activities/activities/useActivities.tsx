@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { getActivities } from "../../home/actions/getActivities.action"
+import { getActivities } from "../../../home/actions/getActivities.action"
 import { gestionActivitiesStore } from "@/articulo-140/utils/gestionActivitiesPage/stores/gestionActivitiesStore";
 import { useSearchParams } from "react-router";
 import { postActivities } from "@/articulo-140/home/actions/postActivities.action";

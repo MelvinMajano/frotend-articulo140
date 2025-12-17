@@ -11,7 +11,7 @@ import { Clock, User, FileText, Award, PlusCircle } from "lucide-react"
 import { useSupervisors } from "@/articulo-140/hooks/activities/admin/useSupervisors"
 import type { Supervisor } from "@/articulo-140/interfaces/admin.supervisors.response"
 import type { Datum } from "@/articulo-140/interfaces/activities.response"
-import { useActivities } from "@/articulo-140/hooks/activities/useActivities"
+import { useActivities } from "@/articulo-140/hooks/activities/activities/useActivities"
 import { toast } from "sonner"
 
 // Interfaz para el formulario

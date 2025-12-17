@@ -2,7 +2,7 @@ import { CustomMainCard } from "@/components/custom/CustomMainCard"
 import { CardActivities } from "./components/CardActivities"
 import { CustomHeaderCardActivities } from "./components/custom/CustomHeaderCardActivities"
 import { CustomPagination } from "@/components/custom/CustomPagination"
-import { useActivities } from "@/articulo-140/hooks/activities/useActivities"
+import { useActivities } from "@/articulo-140/hooks/activities/activities/useActivities"
 
 
 

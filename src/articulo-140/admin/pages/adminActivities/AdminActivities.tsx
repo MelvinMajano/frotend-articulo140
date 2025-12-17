@@ -1,4 +1,4 @@
-import { useActivities } from '@/articulo-140/hooks/activities/useActivities'
+import { useActivities } from '@/articulo-140/hooks/activities/activities/useActivities'
 import { CustomImput } from "@/components/custom/CustomImput"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"

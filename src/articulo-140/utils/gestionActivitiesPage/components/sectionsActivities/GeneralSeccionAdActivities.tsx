@@ -11,7 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useActivyByid } from "@/articulo-140/hooks/activities/useActivityById";
+import { useActivyByid } from "@/articulo-140/hooks/activities/activities/useActivityById";
 import { activitySchema, type ActivityFormValues } from "./zod/FormControlZone.schema";
 
 
