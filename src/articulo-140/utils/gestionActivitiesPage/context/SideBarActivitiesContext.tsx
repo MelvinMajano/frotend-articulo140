@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from "react"
-import { createContext} from "react"
+import { createContext, useMemo, useCallback} from "react"
 import { useSearchParams } from "react-router";
 
 export type item = 'General' | 'Students' | 'controlZona';
@@ -20,21 +20,23 @@ export const SideBarActivitiesContext = createContext({} as SideBarActivitiesCon
 export const SideBarActivitiesProvider = ({children}:PropsWithChildren) => {
     const [searchParams, setSerchParams] = useSearchParams();
     
-    const handleSelectionItem =(value:item)=>{ 
+    const handleSelectionItem = useCallback((value:item)=>{ 
         setSerchParams((prev)=>{
             prev.set('seccionDetails',value);
             return prev
         })
-    }
+    }, [setSerchParams]);
 
     const selectSeccion = searchParams.get("seccionDetails");
     
+    const contextValue = useMemo(() => ({
+        itemsSelected: selectSeccion,
+        onSelection: handleSelectionItem,
+    }), [selectSeccion, handleSelectionItem]);
+    
     return (
     <SideBarActivitiesContext
-    value={{
-        itemsSelected:selectSeccion,
-        onSelection: handleSelectionItem,
-    }}
+    value={contextValue}
     >
         {children}
     </SideBarActivitiesContext>

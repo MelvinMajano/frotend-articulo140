@@ -23,7 +23,7 @@ import { AdminCareerForm } from "../admin/components/AdminCareerForm";
 import { AdminCareerEdit } from "../admin/components/AdminCareersEdit";
 
 {/* Importaciones para Admin Files */}
-import { AdminFilesPage } from "../admin/pages/adminFiles/adminFiles";
+import { AdminFilesPage } from "../admin/pages/adminFiles/AdminFiles";
 
 {/* Importaciones para Admin Activities */}
 import { AdminActivities } from "../admin/pages/adminActivities/AdminActivities";

@@ -3,6 +3,7 @@ import { getActivities } from "../../home/actions/getActivities.action"
 import { gestionActivitiesStore } from "@/articulo-140/utils/gestionActivitiesPage/stores/gestionActivitiesStore";
 import { useSearchParams } from "react-router";
 import { postActivities } from "@/articulo-140/home/actions/postActivities.action";
+import { updateActivity } from "@/articulo-140/home/actions/updateActivity.action";
 
 export const useActivities = () => {
   const {disbaleActivity} = gestionActivitiesStore();
@@ -29,6 +30,17 @@ export const useActivities = () => {
     }
   });
 
+  const updateActivityMutation = useMutation({
+    mutationFn: updateActivity,
+    onSuccess: (message) => {
+      console.log('Actividad actualizada exitosamente:', message);
+      query.refetch();
+    },
+    onError: (error) => {
+      console.error('Error al actualizar actividad:', error);
+    }
+  });
+
   // Mantener el original del disable
   const activityMutation = useMutation({
     mutationFn: disbaleActivity,
@@ -43,6 +55,7 @@ export const useActivities = () => {
   return{
     query,
     createActivityMutation,
+    updateActivityMutation,
     activityMutation
   }
 }

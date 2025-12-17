@@ -44,12 +44,11 @@ export const ActivityForm = () => {
       endDate: undefined,
       voaeHours: 0,
       availableSpots: 0,
-      supervisorId: undefined, // Cambiar de "" a undefined
+      supervisorId: undefined, 
       scopesId: [],
     }
   });
 
-  // TODO: Reemplazar con datos reales desde la API
   const scopes = [
     { id: "1", name: "Cultural", value: "1" },
     { id: "2", name: "Deportivo", value: "2" },

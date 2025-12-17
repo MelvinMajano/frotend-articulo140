@@ -16,17 +16,20 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { useState } from "react"
+import { useSupervisors } from "@/articulo-140/hooks/activities/admin/useSupervisors"
 
-const frameworks = [
-  {
-    value: "1",
-    label: "Supervisor 1",
-  },
-]
+interface ComboboxProps {
+  value?: string;
+  onChange?: (value: string) => void;
+}
 
-export const Combobox=()=> {
+export const Combobox=({value: externalValue, onChange}: ComboboxProps)=> {
   const [open, setOpen] = useState(false)
-  const [value, setValue] = useState("")
+  const [value, setValue] = useState(externalValue || "")
+
+  const {query} = useSupervisors()
+
+  const supervisors = query?.data?.data || []
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -37,34 +40,36 @@ export const Combobox=()=> {
           aria-expanded={open}
           className="w-[200px] justify-between"
         >
-          {value
-            ? frameworks.find((framework) => framework.value === value)?.label
+          {(externalValue || value)
+            ? supervisors.find((supervisor) => supervisor.id === (externalValue || value))?.name
             : "Seleccione un supervisor"}
           <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." />
+          <CommandInput placeholder="Buscar supervisor..." />
           <CommandList>
-            <CommandEmpty>No framework found.</CommandEmpty>
+            <CommandEmpty>No se encontró supervisor.</CommandEmpty>
             <CommandGroup>
-              {frameworks.map((framework) => (
+              {supervisors.map((supervisor) => (
                 <CommandItem
-                  key={framework.value}
-                  value={framework.value}
-                  onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue)
+                  key={supervisor.id}
+                  value={supervisor.name}
+                  keywords={[supervisor.name, supervisor.id]}
+                  onSelect={() => {
+                    setValue(supervisor.id)
+                    onChange?.(supervisor.id)
                     setOpen(false)
                   }}
                 >
                   <CheckIcon
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === framework.value ? "opacity-100" : "opacity-0"
+                      (externalValue || value) === supervisor.id ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {framework.label}
+                  {supervisor.name}
                 </CommandItem>
               ))}
             </CommandGroup>
