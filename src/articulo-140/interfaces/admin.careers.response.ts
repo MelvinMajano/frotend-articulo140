@@ -4,6 +4,7 @@ export interface CareersResponse {
 }
 
 export interface Career {
+  id: number
   code: string
   name: string
   faculty: string

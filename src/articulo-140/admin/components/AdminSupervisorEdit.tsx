@@ -2,14 +2,22 @@ import { useState, useEffect } from "react"
 import { Card, CardHeader, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Link, useParams} from "react-router"
+import { useCareers } from "@/articulo-140/hooks/activities/admin/useCareers"
+import { updateSupervisor } from "@/articulo-140/admin/actions/updateSupervisor"
+import { Link, useNavigate, useParams } from "react-router"
 import { UserPlus, Mail, Hash, CreditCard, GraduationCap, Loader2 } from "lucide-react"
 import { useSupervisors } from "@/articulo-140/hooks/activities/admin/useSupervisors"
+import { toast } from "sonner"
 
 export const AdminSupervisorEdit = () => {
   const { id } = useParams()
+  const navigate = useNavigate()
   const { query } = useSupervisors()
   const { data, isLoading } = query
+
+  const { query: careersQuery } = useCareers()
+  const { data: careersData, isLoading: isCareersLoading, isError: isCareersError } = careersQuery
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const [formData, setFormData] = useState({
     name: "",
@@ -23,29 +31,58 @@ export const AdminSupervisorEdit = () => {
     if (data?.data && id) {
       const accountNumber = Number(id)
       if (Number.isNaN(accountNumber)) return
-      const supervisor = data.data.find(
-        (sup) => sup.accountNumber === accountNumber
-      )
+      const supervisor = data.data.find((sup) => sup.accountNumber === accountNumber)
       if (supervisor) {
         setFormData({
           name: supervisor.name,
           email: supervisor.email,
           accountNumber: String(supervisor.accountNumber),
           identityNumber: supervisor.identityNumber,
-          career: supervisor.career,
+          career:
+            careersData?.data.find((career) => career.name === supervisor.career)?.id.toString() ||
+            "",
         })
       }
     }
-  }, [data, id])
+  }, [data, id, careersData])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === "career" ? Number(value) : value,
+    }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO : Implementar lógica de envío del formulario
+    setIsSubmitting(true)
+
+    const supervisor = data?.data.find((sup) => sup.accountNumber === Number(formData.accountNumber))
+    if (!supervisor) {
+      toast.error("Supervisor no encontrado")
+      setIsSubmitting(false)
+      return
+    }
+
+    try {
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        identityNumber: formData.identityNumber,
+        degreeId: Number(formData.career),
+      }
+
+      await updateSupervisor(supervisor.id, payload)
+      toast.success("Supervisor actualizado correctamente")
+
+      
+      setTimeout(() => navigate("/admin/supervisor"), 1000)
+    } catch (error) {
+      toast.error("Ocurrió un error al actualizar el supervisor")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (isLoading) {
@@ -121,10 +158,8 @@ export const AdminSupervisorEdit = () => {
                 <Input
                   type="text"
                   name="accountNumber"
-                  placeholder="20222001369"
                   value={formData.accountNumber}
-                  onChange={handleChange}
-                  className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500 bg-gray-50"
+                  className="h-11 border-gray-300 bg-gray-50"
                   disabled
                 />
               </div>
@@ -138,11 +173,9 @@ export const AdminSupervisorEdit = () => {
                 <Input
                   type="text"
                   name="identityNumber"
-                  placeholder="0510200501160"
                   value={formData.identityNumber}
-                  onChange={handleChange}
-                  className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
-                  required
+                  className="h-11 border-gray-300 bg-gray-50"
+                  disabled
                 />
               </div>
             </div>
@@ -153,15 +186,26 @@ export const AdminSupervisorEdit = () => {
                 <GraduationCap className="w-4 h-4 text-teal-600" />
                 Carrera
               </label>
-              <Input
-                type="text"
+              <select
                 name="career"
-                placeholder="Ej. Ingeniería en Sistemas"
                 value={formData.career}
                 onChange={handleChange}
-                className="h-11 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                className="w-full h-11 border border-gray-300 rounded-md p-2 focus:border-teal-500 focus:ring-teal-500"
                 required
-              />
+              >
+                <option value="">Seleccionar carrera</option>
+                {isCareersLoading ? (
+                  <option disabled>Cargando carreras...</option>
+                ) : isCareersError ? (
+                  <option disabled>Error al cargar carreras</option>
+                ) : (
+                  careersData?.data?.map((career: { id: number; name: string }) => (
+                    <option key={career.id} value={career.id}>
+                      {career.name}
+                    </option>
+                  ))
+                )}
+              </select>
             </div>
 
             {/* Botones */}
@@ -172,16 +216,24 @@ export const AdminSupervisorEdit = () => {
                     type="button"
                     variant="outline"
                     className="w-full sm:w-auto h-11 px-6 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-colors"
+                    disabled={isSubmitting}
                   >
                     Cancelar
                   </Button>
                 </Link>
                 <Button
                   type="submit"
+                  disabled={isSubmitting}
                   className="w-full sm:w-auto h-11 px-8 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold shadow-lg shadow-teal-200 transition-all"
                 >
-                  
-                  Guardar Cambios
+                  {isSubmitting ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Guardando...
+                    </div>
+                  ) : (
+                    "Guardar Cambios"
+                  )}
                 </Button>
               </div>
             </div>

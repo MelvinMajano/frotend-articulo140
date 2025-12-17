@@ -163,7 +163,7 @@ export const ActivityForm = () => {
                         <SelectValue placeholder="Seleccione un supervisor" />
                       </SelectTrigger>
                       <SelectContent>
-                        {supervisors?.filter(supervisor => supervisor.id && supervisor.id.trim() !== '').map((supervisor) => (
+                        {supervisors?.filter(supervisor => supervisor.id && supervisor.id.trim() !== '' && supervisor.isDeleted === "false").map((supervisor) => (
                           <SelectItem key={supervisor.id} value={supervisor.id}>
                             {supervisor.name}
                           </SelectItem>

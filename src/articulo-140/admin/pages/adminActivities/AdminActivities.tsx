@@ -54,7 +54,7 @@ export const AdminActivities = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data?.message.map((activity) => (
+                  {data?.data?.data?.map((activity) => (
                     <TableRow
                       key={activity.id}
                       className="hover:bg-gray-50 transition-colors duration-200"

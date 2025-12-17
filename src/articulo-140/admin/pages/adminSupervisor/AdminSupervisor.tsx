@@ -3,10 +3,12 @@ import { useSupervisors } from "@/articulo-140/hooks/activities/admin/useSupervi
 import { CustomImput } from "@/components/custom/CustomImput"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Loader2, PenLine, Lock, PlusCircle, ArrowLeft } from "lucide-react"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { deleteSupervisor, restoreSupervisor } from "../../actions/softDeleteSupervisor"
+import { Loader2, PenLine, Lock, PlusCircle, ArrowLeft, Unlock } from "lucide-react"
 import { Link } from "react-router"
 import { ConfirmActionModal } from "../../components/custom/ConfirmActionModal"
+import { toast } from "sonner"
 
 export const AdminSupervisor = () => {
   const { query } = useSupervisors()
@@ -14,21 +16,32 @@ export const AdminSupervisor = () => {
 
   const [selectedSupervisor, setSelectedSupervisor] = useState<any | null>(null)
   const [openModal, setOpenModal] = useState(false)
+  const [isRestoreAction, setIsRestoreAction] = useState(false)
 
-  const handleDisableClick = (supervisor: any) => {
+  const handleActionClick = (supervisor: any) => {
     setSelectedSupervisor(supervisor)
+    setIsRestoreAction(supervisor.isDeleted === "true")
     setOpenModal(true)
   }
 
-  const handleConfirmDisable = async () => {
+  const handleConfirmAction = async () => {
+    if (!selectedSupervisor) return
+
     try {
+      if (isRestoreAction) {
+        await restoreSupervisor(selectedSupervisor.accountNumber)
+        toast.success(`Supervisor ${selectedSupervisor.name} habilitado correctamente`)
+      } else {
+        await deleteSupervisor(selectedSupervisor.accountNumber)
+        toast.success(`Supervisor ${selectedSupervisor.name} deshabilitado correctamente`)
+      }
 
-      // TODO: Aquí irá la lógica para deshabilitar el supervisor
-
+      query.refetch?.()
+    } catch (error) {
+      toast.error(`Error al ${isRestoreAction ? "habilitar" : "deshabilitar"} el supervisor`)
+    } finally {
       setOpenModal(false)
       setSelectedSupervisor(null)
-    } catch (error) {
-      console.error("Error al eliminar supervisor:", error)
     }
   }
 
@@ -97,13 +110,24 @@ export const AdminSupervisor = () => {
                               Editar
                             </Button>
                           </Link>
-                          <Button
-                            onClick={() => handleDisableClick(supervisor)}
-                            className="bg-gray-500 hover:bg-gray-600 text-white flex items-center"
-                          >
-                            <Lock className="w-4 h-4 mr-1" />
-                            Deshabilitar
-                          </Button>
+
+                          {supervisor.isDeleted === "true" ? (
+                            <Button
+                              onClick={() => handleActionClick(supervisor)}
+                              className="bg-green-600 hover:bg-green-700 text-white flex items-center"
+                            >
+                              <Unlock className="w-4 h-4 mr-1" />
+                              Habilitar
+                            </Button>
+                          ) : (
+                            <Button
+                              onClick={() => handleActionClick(supervisor)}
+                              className="bg-gray-500 hover:bg-gray-600 text-white flex items-center"
+                            >
+                              <Lock className="w-4 h-4 mr-1" />
+                              Deshabilitar
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -115,23 +139,39 @@ export const AdminSupervisor = () => {
         </CardContent>
       </Card>
 
-      {/* Modal de confirmación para deshabilitar supervisor */}
+      {/* Modal de confirmación */}
       <ConfirmActionModal
         open={openModal}
         onOpenChange={setOpenModal}
-        title="¿Deseas deshabilitar este supervisor?"
+        title={
+          isRestoreAction
+            ? "¿Deseas habilitar este supervisor?"
+            : "¿Deseas deshabilitar este supervisor?"
+        }
         message={
           <>
-            Esta acción no se puede deshacer. El supervisor{" "}
-            <span className="font-semibold text-gray-900">
-              {selectedSupervisor?.name}
-            </span>{" "}
-            será deshabilitado.
+            {isRestoreAction ? (
+              <>
+                El supervisor{" "}
+                <span className="font-semibold text-gray-900">
+                  {selectedSupervisor?.name}
+                </span>{" "}
+                será habilitado nuevamente.
+              </>
+            ) : (
+              <>
+                Esta acción no se puede deshacer. El supervisor{" "}
+                <span className="font-semibold text-gray-900">
+                  {selectedSupervisor?.name}
+                </span>{" "}
+                será deshabilitado.
+              </>
+            )}
           </>
         }
-        confirmText="Sí, deshabilitar"
+        confirmText={isRestoreAction ? "Sí, habilitar" : "Sí, deshabilitar"}
         cancelText="Cancelar"
-        onConfirm={handleConfirmDisable}
+        onConfirm={handleConfirmAction}
       />
     </div>
   )
