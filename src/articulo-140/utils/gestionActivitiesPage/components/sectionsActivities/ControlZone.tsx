@@ -7,13 +7,18 @@ import { Link, useParams, useSearchParams } from "react-router"
 import { gestionActivitiesStore } from "../../stores/gestionActivitiesStore"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { Estado } from "@/articulo-140/types/types"
+import { useState } from "react"
+import { toast } from "sonner"
+import { ConfirmActionModal } from "@/articulo-140/admin/components/custom/ConfirmActionModal"
 
 export const ControlZoneAdActivities = () => {
-  const { getStatusColor,statusToNumber,getActivityEstatus,setActivityEstatus,stateFunDisableActivity, stateFunEnableActivity, isDisable } = gestionActivitiesStore();
+  const [disableConfirmOpen, setDisableConfirmOpen] = useState(false);
 
+  const { getStatusColor,statusToNumber,getActivityEstatus,setActivityEstatus,stateFunDisableActivity, stateFunEnableActivity, isDisable } = gestionActivitiesStore();
   const { activityMutation,updateStatusMutation } = useActivities();
   const { id } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
+
 
   const getValidStatus = (value:string | null):Estado=>{
     if(value==='pendiente'||value==='en-progreso'||value==='finalizado'){
@@ -22,7 +27,6 @@ export const ControlZoneAdActivities = () => {
     return "pendiente"
   };
 
- 
   const savedStatus = id ? getActivityEstatus(id):null;
   const queryStatus = searchParams.get('Status');
   const estadoURL = savedStatus ?? getValidStatus(queryStatus);
@@ -33,7 +37,6 @@ export const ControlZoneAdActivities = () => {
       return prev;
     }, { replace: true });
   }
-
   // Handler cuando el usuario cambia el estado
   const onEstadoChange = (nextEstado: Estado) => {
     // 1. Actualizar query param (para navegación)
@@ -52,18 +55,31 @@ export const ControlZoneAdActivities = () => {
     });
   };
 
+  const handleDeshabiltar = () => {
+    setDisableConfirmOpen(true);
+  };
+
+  const handleConfirmDisable=()=>{
+    const isDisableSet = 1;
+    stateFunDisableActivity();
+    activityMutation.mutate({ id, isDisableSet },{
+      onSuccess:()=>{
+          toast.success('Actividad deshabilitada correctamente');
+          setDisableConfirmOpen(false);
+      },
+      onError(error:any) {
+        const messageError = error?.response?.data?.message || error?.message || 'error al deshabilitar la actividad';
+        toast.error(messageError);
+      },
+    })
+  }
+
   const handleHabiltar = () => {
     const isDisableSet = 0;
     stateFunEnableActivity();
     activityMutation.mutate({ id, isDisableSet })
   };
-
-
-  const handleDeshabiltar = () => {
-    const isDisableSet = 1;
-    stateFunDisableActivity();
-    activityMutation.mutate({ id, isDisableSet })
-  };
+  
   return (
     <section className="space-y-6">
       <div>
@@ -71,7 +87,7 @@ export const ControlZoneAdActivities = () => {
       </div>
       <Separator />
       <div className="space-y-6">
-        <Card className="border-red-600 flex flex-row items-center gap-4 px-3 py-6 sm:justify-between">
+        <Card className="border flex flex-row items-center gap-4 px-3 py-6 sm:justify-between">
           <div className="flex items-center space-x-2">
             <div>
               <Label htmlFor="estado-activitie" className="font-medium">
@@ -98,7 +114,7 @@ export const ControlZoneAdActivities = () => {
                   <div className="mr-2 h-3 w-3 rounded-full bg-blue-500" />
                   <span className="text-blue-700">Pendiente</span>
                 </div>
-              </SelectItem>
+              </SelectItem>-red-600
               <SelectItem value="en-progreso">
                 <div className="flex items-center">
                   <div className="mr-2 h-3 w-3 rounded-full bg-green-500" />
@@ -146,12 +162,8 @@ export const ControlZoneAdActivities = () => {
                 Habilitar actividad
               </Button>
             </div>)}
-
-
         </Card>
       </div>
-
-
 
       <Card className="border-red-600 flex flex-row">
         <div className="flex items-center space-x-2 ml-3">
@@ -170,8 +182,22 @@ export const ControlZoneAdActivities = () => {
         <Button className="m-auto mr-5 text-white bg-red-500 hover:bg-red-700">
           Eliminar Actividad
         </Button>
-
       </Card>
+      <ConfirmActionModal 
+        open={disableConfirmOpen}
+        onOpenChange={setDisableConfirmOpen}
+        title="Deshabilitar Actividad"
+        message={
+          <>
+              ¿Estás seguro de que deseas <strong>deshabilitar</strong> esta actividad?
+              <br />
+              Esta acción la ocultará para todos los usuarios, excepto para el administrador.
+          </>
+          }
+        confirmText="Deshabilitar"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmDisable}
+      />
     </section>
   )
 }

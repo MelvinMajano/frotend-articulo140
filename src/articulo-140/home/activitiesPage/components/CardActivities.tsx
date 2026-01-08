@@ -20,24 +20,36 @@ export const CardActivities = () => {
 
   const { getActivityEstatus, numberToStatus } = gestionActivitiesStore();
 
+  // Filtrar actividades deshabilitadas si NO es admin
+  const filteredActivities = activities?.filter((activity) => {
+    // Si es admin, mostrar todas las actividades
+    if (isAdmin()) return true;
+    // Si NO es admin, solo mostrar actividades habilitadas
+    return activity.isDisabled !== 'true';
+  });
+
   return (
                 <CardContent className="px-0 pb-0">
                 {/* Activities Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ml-16 items-stretch">
-                  {activities?.map((activity) => {
+                  {filteredActivities?.map((activity) => {
                     const savedStatus = getActivityEstatus(activity.id.toString());
                     const estadoParam = savedStatus ?? numberToStatus(activity.status);
+
+                    const isActivityDisabled = activity.isDisabled === 'true';
                     return (
                     <Card
                       key={activity.id}
-                      className="flex flex-col overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white border border-gray-100 max-w-xs w-64 h-full"
+                      className={`flex flex-col overflow-hidden transition-all duration-300 ${isActivityDisabled ?
+                        'opacity-60 bg-gray-50 border-gray-200 max-w-xs w-64 h-full':
+                        'hover:shadow-xl hover:-translate-y-1 bg-white border border-gray-100 max-w-xs w-64 h-full'}`}
                     >
                       <CardHeader className="p-0">
                         <div className="aspect-video relative overflow-hidden">
                           <img
                             src={"/placeholder.svg"}
                             alt={activity.title}
-                            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                            className={`w-full h-full object-cover transition-transform duration-300 ${isActivityDisabled?'':'hover:scale-105'}`}
                           />
                           <div className="absolute top-3 right-3 flex items-center gap-2">
                             <Badge variant="secondary" className="bg-white/90 text-gray-700 text-xs">
@@ -83,7 +95,8 @@ export const CardActivities = () => {
 
                       <CardFooter className="flex flex-col p-5 pt-0 mt-auto">
                        {isAdmin() && (<Link to={`/activities-details/${activity.id}?Status=${estadoParam}`} className="block w-full">
-                          <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 transition-colors duration-200 ">
+                          <Button className={`w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 transition-colors duration-200`} 
+                          variant={isActivityDisabled ? 'ghost':'default'}>
                           Gestionar
                         </Button>
                         </Link>)}
