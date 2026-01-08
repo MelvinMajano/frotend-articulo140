@@ -8,6 +8,8 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Calendar, CalendarX, Gem, User } from 'lucide-react'
 import { Link } from 'react-router'
 import { DetailsInscriptionsActivity } from './custom/CustomDetailsInscriptionActivitys'
+import { gestionActivitiesStore } from '@/articulo-140/utils/gestionActivitiesPage/stores/gestionActivitiesStore'
+import { CustomStatusIndicator } from './custom/CustomStatusIndicator'
 
 
 
@@ -16,12 +18,16 @@ export const CardActivities = () => {
   const {query} = useActivities();
   const activities:Datum[]|undefined= query?.data?.data.data
 
+  const { getActivityEstatus, numberToStatus } = gestionActivitiesStore();
 
   return (
                 <CardContent className="px-0 pb-0">
                 {/* Activities Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ml-16 items-stretch">
-                  {activities?.map((activity) => (
+                  {activities?.map((activity) => {
+                    const savedStatus = getActivityEstatus(activity.id.toString());
+                    const estadoParam = savedStatus ?? numberToStatus(activity.status);
+                    return (
                     <Card
                       key={activity.id}
                       className="flex flex-col overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white border border-gray-100 max-w-xs w-64 h-full"
@@ -33,10 +39,15 @@ export const CardActivities = () => {
                             alt={activity.title}
                             className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                           />
-                          <div className="absolute top-3 right-3">
+                          <div className="absolute top-3 right-3 flex items-center gap-2">
                             <Badge variant="secondary" className="bg-white/90 text-gray-700 text-xs">
                               {activity.scopes}
                             </Badge>
+                            <CustomStatusIndicator 
+                              status={activity.status}
+                              activityId={activity.id.toString()}
+                              showLabel={false}
+                            />
                           </div>
                         </div>
                       </CardHeader>
@@ -71,7 +82,7 @@ export const CardActivities = () => {
                       </CardContent>
 
                       <CardFooter className="flex flex-col p-5 pt-0 mt-auto">
-                       {isAdmin() && (<Link to={`/activities-details/${activity.id}`} className="block w-full">
+                       {isAdmin() && (<Link to={`/activities-details/${activity.id}?Status=${estadoParam}`} className="block w-full">
                           <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 transition-colors duration-200 ">
                           Gestionar
                         </Button>
@@ -96,7 +107,8 @@ export const CardActivities = () => {
                         )}
                         </CardFooter>
                     </Card>
-                  ))}
+                  )
+                  })}
                 </div>
               </CardContent>
   )

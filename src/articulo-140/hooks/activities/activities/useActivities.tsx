@@ -1,13 +1,16 @@
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { getActivities } from "../../../home/actions/getActivities.action"
 import { gestionActivitiesStore } from "@/articulo-140/utils/gestionActivitiesPage/stores/gestionActivitiesStore";
 import { useSearchParams } from "react-router";
 import { postActivities } from "@/articulo-140/home/actions/postActivities.action";
 import { updateActivity } from "@/articulo-140/home/actions/updateActivity.action";
+import { updateActivityStatus } from "@/articulo-140/utils/gestionActivitiesPage/actions/updateActivityStatus.action";
+import { useEffect } from "react";
 
 export const useActivities = () => {
   const {disbaleActivity} = gestionActivitiesStore();
   const [searchParams] = useSearchParams();
+   const queryClient = useQueryClient();
 
   const page = searchParams.get('page') ?? '1';
   const limit = searchParams.get('limit') ?? '6';
@@ -18,6 +21,18 @@ export const useActivities = () => {
     retry:false,
     refetchInterval: 5*60*1000,
   });
+
+  // Sincronizar status de BD con Zustand solo cuando cambian los status
+  const activityStatuses = query.data?.data?.data?.map(a => `${a.id}-${a.status}`).join(',');
+  
+  useEffect(()=>{
+    if(query.data?.data?.data){
+      const { setActivityEstatus, numberToStatus } = gestionActivitiesStore.getState();
+      query.data.data.data.forEach((activity) => {
+        setActivityEstatus(activity.id.toString(), numberToStatus(activity.status));
+      });
+    }
+  }, [activityStatuses])
 
   const createActivityMutation = useMutation({
     mutationFn:postActivities,
@@ -41,7 +56,6 @@ export const useActivities = () => {
     }
   });
 
-  // Mantener el original del disable
   const activityMutation = useMutation({
     mutationFn: disbaleActivity,
     onSuccess: (message: string) => {
@@ -51,11 +65,19 @@ export const useActivities = () => {
       console.log(mesage)
     }
   });
+
+  const updateStatusMutation =useMutation({
+    mutationFn: updateActivityStatus,
+    onSuccess: () => {
+      queryClient.refetchQueries({queryKey:['activities']})
+    },
+  });
   
   return{
     query,
     createActivityMutation,
     updateActivityMutation,
-    activityMutation
+    activityMutation,
+    updateStatusMutation
   }
 }

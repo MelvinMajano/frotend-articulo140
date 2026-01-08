@@ -1,4 +1,4 @@
-import { Combobox } from "@/components/custom/ComboBox";
+import { CustomCombobox} from "@/components/custom/CustomCombobox";
 import { DateTimePicker } from "@/components/custom/DatetimePicker"
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input"
@@ -106,7 +106,7 @@ const onSubmit = handleSubmit(async (data: ActivityFormValues) => {
       availableSpots: data.availableSpots,
       supervisorId: data.supervisorId,
       scopes: data.scopesId,
-      isDisable: 1,
+      isDisable: 0,
     };
 
     await updateActivityMutation.mutateAsync(formDataObject, {
@@ -254,7 +254,7 @@ const onSubmit = handleSubmit(async (data: ActivityFormValues) => {
               name="supervisorId"
               control={control}
               render={({ field }) => (
-                <Combobox
+                <CustomCombobox
                   value={field.value}
                   onChange={field.onChange}
                 />

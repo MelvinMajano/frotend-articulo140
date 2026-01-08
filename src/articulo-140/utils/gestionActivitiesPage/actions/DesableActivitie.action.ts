@@ -1,5 +1,5 @@
 import { articulo140Api } from "@/articulo-140/api/articulo140Api";
-import type { IsDisabletype } from "@/articulo-140/interfaces/typeActivityisDisable";
+import type { TypeIsDisable } from "@/articulo-140/interfaces/typeIsDisable.response";
 
 
 interface props{
@@ -7,8 +7,8 @@ interface props{
     isDisableSet:number,
 }
 
-export const disableActivity = async({id,isDisableSet}:props):Promise<IsDisabletype>=>{
-       const {data} = await articulo140Api.put<IsDisabletype>(`/activities/disableEneable/${id}`,{
+export const disableActivity = async({id,isDisableSet}:props):Promise<TypeIsDisable>=>{
+       const {data} = await articulo140Api.put<TypeIsDisable>(`/activities/disableEneable/${id}`,{
         isDisableSet
        })
        return data;

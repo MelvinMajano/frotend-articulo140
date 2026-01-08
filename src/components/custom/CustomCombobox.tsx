@@ -23,7 +23,7 @@ interface ComboboxProps {
   onChange?: (value: string) => void;
 }
 
-export const Combobox=({value: externalValue, onChange}: ComboboxProps)=> {
+export const CustomCombobox=({value: externalValue, onChange}: ComboboxProps)=> {
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState(externalValue || "")
 
