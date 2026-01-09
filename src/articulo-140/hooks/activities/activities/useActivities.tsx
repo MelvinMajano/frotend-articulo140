@@ -6,6 +6,7 @@ import { postActivities } from "@/articulo-140/home/actions/postActivities.actio
 import { updateActivity } from "@/articulo-140/home/actions/updateActivity.action";
 import { updateActivityStatus } from "@/articulo-140/utils/gestionActivitiesPage/actions/updateActivityStatus.action";
 import { useEffect } from "react";
+import { deleteActivity } from "@/articulo-140/utils/gestionActivitiesPage/actions/deleteActivity.action";
 
 export const useActivities = () => {
   const {disbaleActivity} = gestionActivitiesStore();
@@ -72,12 +73,20 @@ export const useActivities = () => {
       queryClient.refetchQueries({queryKey:['activities']})
     },
   });
+
+  const deleteActivityMutation = useMutation({
+    mutationFn:deleteActivity,
+    onSuccess:()=>{
+      queryClient.refetchQueries({queryKey:['activities']})
+    }
+  });
   
   return{
     query,
     createActivityMutation,
     updateActivityMutation,
     activityMutation,
-    updateStatusMutation
+    updateStatusMutation,
+    deleteActivityMutation
   }
 }

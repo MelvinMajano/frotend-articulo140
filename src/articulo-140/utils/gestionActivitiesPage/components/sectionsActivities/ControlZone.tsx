@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Label } from "@radix-ui/react-label"
-import { Link, useParams, useSearchParams } from "react-router"
+import { Link, useNavigate, useParams, useSearchParams } from "react-router"
 import { gestionActivitiesStore } from "../../stores/gestionActivitiesStore"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { Estado } from "@/articulo-140/types/types"
@@ -13,9 +13,11 @@ import { ConfirmActionModal } from "@/articulo-140/admin/components/custom/Confi
 
 export const ControlZoneAdActivities = () => {
   const [disableConfirmOpen, setDisableConfirmOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const navigate = useNavigate();
 
   const { getStatusColor,statusToNumber,getActivityEstatus,setActivityEstatus,stateFunDisableActivity, stateFunEnableActivity, isDisable } = gestionActivitiesStore();
-  const { activityMutation,updateStatusMutation } = useActivities();
+  const { activityMutation,updateStatusMutation,deleteActivityMutation } = useActivities();
   const { id } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -79,6 +81,27 @@ export const ControlZoneAdActivities = () => {
     stateFunEnableActivity();
     activityMutation.mutate({ id, isDisableSet })
   };
+
+
+  const handleDelete = ()=>{
+    setDeleteConfirmOpen(true);
+  }
+
+  const handleConfirmDelete = ()=>{
+    deleteActivityMutation.mutate({
+      id
+    },{
+    onSuccess:(response)=>{
+      toast.success(response);
+      setDeleteConfirmOpen(false);
+      navigate('/admin/activities-deleted');
+    },
+    onError:(error:any)=>{
+      const messageError = error?.response?.data?.message || error?.message || 'error al eliminar la actividad';
+      toast.error(messageError);
+    }
+    })
+  }
   
   return (
     <section className="space-y-6">
@@ -114,7 +137,7 @@ export const ControlZoneAdActivities = () => {
                   <div className="mr-2 h-3 w-3 rounded-full bg-blue-500" />
                   <span className="text-blue-700">Pendiente</span>
                 </div>
-              </SelectItem>-red-600
+              </SelectItem>
               <SelectItem value="en-progreso">
                 <div className="flex items-center">
                   <div className="mr-2 h-3 w-3 rounded-full bg-green-500" />
@@ -179,7 +202,9 @@ export const ControlZoneAdActivities = () => {
             </p>
           </div>
         </div>
-        <Button className="m-auto mr-5 text-white bg-red-500 hover:bg-red-700">
+        <Button
+        onClick={handleDelete}
+        className="m-auto mr-5 text-white bg-red-500 hover:bg-red-700">
           Eliminar Actividad
         </Button>
       </Card>
@@ -197,6 +222,23 @@ export const ControlZoneAdActivities = () => {
         confirmText="Deshabilitar"
         cancelText="Cancelar"
         onConfirm={handleConfirmDisable}
+      />
+      <ConfirmActionModal 
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        title="Eliminar Actividad"
+        message={
+          <>
+              ¿Estás seguro de que deseas <strong>Eliminar</strong> esta actividad?
+              <br />
+              Esta acción la eliminara para todos los usuarios, Incluyendo el administrador
+              <br />
+              pero la podra encontrar en <span >Actividades Eliminadas</span>.
+          </>
+          }
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmDelete}
       />
     </section>
   )
