@@ -1,39 +1,48 @@
 import { useState } from "react"
 import { useDeletedActivities } from "@/articulo-140/hooks/activities/admin/useDeletedActivities"
+import { restoreDeletedActivity } from "@/articulo-140/admin/actions/restoreDeletedActivity"
 import { CustomImput } from "@/components/custom/CustomImput"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Link } from "react-router"
-import { ArrowLeft, Edit, RotateCcw, Loader2 } from 'lucide-react'
-import { EditActivityModal } from "../../components/EditActivityModal"
+import { ArrowLeft, RotateCcw, Loader2 } from 'lucide-react'
 import { ConfirmActionModal } from "../../components/custom/ConfirmActionModal"
+import { useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 
 export const ActivitiesDeletedPage = () => {
+  const queryClient = useQueryClient()
   const { query } = useDeletedActivities()
   const { data, isLoading, isError } = query
-  const [selectedActivity, setSelectedActivity] = useState<any>(null)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [activityToRestore, setActivityToRestore] = useState<string | null>(null)
-
-  const handleEdit = (activity: any) => {
-    setSelectedActivity(activity)
-    setIsEditModalOpen(true)
-  }
+  const [isRestoring, setIsRestoring] = useState(false)
 
   const handleRestoreClick = (activityId: string) => {
     setActivityToRestore(activityId)
     setIsConfirmOpen(true)
   }
 
-  const handleConfirmRestore = () => {
+  const handleConfirmRestore = async () => {
     if (activityToRestore) {
-
-      // TODO: Lógica para restaurar la actividad usando activityToRestore
-     
-      setIsConfirmOpen(false)
-      setActivityToRestore(null)
+      setIsRestoring(true)
+      setIsConfirmOpen(false) 
+      
+      try {
+        await restoreDeletedActivity(activityToRestore)
+  
+        await queryClient.invalidateQueries({ queryKey: ['deletedActivities'] })
+        
+        toast.success("Actividad restaurada exitosamente")
+        
+        setActivityToRestore(null)
+      } catch (error) {
+        toast.error("Error al restaurar la actividad. Por favor, intenta nuevamente.")
+        console.error("Error al restaurar actividad:", error)
+      } finally {
+        setIsRestoring(false)
+      }
     }
   }
 
@@ -66,6 +75,18 @@ export const ActivitiesDeletedPage = () => {
             <p className="text-red-500 text-center py-6">
               Error al cargar las actividades eliminadas
             </p>
+          ) : !data?.data || data.data.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="text-gray-400 mb-4">
+                <RotateCcw className="w-16 h-16" />
+              </div>
+              <p className="text-gray-600 text-lg font-medium mb-2">
+                No hay actividades eliminadas
+              </p>
+              <p className="text-gray-500 text-sm">
+                Todas las actividades están activas en el sistema
+              </p>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
@@ -81,7 +102,7 @@ export const ActivitiesDeletedPage = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data?.data?.map((activity: any) => (
+                  {data.data.map((activity: any) => (
                     <TableRow
                       key={activity.id}
                       className="hover:bg-gray-50 transition-colors duration-200"
@@ -97,18 +118,15 @@ export const ActivitiesDeletedPage = () => {
                       <TableCell>
                         <div className="flex justify-center gap-2">
                           <Button
-                            variant="outline"
-                            className="border-amber-600 text-amber-700 hover:bg-amber-600 hover:text-white flex items-center font-medium shadow-sm transition-all duration-200"
-                            onClick={() => handleEdit(activity)}
-                          >
-                            <Edit className="w-4 h-4 mr-1" />
-                            Editar
-                          </Button>
-                          <Button
                             className="bg-teal-600 hover:bg-teal-700 text-white flex items-center font-medium shadow-sm transition-all duration-200"
                             onClick={() => handleRestoreClick(activity.id)}
+                            disabled={isRestoring}
                           >
-                            <RotateCcw className="w-4 h-4 mr-1" />
+                            {isRestoring ? (
+                              <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                            ) : (
+                              <RotateCcw className="w-4 h-4 mr-1" />
+                            )}
                             Restaurar
                           </Button>
                         </div>
@@ -121,16 +139,6 @@ export const ActivitiesDeletedPage = () => {
           )}
         </CardContent>
       </Card>
-
-      {/* Modal de Edición */}
-      <EditActivityModal
-        activity={selectedActivity}
-        isOpen={isEditModalOpen}
-        onClose={() => {
-          setIsEditModalOpen(false)
-          setSelectedActivity(null)
-        }}
-      />
 
       {/* Modal de Confirmación de Restaurar */}
       <ConfirmActionModal
