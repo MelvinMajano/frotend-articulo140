@@ -1,9 +1,8 @@
-import { type FC, type ChangeEvent } from "react"
+import { type FC, type ChangeEvent, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Upload, Trash2, Loader2, X, RefreshCw, ArrowLeft } from "lucide-react"
+import { Upload, Trash2, Loader2, X, RefreshCw, ArrowLeft, Plus } from "lucide-react"
 import { Link } from "react-router"
-import { type CloudinaryImage } from "@/articulo-140/hooks/activities/admin/useClaudinaryImage"
+import { useCloudinaryGallery, type CloudinaryImage } from "@/articulo-140/hooks/activities/admin/useClaudinaryImage"
 
 interface GalleryHeaderProps {
   imagesCount: number
@@ -47,32 +46,60 @@ export const GalleryHeader: FC<GalleryHeaderProps> = ({
   </div>
 )
 
-interface GalleryGridProps {
-  images: CloudinaryImage[]
-  onImageClick: (img: CloudinaryImage) => void
-  onDeleteClick: (img: CloudinaryImage) => void
-}
 
-export const GalleryGrid: FC<GalleryGridProps> = ({ images, onImageClick, onDeleteClick }) => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-    {images.map(img => (
-      <Card key={img.publicId} className="group relative overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer" onClick={() => onImageClick(img)}>
-        <CardContent className="p-0">
-          <div className="aspect-square relative">
-            <img src={img.thumbnail || img.secureUrl} alt={img.publicId} className="w-full h-full object-cover"/>
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-2">
-              <Button variant="destructive" size="icon" onClick={e => { e.stopPropagation(); onDeleteClick(img) }} className="bg-red-500 hover:bg-red-600">
-                <Trash2 className="w-4 h-4"/>
-              </Button>
-            </div>
-            <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs uppercase">{img.format || "IMG"}</div>
-          </div>
-        </CardContent>
-      </Card>
+
+export const GalleryGrid = () =>{ 
+  const {handleDelete,images}=useCloudinaryGallery();
+  const [deletingId] = useState<string | null>(null)
+
+  const handleAddtoActivity = ()=>{
+
+  }
+
+  return (
+    <div className="w-full">
+       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {images.map(img => (
+      <div key={img.publicId} className="flex flex-col gap-3">
+        <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+            <img src={img.thumbnail || img.secureUrl} alt={img.publicId} className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"/>
+        </div>
+
+        <div className="flex flex-col gap-2 w-full">
+          <Button
+          onClick={e => {e.stopPropagation(), handleAddtoActivity()}}
+          className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium transition-colors"
+          disabled = {deletingId===img.publicId}
+          >
+            <Plus className="w-4 h-4 mr-2"/>
+            Agregar a actividad
+          </Button>
+          <Button
+            onClick={handleDelete}
+            variant="destructive"
+            className="w-full "
+            disabled={deletingId === img.publicId}
+            >
+              {deletingId===img.publicId ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin"/>
+                  Eliminando...
+                </>
+              ):(
+                <>
+                <Trash2 className="w-4 h-4 mr-2" />
+                Eliminar
+                </>
+              )}
+          </Button>
+        </div>
+      </div>
     ))}
   </div>
-)
-
+    </div>
+  )
+}
+  
 interface GalleryPreviewModalProps {
   image: CloudinaryImage | null
   onClose: () => void

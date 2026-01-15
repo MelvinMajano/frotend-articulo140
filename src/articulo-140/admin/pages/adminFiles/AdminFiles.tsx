@@ -7,7 +7,7 @@ import { Loader2, Upload } from "lucide-react"
 export const AdminFilesPage = () => {
   const {
     images, isLoading, isUploading, selectedImage, setSelectedImage,
-    confirmOpen, setConfirmOpen, setImageToDelete,
+    confirmOpen, setConfirmOpen,
     loadImages, handleUpload, handleDelete
   } = useCloudinaryGallery()
 
@@ -16,7 +16,7 @@ export const AdminFilesPage = () => {
       <GalleryHeader
         imagesCount={images.length}
         isLoading={isLoading}
-        onReload={loadImages}
+        onReload={loadImages} 
         isUploading={isUploading}
         onFileChange={e => handleUpload(e.target.files?.[0] || null)}
       />
@@ -34,11 +34,7 @@ export const AdminFilesPage = () => {
           </CardContent>
         </Card>
         ) : (
-          <GalleryGrid
-            images={images}
-            onImageClick={setSelectedImage}
-            onDeleteClick={img => { setImageToDelete(img); setConfirmOpen(true) }}
-          />
+          <GalleryGrid/>
         )}
 
 

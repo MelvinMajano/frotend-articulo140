@@ -1,10 +1,10 @@
 import { useParams, Link } from "react-router"
+import { useQuery } from "@tanstack/react-query"
 import { getEstudentsIncriptionsActivity } from "@/articulo-140/supervisor/actions/GetstudentsInscriptionsActivity.actios"
 import { Card, CardHeader, CardContent } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Loader2, FileSpreadsheet } from "lucide-react"
-import { useQuery } from "@tanstack/react-query"
+import { ArrowLeft, Loader2 } from "lucide-react"
 
 export const ActivityAttendance = () => {
   const {id} = useParams();
@@ -30,16 +30,6 @@ export const ActivityAttendance = () => {
                 Regresar
               </Button>
             </Link>
-          </div>
-
-          <div className="ml-auto">
-            <Button
-              variant="outline"
-              className="border-teal-600 text-teal-700 hover:bg-teal-600 hover:text-white flex items-center font-medium shadow-sm transition-all duration-200"
-            >
-              <FileSpreadsheet className="w-4 h-4 mr-2" />
-              Exportar asistencia desde Excel
-            </Button>
           </div>
         </CardHeader>
 

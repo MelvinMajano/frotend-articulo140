@@ -20,6 +20,7 @@ export const useCloudinaryGallery = () => {
   const [selectedImage, setSelectedImage] = useState<CloudinaryImage | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [imageToDelete, setImageToDelete] = useState<CloudinaryImage | null>(null)
+  const [deletingId,setDeletingId] = useState<string | null>(null)
 
   const loadImages = async () => {
     setIsLoading(true)
@@ -102,6 +103,7 @@ export const useCloudinaryGallery = () => {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
       })
       if (response.status !== 200) throw new Error(response.data?.message || "No se pudo eliminar la imagen")
+      setDeletingId(imageToDelete.publicId)
 
       setImages(prev => prev.filter(img => img.publicId !== imageToDelete.publicId))
       toast.success("Imagen eliminada exitosamente")
@@ -129,5 +131,6 @@ export const useCloudinaryGallery = () => {
     loadImages,
     handleUpload,
     handleDelete,
+    deletingId
   }
 }
