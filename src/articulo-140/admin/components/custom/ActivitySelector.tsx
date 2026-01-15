@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Loader2, Search, Calendar, MapPin, Users, ArrowLeft, Clock } from "lucide-react"
+import { Loader2, Search, Calendar, UserCheck, Users, ArrowLeft, Clock, Info } from "lucide-react"
 import { useActivities } from "@/articulo-140/hooks/activities/activities/useActivities"
 import type { Datum } from "@/articulo-140/interfaces/activities.response"
 
@@ -33,10 +33,15 @@ export const ExistingActivitySelector = ({
   }
 
   const activities: Activity[] = Array.isArray(data?.data?.data)
-  ? data.data.data
-  : []
+    ? data.data.data
+    : []
 
-  const filteredActivities = activities.filter((activity) => {
+  // Filtrar solo actividades finalizadas
+  const finishedActivities = activities.filter((activity) => 
+    activity.status === 'finished'
+  )
+
+  const filteredActivities = finishedActivities.filter((activity) => {
     const title = activity.title?.toLowerCase() || ""
     const description = activity.description?.toLowerCase() || ""
     const query = searchQuery.toLowerCase()
@@ -44,18 +49,19 @@ export const ExistingActivitySelector = ({
   })
 
   return (
-    <div className="py-4">
+    <div className="space-y-3">
+      {/* Botón de volver */}
       <Button
         variant="ghost"
         onClick={onBack}
-        className="mb-4 text-gray-600 hover:text-teal-600 hover:bg-teal-50"
+        className="text-gray-600 hover:text-teal-600 hover:bg-teal-50 -mt-2"
       >
         <ArrowLeft className="w-4 h-4 mr-2" />
         Volver
       </Button>
 
       {/* Buscador */}
-      <div className="relative mb-4">
+      <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
         <Input
           placeholder="Buscar actividad por nombre o descripción..."
@@ -63,6 +69,19 @@ export const ExistingActivitySelector = ({
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-10"
         />
+      </div>
+
+      {/* Recordatorio */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex gap-2">
+        <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm text-blue-900 font-medium">
+            Solo actividades finalizadas
+          </p>
+          <p className="text-xs text-blue-700">
+            Solo se muestran actividades con estado "Finalizado" para poder asignar horas VOAE al estudiante.
+          </p>
+        </div>
       </div>
 
       {/* Lista de actividades */}
@@ -74,10 +93,12 @@ export const ExistingActivitySelector = ({
         <p className="text-red-500 text-center py-6">Error al cargar las actividades</p>
       ) : (
         <>
-          <div className="h-[400px] pr-4 overflow-y-auto">
+          <div className="h-[320px] pr-2 overflow-y-auto">
             {filteredActivities.length === 0 ? (
               <p className="text-gray-500 text-center py-10">
-                No se encontraron actividades
+                {searchQuery 
+                  ? "No se encontraron actividades" 
+                  : "No hay actividades finalizadas disponibles"}
               </p>
             ) : (
               <div className="space-y-3">
@@ -114,7 +135,7 @@ export const ExistingActivitySelector = ({
                         <span>Cupos: {activity.availableSpots}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <MapPin className="w-3.5 h-3.5" />
+                        <UserCheck className="w-3.5 h-3.5" />
                         <span>{activity.Supervisor}</span>
                       </div>
                     </div>
@@ -125,10 +146,10 @@ export const ExistingActivitySelector = ({
           </div>
 
           {/* Botones de acción */}
-          <div className="flex gap-3 justify-end mt-6 pt-4 border-t">
+          <div className="flex gap-3 justify-end pt-3 border-t">
             <Button
               variant="outline"
-              onClick={onBack}
+              onClick={onClose}
               className="border-gray-300"
             >
               Cancelar

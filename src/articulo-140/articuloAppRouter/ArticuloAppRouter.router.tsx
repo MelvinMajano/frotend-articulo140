@@ -9,6 +9,7 @@ import { RegisterPage } from "../auth/pages/register/RegisterPage";
 {/* Importaciones para Admin Page y Students */}
 import { AdminPage } from "../admin/AdminPage";
 import { AdminStudents } from "../admin/pages/adminStudents/AdminStudents";
+import { AdminStudentForm } from "../admin/pages/adminStudents/AdminStudentForm";
 import { AdminStudentDetail } from "../admin/pages/adminStudents/AdminStudentsResume";
 import { AdminAddActivityToStudent } from "../admin/pages/adminStudents/AdminStudentsActivity";
 
@@ -109,7 +110,7 @@ export const router = createBrowserRouter([
             },
             {
                 path:"students/create",
-                // element: 
+                element: <AdminStudentForm/> 
             },
             {
                 path:"students/:id",
