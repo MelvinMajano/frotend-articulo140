@@ -20,6 +20,11 @@ export const AdminStudentDetail = () => {
   const activities = activitiesData?.data || []
   const studentHours = hoursData?.data?.[0]
 
+  const activitiesList =
+  activities.length > 0
+    ? activities[0].activitiesParticipated.split(",").map(a => a.trim())
+    : []
+
   if (isLoading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-screen">
@@ -156,14 +161,14 @@ export const AdminStudentDetail = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {activities.map((activity, index) => (
+                    {activitiesList.map((activity, index) => (
                       <TableRow key={index} className="hover:bg-gray-50">
                         <TableCell className="font-medium text-gray-600">
                           {index + 1}
-                        </TableCell>
+                          </TableCell>
                         <TableCell className="text-gray-800">
-                          {activity.activitiesParticipated}
-                        </TableCell>
+                          {activity}
+                          </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
