@@ -1,18 +1,14 @@
 import { getStudentByActivity } from "@/articulo-140/utils/gestionActivitiesPage/actions/get-Students-AttendanceByActivity";
 import { useQuery } from "@tanstack/react-query"
-import { useParams } from "react-router";
 
-
-export const useStudentsAttendaceByActivity = () => {
-    const {id:activityId} = useParams();
+export const useStudentsAttendaceByActivity = (activityId: string | undefined) => {
     const query = useQuery({
-        queryKey:['StudenteAttendanceByActivity'],
+        queryKey:['attendance', {activityId}],
         queryFn:()=>getStudentByActivity(activityId),
         retry:false,
         staleTime: 1000 * 60 * 5,
+        enabled: !!activityId,
     });
  
-    return {
-        query
-  }
+    return query;
 }

@@ -9,11 +9,11 @@ import { Table,
   TableHead,
   TableHeader,
   TableRow, } from "@/components/ui/table"
-
+import { useParams } from "react-router"
 
 export const StudentsAdActivities = () => {
-  const {query} = useStudentsAttendaceByActivity();
-  const {data, isLoading } = query;
+  const {id: activityId} = useParams();
+  const {data, isLoading } = useStudentsAttendaceByActivity(activityId);
 
   if(isLoading){
     return <CustomFullScreenLoading/>
