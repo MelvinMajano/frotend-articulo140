@@ -3,16 +3,20 @@ import { useStudentsAttendaceByActivity } from "@/articulo-140/hooks/activities/
 import { Card, CardHeader, CardContent } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { ArrowLeft, FileSpreadsheet, Loader2 } from "lucide-react"
-import { useRef, type ChangeEvent } from "react"
+import { useRef, useState, type ChangeEvent } from "react"
 import { useImportActivityAttendance } from "@/articulo-140/hooks/activities/activities/useImportActivityAttendance"
+import { useUpdateHoursAwarded } from "@/articulo-140/hooks/activities/activities/useUpdateHoursAwarded"
 
 export const ActivityAttendance = () => {
   const {id} = useParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [editingHours, setEditingHours] = useState<{ [attendanceId: string]: number | null }>({});
 
   const { data, isLoading, isError } = useStudentsAttendaceByActivity(id);
   const { importMutation, lastImport, validateAndImport } = useImportActivityAttendance(id);
+  const updateHoursMutation = useUpdateHoursAwarded(id);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -24,6 +28,32 @@ export const ActivityAttendance = () => {
   };
 
   const openFilePicker = () => { fileInputRef.current?.click(); };
+
+  const handleHoursChange = (attendanceId: string, value: string) => {
+    const numValue = value === "" ? null : parseFloat(value);
+    setEditingHours(prev => ({ ...prev, [attendanceId]: numValue }));
+  };
+
+  const handleHoursBlur = (attendanceId: string, currentValue: number | null) => {
+    const newValue = editingHours[attendanceId];
+    
+    if (newValue !== undefined && newValue !== currentValue && newValue !== null && newValue >= 0) {
+      updateHoursMutation.mutate({ attendanceId, hoursAwarded: newValue });
+    }
+    
+    setEditingHours(prev => {
+      const updated = { ...prev };
+      delete updated[attendanceId];
+      return updated;
+    });
+  };
+
+  const getDisplayValue = (attendanceId: string, currentValue: number | null) => {
+    if (editingHours[attendanceId] !== undefined) {
+      return editingHours[attendanceId] === null ? "" : editingHours[attendanceId];
+    }
+    return currentValue ?? "";
+  };
 
   return (
     <div className="p-4">
@@ -132,7 +162,7 @@ export const ActivityAttendance = () => {
                   {(data?.message?.data?.length ?? 0) > 0 ? (
                     data?.message?.data?.map((student) => (
                       <TableRow
-                        key={student.accountNumber}
+                        key={student.attendanceId}
                         className="hover:bg-gray-50 transition-colors duration-200"
                       >
                         <TableCell className="font-medium text-gray-800">
@@ -145,7 +175,18 @@ export const ActivityAttendance = () => {
                         <TableCell>
                           {new Date(student.exitTime).toLocaleString("es-HN")}
                         </TableCell>
-                        <TableCell className="text-center">{student.hoursAwarded}</TableCell>
+                        <TableCell className="text-center">
+                          <Input
+                            type="number"
+                            min="0"
+                            step="0.5"
+                            value={getDisplayValue(student.attendanceId, student.hoursAwarded)}
+                            onChange={(e) => handleHoursChange(student.attendanceId, e.target.value)}
+                            onBlur={() => handleHoursBlur(student.attendanceId, student.hoursAwarded)}
+                            className="w-20 text-center"
+                            placeholder="0"
+                          />
+                        </TableCell>
                         <TableCell>{student.Scope}</TableCell>
                       </TableRow>
                     ))

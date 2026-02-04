@@ -8,12 +8,16 @@ export interface Message {
     pagination: Pagination;
 }
 
+/**
+ * Interfaz actualizada con attendanceId
+ */
 export interface Datum {
+    attendanceId:  string;         // ID único del registro de asistencia
     name:          string;
     accountNumber: number;
     entryTime:     Date;
     exitTime:      Date;
-    hoursAwarded:  null;
+    hoursAwarded:  number | null;
     Scope:         string;
 }
 
