@@ -2,12 +2,15 @@ import { useState, useEffect } from "react"
 import { Card, CardHeader, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Link, useParams } from "react-router"
+import { Link, useParams, useNavigate } from "react-router"
 import { Hash, BookOpen, Building, Loader2 } from "lucide-react"
 import { useCareers } from "@/articulo-140/hooks/activities/admin/useCareers"
+import { updateCareer } from "../actions/updateCareers"
+import { toast } from "sonner"
 
 export const AdminCareerEdit = () => {
   const { id } = useParams()
+  const navigate = useNavigate()
   const { query } = useCareers()
   const { data, isLoading } = query
 
@@ -16,6 +19,9 @@ export const AdminCareerEdit = () => {
     name: "",
     faculty: "",
   })
+  const [careerId, setCareerId] = useState<number | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (data?.data && id) {
@@ -26,6 +32,7 @@ export const AdminCareerEdit = () => {
           name: career.name,
           faculty: career.faculty,
         })
+        setCareerId(career.id)
       }
     }
   }, [data, id])
@@ -33,12 +40,53 @@ export const AdminCareerEdit = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+    
+    if (error) setError(null)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implementar lógica de actualización de la carrera
     
+    if (!formData.name.trim() || !formData.faculty.trim()) {
+      setError("Todos los campos son obligatorios")
+      toast.error("Todos los campos son obligatorios")
+      return
+    }
+
+    if (!careerId) {
+      setError("No se encontró el ID de la carrera")
+      toast.error("Error al actualizar la carrera")
+      return
+    }
+
+    setIsSubmitting(true)
+    setError(null)
+
+    try {
+      
+      await updateCareer(formData, careerId)
+      
+      toast.success("Carrera actualizada exitosamente")
+      
+      // Limpiar el formulario
+      setFormData({
+        code: "",
+        name: "",
+        faculty: "",
+      })
+
+      setTimeout(() => {
+        navigate("/admin/careers")
+      }, 1000)
+      
+    } catch (err: any) {
+    
+      setError("Error al actualizar la carrera. Por favor, intente nuevamente.")
+      toast.error( "Error al actualizar la carrera. Por favor, intente nuevamente.")
+      
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (isLoading) {
@@ -70,6 +118,13 @@ export const AdminCareerEdit = () => {
         {/* Contenido del formulario */}
         <CardContent className="p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Mensaje de error */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
+
             {/* Código de carrera */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
@@ -101,6 +156,7 @@ export const AdminCareerEdit = () => {
                 onChange={handleChange}
                 className="h-11 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                 required
+                disabled={isSubmitting}
               />
             </div>
 
@@ -118,6 +174,7 @@ export const AdminCareerEdit = () => {
                 onChange={handleChange}
                 className="h-11 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                 required
+                disabled={isSubmitting}
               />
             </div>
 
@@ -129,15 +186,17 @@ export const AdminCareerEdit = () => {
                     type="button"
                     variant="outline"
                     className="w-full sm:w-auto h-11 px-6 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-colors"
+                    disabled={isSubmitting}
                   >
                     Cancelar
                   </Button>
                 </Link>
                 <Button
                   type="submit"
-                  className="w-full sm:w-auto h-11 px-8 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold shadow-lg shadow-teal-200 transition-all"
+                  className="w-full sm:w-auto h-11 px-8 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold shadow-lg shadow-teal-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isSubmitting}
                 >
-                  Guardar Cambios
+                  {isSubmitting ? "Guardando..." : "Guardar Cambios"}
                 </Button>
               </div>
             </div>

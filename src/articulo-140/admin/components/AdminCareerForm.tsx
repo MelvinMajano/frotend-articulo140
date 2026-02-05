@@ -2,25 +2,61 @@ import { useState } from "react"
 import { Card, CardHeader, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import { BookOpen, Hash, Building } from "lucide-react"
+import { postCareer } from "../actions/postCareers"
+import { toast } from "sonner"
 
 export const AdminCareerForm = () => {
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     code: "",
     name: "",
     faculty: "",
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+    if (error) setError(null)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implementar lógica de envío al backend
-    console.log("Carrera registrada:", formData)
+    
+    if (!formData.code.trim() || !formData.name.trim() || !formData.faculty.trim()) {
+      setError("Todos los campos son obligatorios")
+      return
+    }
+
+    setIsSubmitting(true)
+    setError(null)
+
+    try {
+      
+      await postCareer(formData)
+
+      toast.success("Carrera registrada exitosamente")
+
+      // Limpiar el formulario
+      setFormData({
+        code: "",
+        name: "",
+        faculty: "",
+      })
+
+      setTimeout(() => {
+        navigate("/admin/careers")
+      }, 1000)
+
+    } catch (err: any) {
+      toast.error("Error al registrar la carrera")
+      setError(err.response?.data?.message || "Error al registrar la carrera")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -44,6 +80,13 @@ export const AdminCareerForm = () => {
         {/* Contenido del formulario */}
         <CardContent className="p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Mensaje de error */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
+
             {/* Código de carrera */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
@@ -58,6 +101,7 @@ export const AdminCareerForm = () => {
                 onChange={handleChange}
                 className="h-11 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                 required
+                disabled={isSubmitting}
               />
             </div>
 
@@ -75,6 +119,7 @@ export const AdminCareerForm = () => {
                 onChange={handleChange}
                 className="h-11 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                 required
+                disabled={isSubmitting}
               />
             </div>
 
@@ -92,6 +137,7 @@ export const AdminCareerForm = () => {
                 onChange={handleChange}
                 className="h-11 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                 required
+                disabled={isSubmitting}
               />
             </div>
 
@@ -103,14 +149,17 @@ export const AdminCareerForm = () => {
                     type="button"
                     variant="outline"
                     className="w-full sm:w-auto h-11 px-6 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-colors"
+                    disabled={isSubmitting}
                   >
                     Cancelar
                   </Button>
                 </Link>
                 <Button
                   type="submit"
-                  className="w-full sm:w-auto h-11 px-8 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold shadow-lg shadow-teal-200 transition-all">
-                  Registrar Carrera
+                  className="w-full sm:w-auto h-11 px-8 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold shadow-lg shadow-teal-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Registrando..." : "Registrar Carrera"}
                 </Button>
               </div>
             </div>

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import { useSupervisors } from "@/articulo-140/hooks/activities/admin/useSupervisors"
 import { CustomImput } from "@/components/custom/CustomImput"
 import { Button } from "@/components/ui/button"
@@ -17,6 +17,38 @@ export const AdminSupervisor = () => {
   const [selectedSupervisor, setSelectedSupervisor] = useState<any | null>(null)
   const [openModal, setOpenModal] = useState(false)
   const [isRestoreAction, setIsRestoreAction] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  // Atajo de teclado Cmd+K / Ctrl+K
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        searchInputRef.current?.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  const filteredSupervisors = useMemo(() => {
+    if (!data?.data) return []
+    
+    if (!searchQuery.trim()) return data.data
+
+    const query = searchQuery.toLowerCase().trim()
+    
+    return data.data.filter((supervisor) => 
+      supervisor.accountNumber.toString().toLowerCase().includes(query) ||
+      supervisor.name.toLowerCase().includes(query) ||
+      supervisor.email.toLowerCase().includes(query) ||
+      supervisor.identityNumber.toLowerCase().includes(query) ||
+      supervisor.career.toLowerCase().includes(query)
+    )
+  }, [data?.data, searchQuery])
 
   const handleActionClick = (supervisor: any) => {
     setSelectedSupervisor(supervisor)
@@ -60,7 +92,12 @@ export const AdminSupervisor = () => {
                 Regresar
               </Button>
             </Link>
-            <CustomImput />
+            <CustomImput 
+              ref={searchInputRef}
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Buscar por cuenta, nombre, correo, identidad o carrera..."
+            />
           </div>
           <Link to="/admin/supervisor/create">
             <Button className="bg-teal-600 hover:bg-teal-700 text-white flex items-center">
@@ -79,62 +116,85 @@ export const AdminSupervisor = () => {
           ) : isError ? (
             <p className="text-red-500 text-center py-6">Error al cargar los supervisores</p>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead><span className="text-gray-700"># Cuenta</span></TableHead>
-                    <TableHead><span className="text-gray-700">Nombre</span></TableHead>
-                    <TableHead><span className="text-gray-700">Correo</span></TableHead>
-                    <TableHead><span className="text-gray-700">Identidad</span></TableHead>
-                    <TableHead><span className="text-gray-700">Carrera</span></TableHead>
-                    <TableHead className="text-center"><span className="text-gray-700">Acciones</span></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data?.data.map((supervisor) => (
-                    <TableRow key={supervisor.accountNumber}>
-                      <TableCell><span className="font-medium">{supervisor.accountNumber}</span></TableCell>
-                      <TableCell>{supervisor.name}</TableCell>
-                      <TableCell>{supervisor.email}</TableCell>
-                      <TableCell>{supervisor.identityNumber}</TableCell>
-                      <TableCell>{supervisor.career}</TableCell>
-                      <TableCell>
-                        <div className="flex justify-center gap-2">
-                          <Link to={`/admin/supervisor/edit/${supervisor.accountNumber}`}>
-                            <Button
-                              variant="outline"
-                              className="border-teal-600 text-teal-600 hover:bg-teal-50 flex items-center"
-                            >
-                              <PenLine className="w-4 h-4 mr-1" />
-                              Editar
-                            </Button>
-                          </Link>
+            <>
+              {/* Contador de resultados */}
+              {searchQuery && (
+                <div className="mb-4 text-sm text-gray-600">
+                  {filteredSupervisors.length === 0 
+                    ? "No se encontraron resultados" 
+                    : `Mostrando ${filteredSupervisors.length} de ${data?.data.length} supervisores`
+                  }
+                </div>
+              )}
 
-                          {supervisor.isDeleted === "true" ? (
-                            <Button
-                              onClick={() => handleActionClick(supervisor)}
-                              className="bg-green-600 hover:bg-green-700 text-white flex items-center"
-                            >
-                              <Unlock className="w-4 h-4 mr-1" />
-                              Habilitar
-                            </Button>
-                          ) : (
-                            <Button
-                              onClick={() => handleActionClick(supervisor)}
-                              className="bg-gray-500 hover:bg-gray-600 text-white flex items-center"
-                            >
-                              <Lock className="w-4 h-4 mr-1" />
-                              Deshabilitar
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead><span className="text-gray-700"># Cuenta</span></TableHead>
+                      <TableHead><span className="text-gray-700">Nombre</span></TableHead>
+                      <TableHead><span className="text-gray-700">Correo</span></TableHead>
+                      <TableHead><span className="text-gray-700">Identidad</span></TableHead>
+                      <TableHead><span className="text-gray-700">Carrera</span></TableHead>
+                      <TableHead className="text-center"><span className="text-gray-700">Acciones</span></TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredSupervisors.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-10 text-gray-500">
+                          {searchQuery 
+                            ? "No se encontraron supervisores que coincidan con tu búsqueda" 
+                            : "No hay supervisores registrados"
+                          }
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredSupervisors.map((supervisor) => (
+                        <TableRow key={supervisor.accountNumber}>
+                          <TableCell><span className="font-medium">{supervisor.accountNumber}</span></TableCell>
+                          <TableCell>{supervisor.name}</TableCell>
+                          <TableCell>{supervisor.email}</TableCell>
+                          <TableCell>{supervisor.identityNumber}</TableCell>
+                          <TableCell>{supervisor.career}</TableCell>
+                          <TableCell>
+                            <div className="flex justify-center gap-2">
+                              <Link to={`/admin/supervisor/edit/${supervisor.accountNumber}`}>
+                                <Button
+                                  variant="outline"
+                                  className="border-teal-600 text-teal-600 hover:bg-teal-50 flex items-center"
+                                >
+                                  <PenLine className="w-4 h-4 mr-1" />
+                                  Editar
+                                </Button>
+                              </Link>
+
+                              {supervisor.isDeleted === "true" ? (
+                                <Button
+                                  onClick={() => handleActionClick(supervisor)}
+                                  className="bg-green-600 hover:bg-green-700 text-white flex items-center"
+                                >
+                                  <Unlock className="w-4 h-4 mr-1" />
+                                  Habilitar
+                                </Button>
+                              ) : (
+                                <Button
+                                  onClick={() => handleActionClick(supervisor)}
+                                  className="bg-gray-500 hover:bg-gray-600 text-white flex items-center"
+                                >
+                                  <Lock className="w-4 h-4 mr-1" />
+                                  Deshabilitar
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

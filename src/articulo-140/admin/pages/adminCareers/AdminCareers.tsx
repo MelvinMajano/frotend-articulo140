@@ -1,12 +1,14 @@
-import { useState } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import { useCareers } from "@/articulo-140/hooks/activities/admin/useCareers"
 import { CustomImput } from "@/components/custom/CustomImput"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Loader2, PenLine, Lock, PlusCircle, ArrowLeft } from "lucide-react"
+import { Loader2, PenLine, Lock, PlusCircle, ArrowLeft, Unlock } from "lucide-react"
 import { Link } from "react-router"
 import { ConfirmActionModal } from "@/articulo-140/admin/components/custom/ConfirmActionModal"
+import { deleteCareer, restoreCareer } from "../../actions/softDeleteCareer"
+import { toast } from "sonner"
 
 export const AdminCareers = () => {
   const { query } = useCareers()
@@ -14,20 +16,61 @@ export const AdminCareers = () => {
 
   const [selectedCareer, setSelectedCareer] = useState<any | null>(null)
   const [openModal, setOpenModal] = useState(false)
+  const [isRestoreAction, setIsRestoreAction] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
 
-  const handleDisableClick = (career: any) => {
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        searchInputRef.current?.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  const filteredCareers = useMemo(() => {
+    if (!data?.data) return []
+    
+    if (!searchQuery.trim()) return data.data
+
+    const query = searchQuery.toLowerCase().trim()
+    
+    return data.data.filter((career) => 
+      career.code.toLowerCase().includes(query) ||
+      career.name.toLowerCase().includes(query) ||
+      career.faculty.toLowerCase().includes(query)
+    )
+  }, [data?.data, searchQuery])
+
+  const handleActionClick = (career: any) => {
     setSelectedCareer(career)
+    setIsRestoreAction(career.isDisabled === "true")
     setOpenModal(true)
   }
 
-  const handleConfirmDisable = async () => {
+  const handleConfirmAction = async () => {
+    if (!selectedCareer) return
+
     try {
-      // 🔧 TODO: Implementar llamada PUT al backend
-      console.log("Deshabilitando carrera:", selectedCareer)
+      if (isRestoreAction) {
+        await restoreCareer(selectedCareer.id)
+        toast.success(`Carrera ${selectedCareer.name} habilitada correctamente`)
+      } else {
+        await deleteCareer(selectedCareer.id)
+        toast.success(`Carrera ${selectedCareer.name} deshabilitada correctamente`)
+      }
+
+      query.refetch?.()
+    } catch (error) {
+      toast.error(`Error al ${isRestoreAction ? "habilitar" : "deshabilitar"} la carrera`)
+    } finally {
       setOpenModal(false)
       setSelectedCareer(null)
-    } catch (error) {
-      console.error("Error al deshabilitar carrera:", error)
     }
   }
 
@@ -46,7 +89,12 @@ export const AdminCareers = () => {
                 Regresar
               </Button>
             </Link>
-            <CustomImput />
+            <CustomImput 
+              ref = {searchInputRef}
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Buscar por código, nombre o facultad..."
+            />
           </div>
           <Link to="/admin/careers/create">
             <Button className="bg-teal-600 hover:bg-teal-700 text-white flex items-center">
@@ -65,68 +113,118 @@ export const AdminCareers = () => {
           ) : isError ? (
             <p className="text-red-500 text-center py-6">Error al cargar las carreras</p>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead><span className="text-gray-700"># Código</span></TableHead>
-                    <TableHead><span className="text-gray-700">Nombre</span></TableHead>
-                    <TableHead><span className="text-gray-700">Facultad</span></TableHead>
-                    <TableHead className="text-center"><span className="text-gray-700">Acciones</span></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data?.data.map((career) => (
-                    <TableRow key={career.code}>
-                      <TableCell><span className="font-medium">{career.code}</span></TableCell>
-                      <TableCell>{career.name}</TableCell>
-                      <TableCell>{career.faculty}</TableCell>
-                      <TableCell>
-                        <div className="flex justify-center gap-2">
-                          <Link to={`/admin/careers/edit/${career.code}`}>
-                            <Button
-                              variant="outline"
-                              className="border-teal-600 text-teal-600 hover:bg-teal-50 flex items-center"
-                            >
-                              <PenLine className="w-4 h-4 mr-1" />
-                              Editar
-                            </Button>
-                          </Link>
-                          <Button
-                            onClick={() => handleDisableClick(career)}
-                            className="bg-gray-500 hover:bg-gray-600 text-white flex items-center"
-                          >
-                            <Lock className="w-4 h-4 mr-1" />
-                            Deshabilitar
-                          </Button>
-                        </div>
-                      </TableCell>
+            <>
+              {/* Mostrar contador de resultados */}
+              {searchQuery && (
+                <div className="mb-4 text-sm text-gray-600">
+                  {filteredCareers.length === 0 
+                    ? "No se encontraron resultados" 
+                    : `Mostrando ${filteredCareers.length} resultado${filteredCareers.length > 1 ? "s" : ""}`
+                  }
+                </div>
+              )}
+
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead><span className="text-gray-700"># Código</span></TableHead>
+                      <TableHead><span className="text-gray-700">Nombre</span></TableHead>
+                      <TableHead><span className="text-gray-700">Facultad</span></TableHead>
+                      <TableHead className="text-center"><span className="text-gray-700">Acciones</span></TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredCareers.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center py-10 text-gray-500">
+                          {searchQuery 
+                            ? "No se encontraron carreras que coincidan con tu búsqueda" 
+                            : "No hay carreras registradas"
+                          }
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredCareers.map((career) => (
+                        <TableRow key={career.code}>
+                          <TableCell><span className="font-medium">{career.code}</span></TableCell>
+                          <TableCell>{career.name}</TableCell>
+                          <TableCell>{career.faculty}</TableCell>
+                          <TableCell>
+                            <div className="flex justify-center gap-2">
+                              <Link to={`/admin/careers/edit/${career.code}`}>
+                                <Button
+                                  variant="outline"
+                                  className="border-teal-600 text-teal-600 hover:bg-teal-50 flex items-center"
+                                >
+                                  <PenLine className="w-4 h-4 mr-1" />
+                                  Editar
+                                </Button>
+                              </Link>
+
+                              {career.isDisabled === "true" ? (
+                                <Button
+                                  onClick={() => handleActionClick(career)}
+                                  className="bg-green-600 hover:bg-green-700 text-white flex items-center"
+                                >
+                                  <Unlock className="w-4 h-4 mr-1" />
+                                  Habilitar
+                                </Button>
+                              ) : (
+                                <Button
+                                  onClick={() => handleActionClick(career)}
+                                  className="bg-gray-500 hover:bg-gray-600 text-white flex items-center"
+                                >
+                                  <Lock className="w-4 h-4 mr-1" />
+                                  Deshabilitar
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
 
-      {/* Modal de Confirmación */}
+      {/* Modal de confirmación */}
       <ConfirmActionModal
         open={openModal}
         onOpenChange={setOpenModal}
-        title="¿Deseas deshabilitar esta carrera?"
+        title={
+          isRestoreAction
+            ? "¿Deseas habilitar esta carrera?"
+            : "¿Deseas deshabilitar esta carrera?"
+        }
         message={
           <>
-            Esta acción no se puede deshacer. La carrera{" "}
-            <span className="font-semibold text-gray-900">
-              {selectedCareer?.name}
-            </span>{" "}
-            será deshabilitada.
+            {isRestoreAction ? (
+              <>
+                La carrera{" "}
+                <span className="font-semibold text-gray-900">
+                  {selectedCareer?.name}
+                </span>{" "}
+                será habilitada nuevamente.
+              </>
+            ) : (
+              <>
+                Esta acción no se puede deshacer. La carrera{" "}
+                <span className="font-semibold text-gray-900">
+                  {selectedCareer?.name}
+                </span>{" "}
+                será deshabilitada.
+              </>
+            )}
           </>
         }
-        confirmText="Sí, deshabilitar"
+        confirmText={isRestoreAction ? "Sí, habilitar" : "Sí, deshabilitar"}
         cancelText="Cancelar"
-        onConfirm={handleConfirmDisable}
+        onConfirm={handleConfirmAction}
       />
     </div>
   )

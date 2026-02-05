@@ -1,4 +1,4 @@
-import { importActivityAttendance } from "@/articulo-140/admin/actions/mportActivityAttendance";
+import { ImportActivityAttendance } from "@/articulo-140/admin/actions/ImportActivityAttendance";
 import type { AttendanceImportResponse, AttendanceImportSummary } from "@/articulo-140/interfaces/admin.attendanceImport.response";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -13,7 +13,7 @@ export const useImportActivityAttendance = (activityId: string | undefined) => {
             if (!activityId) {
                 return Promise.reject(new Error("No se encontro el id de la actividad"))
             }
-            return importActivityAttendance(activityId, file)
+            return ImportActivityAttendance(activityId, file)
         },
         onSuccess: (response) => {
             const summary = response.data ?? null;

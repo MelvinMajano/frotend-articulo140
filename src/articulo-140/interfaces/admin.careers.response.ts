@@ -8,4 +8,5 @@ export interface Career {
   code: string
   name: string
   faculty: string
+  isDisabled: string
 }
