@@ -179,7 +179,7 @@ export const ActivityAttendance = () => {
                           <Input
                             type="number"
                             min="0"
-                            step="0.5"
+                            step="1"
                             value={getDisplayValue(student.attendanceId, student.hoursAwarded)}
                             onChange={(e) => handleHoursChange(student.attendanceId, e.target.value)}
                             onBlur={() => handleHoursBlur(student.attendanceId, student.hoursAwarded)}
