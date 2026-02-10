@@ -3,25 +3,45 @@ import { useDeletedActivities } from "@/articulo-140/hooks/activities/admin/useD
 import { restoreDeletedActivity } from "@/articulo-140/admin/actions/restoreDeletedActivity"
 import { CustomImput } from "@/components/custom/CustomImput"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Link } from "react-router"
 import { ArrowLeft, RotateCcw, Loader2 } from 'lucide-react'
 import { ConfirmActionModal } from "../../components/custom/ConfirmActionModal"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
+import { CustomPagination } from "@/components/custom/CustomPagination"
+import { useSearchParams } from "react-router"
 
 export const ActivitiesDeletedPage = () => {
   const queryClient = useQueryClient()
-  const { query } = useDeletedActivities()
+  const [searchParams, setSearchParams] = useSearchParams()
+  
+  const currentPage = parseInt(searchParams.get('page') || '1', 10)
+  const limit = 5
+  
+  const { query } = useDeletedActivities(limit, currentPage)
   const { data, isLoading, isError } = query
   
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [activityToRestore, setActivityToRestore] = useState<string | null>(null)
-  const [isRestoring, setIsRestoring] = useState(false)
+  const [restoringActivityId, setRestoringActivityId] = useState<string | null>(null)
+  const [fadingOutId, setFadingOutId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   
   const searchInputRef = useRef<HTMLInputElement>(null)
+  
+  const totalPages = data?.data?.pagination?.totalPage || 1
+  const totalActivities = data?.data?.pagination?.total || 0
+  const hasActivities = data?.data?.data && data.data.data.length > 0
+
+  // Resetear a página 1 cuando cambie la búsqueda
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      setSearchParams({ page: '1' })
+    }
+  }, [searchQuery, setSearchParams])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -36,19 +56,24 @@ export const ActivitiesDeletedPage = () => {
   }, [])
 
   const filteredActivities = useMemo(() => {
-    if (!data?.data) return []
     
-    if (!searchQuery.trim()) return data.data
+    if (!data?.data?.data) return []
+    
+    const activities = data.data.data
+    
+    if (!searchQuery.trim()) return activities
 
     const query = searchQuery.toLowerCase().trim()
     
-    return data.data.filter((activity: any) => 
+    return activities.filter((activity: any) => 
       activity.title.toLowerCase().includes(query) ||
       activity.voaeHours.toString().includes(query) ||
-      activity.scopes.toLowerCase().includes(query) ||
+      (Array.isArray(activity.scopes) 
+        ? activity.scopes.join(' ').toLowerCase().includes(query)
+        : activity.scopes.toString().toLowerCase().includes(query)) ||
       activity.supervisor.toLowerCase().includes(query)
     )
-  }, [data?.data, searchQuery])
+  }, [data?.data?.data, searchQuery])
 
   const handleRestoreClick = (activityId: string) => {
     setActivityToRestore(activityId)
@@ -57,21 +82,26 @@ export const ActivitiesDeletedPage = () => {
 
   const handleConfirmRestore = async () => {
     if (activityToRestore) {
-      setIsRestoring(true)
+      setRestoringActivityId(activityToRestore)
       setIsConfirmOpen(false) 
       
       try {
         await restoreDeletedActivity(activityToRestore)
-  
+        
+        // Animar salida antes de actualizar
+        setFadingOutId(activityToRestore)
+        await new Promise(resolve => setTimeout(resolve, 300))
+        
+        setSearchParams({ page: '1' })
         await queryClient.invalidateQueries({ queryKey: ['deletedActivities'] })
         
         toast.success("Actividad restaurada exitosamente")
-        
         setActivityToRestore(null)
       } catch (error) {
         toast.error("Error al restaurar la actividad. Por favor, intenta nuevamente.")
       } finally {
-        setIsRestoring(false)
+        setRestoringActivityId(null)
+        setFadingOutId(null)
       }
     }
   }
@@ -80,24 +110,51 @@ export const ActivitiesDeletedPage = () => {
     <div className="p-4">
       <Card className="bg-white shadow-lg border-0 w-full">
         {/* Header */}
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <Link to="/admin">
-              <Button
-                variant="ghost"
-                className="text-gray-600 hover:text-teal-600 hover:bg-teal-50"
-              >
-                <ArrowLeft className="w-5 h-5 mr-2" />
-                Regresar
-              </Button>
-            </Link>
-            <CustomImput 
-              ref={searchInputRef}
-              value={searchQuery}
-              onChange={setSearchQuery}
-              placeholder="Buscar por título, horas, ámbitos o supervisor..."
-            />
+        <CardHeader className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* Título y badge de contador */}
+            <div className="flex items-center gap-3">
+              <Link to="/admin">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-gray-600 hover:text-teal-600 hover:bg-teal-50"
+                >
+                  <ArrowLeft className="w-5 h-5 mr-2" />
+                </Button>
+              </Link>
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  Actividades Eliminadas
+                </h2>
+                {hasActivities && (
+                  <span className="inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-700">
+                    {totalActivities}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Buscador */}
+            <div className="w-full sm:w-auto sm:min-w-[300px]">
+              <CustomImput 
+                ref={searchInputRef}
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Buscar por título, horas, ámbitos o supervisor..."
+              />
+            </div>
           </div>
+
+          {/* Contador de búsqueda (solo cuando hay búsqueda activa) */}
+          {searchQuery && hasActivities && (
+            <div className="flex items-center gap-2 text-sm text-gray-600 bg-teal-50 px-4 py-2 rounded-md">
+              <span className="font-medium">{filteredActivities.length}</span>
+              <span>de</span>
+              <span className="font-medium">{totalActivities}</span>
+              <span>actividades encontradas</span>
+            </div>
+          )}
         </CardHeader>
 
         {/* Contenido */}
@@ -110,7 +167,8 @@ export const ActivitiesDeletedPage = () => {
             <p className="text-red-500 text-center py-6">
               Error al cargar las actividades eliminadas
             </p>
-          ) : !data?.data || data.data.length === 0 ? (
+          ) : !hasActivities ? (
+            /* Estado vacío limpio */
             <div className="flex flex-col items-center justify-center py-12">
               <div className="text-gray-400 mb-4">
                 <RotateCcw className="w-16 h-16" />
@@ -124,78 +182,96 @@ export const ActivitiesDeletedPage = () => {
             </div>
           ) : (
             <>
-              {/* Contador de resultados */}
-              {searchQuery && (
-                <div className="mb-4 text-sm text-gray-600">
-                  {filteredActivities.length === 0 
-                    ? "No se encontraron resultados" 
-                    : `Mostrando ${filteredActivities.length} de ${data?.data.length} actividades eliminadas`
-                  }
-                </div>
-              )}
-
               <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead><span className="text-gray-700">Título</span></TableHead>
-                      <TableHead><span className="text-gray-700">Fecha de Inicio</span></TableHead>
-                      <TableHead><span className="text-gray-700">Fecha de Fin</span></TableHead>
-                      <TableHead><span className="text-gray-700">Horas VOAE</span></TableHead>
-                      <TableHead><span className="text-gray-700">Ámbitos</span></TableHead>
-                      <TableHead><span className="text-gray-700">Supervisor</span></TableHead>
-                      <TableHead className="text-center">Acciones</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredActivities.length === 0 ? (
+                <TooltipProvider>
+                  <Table>
+                    <TableHeader>
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center py-10 text-gray-500">
-                          {searchQuery 
-                            ? "No se encontraron actividades que coincidan con tu búsqueda" 
-                            : "No hay actividades eliminadas"
-                          }
-                        </TableCell>
+                        <TableHead><span className="text-gray-700">Título</span></TableHead>
+                        <TableHead><span className="text-gray-700">Fecha de Inicio</span></TableHead>
+                        <TableHead><span className="text-gray-700">Fecha de Fin</span></TableHead>
+                        <TableHead><span className="text-gray-700">Horas VOAE</span></TableHead>
+                        <TableHead><span className="text-gray-700">Ámbitos</span></TableHead>
+                        <TableHead><span className="text-gray-700">Supervisor</span></TableHead>
+                        <TableHead className="text-center">Acciones</TableHead>
                       </TableRow>
-                    ) : (
-                      filteredActivities.map((activity: any) => (
-                        <TableRow
-                          key={activity.id}
-                          className="hover:bg-gray-50 transition-colors duration-200"
-                        >
-                          <TableCell className="font-medium text-gray-800">
-                            {activity.title}
-                          </TableCell>
-                          <TableCell>{activity.startDate}</TableCell>
-                          <TableCell>{activity.endDate}</TableCell>
-                          <TableCell>{activity.voaeHours}</TableCell>
-                          <TableCell>{activity.scopes}</TableCell>
-                          <TableCell>{activity.supervisor}</TableCell>
-                          <TableCell>
-                            <div className="flex justify-center gap-2">
-                              <Button
-                                className="bg-teal-600 hover:bg-teal-700 text-white flex items-center font-medium shadow-sm transition-all duration-200"
-                                onClick={() => handleRestoreClick(activity.id)}
-                                disabled={isRestoring}
-                              >
-                                {isRestoring ? (
-                                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                                ) : (
-                                  <RotateCcw className="w-4 h-4 mr-1" />
-                                )}
-                                Restaurar
-                              </Button>
-                            </div>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredActivities.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center py-10 text-gray-500">
+                            {searchQuery 
+                              ? "No se encontraron actividades que coincidan con tu búsqueda" 
+                              : "No hay actividades eliminadas"
+                            }
                           </TableCell>
                         </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
+                      ) : (
+                        filteredActivities.map((activity: any) => {
+                          const isRestoring = restoringActivityId === activity.id
+                          
+                          return (
+                            /* Animación de salida */
+                            <TableRow
+                              key={activity.id}
+                              className={`hover:bg-gray-50 transition-all duration-300 ${
+                                fadingOutId === activity.id ? 'opacity-0 scale-95' : 'opacity-100'
+                              }`}
+                            >
+                              <TableCell className="font-medium text-gray-800">
+                                {activity.title}
+                              </TableCell>
+                              <TableCell>{activity.startDate}</TableCell>
+                              <TableCell>{activity.endDate}</TableCell>
+                              <TableCell>{activity.voaeHours}</TableCell>
+                              <TableCell>
+                                {Array.isArray(activity.scopes) 
+                                  ? activity.scopes.join(', ') 
+                                  : activity.scopes}
+                              </TableCell>
+                              <TableCell>{activity.supervisor}</TableCell>
+                              <TableCell>
+                                <div className="flex justify-center gap-2">
+                                  {/* Tooltip*/}
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        className="bg-teal-600 hover:bg-teal-700 text-white flex items-center font-medium shadow-sm transition-all duration-200"
+                                        onClick={() => handleRestoreClick(activity.id)}
+                                        disabled={restoringActivityId !== null}
+                                      >
+                                        {isRestoring ? (
+                                          <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                        ) : (
+                                          <RotateCcw className="w-4 h-4 mr-1" />
+                                        )}
+                                        Restaurar
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Reactivar actividad en el sistema</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )
+                        })
+                      )}
+                    </TableBody>
+                  </Table>
+                </TooltipProvider>
               </div>
             </>
           )}
         </CardContent>
+
+        {/* Footer con paginación - solo mostrar si no hay búsqueda activa */}
+        {!searchQuery && hasActivities && (
+          <CardFooter className="flex justify-center pt-4">
+            <CustomPagination totalPages={totalPages} />
+          </CardFooter>
+        )}
       </Card>
 
       {/* Modal de Confirmación de Restaurar */}
