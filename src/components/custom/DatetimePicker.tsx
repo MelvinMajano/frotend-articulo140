@@ -106,7 +106,7 @@ export function DateTimePicker({ date, setDate, placeholder = "Seleccionar fecha
           {date instanceof Date ? format(date, "PPP 'a las' p", { locale: es }) : <span>{placeholder}</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
+      <PopoverContent className="w-auto p-0 max-h-[350px] overflow-y-auto" align="start">
         {timeStep === "calendar" ? (
           <Calendar
             mode="single"

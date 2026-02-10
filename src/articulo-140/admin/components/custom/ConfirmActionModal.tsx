@@ -29,7 +29,7 @@ export const ConfirmActionModal: FC<ConfirmActionModalProps> = ({
           <AlertTriangle className="w-10 h-10" />
         </div>
         <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
-        <p className="text-gray-600">{message}</p>
+        <div className="text-gray-600">{message}</div>
         <div className="flex flex-col sm:flex-row gap-3 mt-6 w-full sm:w-auto">
           <Button
             variant="outline"
