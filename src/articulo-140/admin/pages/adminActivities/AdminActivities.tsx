@@ -4,16 +4,29 @@ import { CustomImput } from "@/components/custom/CustomImput"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Link } from "react-router"
-import { ArrowLeft, Eye, Loader2 } from 'lucide-react'
+import { Link, useSearchParams } from "react-router"
+import { ArrowLeft, Eye, Loader2, Plus } from 'lucide-react'
+import { useQueryClient } from "@tanstack/react-query"
+import { useMutation } from "@tanstack/react-query"
+import { addImageToActivity, replaceImageActivity } from "../../actions/addImageToActivity.action"
+import { toast } from "sonner"
+import { articulo140Api } from "@/articulo-140/api/articulo140Api"
+import { ConfirmActionModal } from "../../components/custom/ConfirmActionModal"
 
 export const AdminActivities = () => {
   const { query } = useActivities()
   const { data, isLoading, isError } = query
-  
+  const [searchParams] = useSearchParams()
   const [searchQuery, setSearchQuery] = useState("")
   const searchInputRef = useRef<HTMLInputElement>(null)
 
+  const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null)
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+  const [replaceImageDialogOpen, setReplaceImageDialogOpen] = useState(false)
+
+  const isFromFiles = searchParams.get('from') === 'files'
+   
+  //todo:logica de filtrado mediante la barra de busqueda, se puede filtrar por titulo, horas, ambitos o supervisor
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -40,6 +53,94 @@ export const AdminActivities = () => {
       activity.Supervisor.toLowerCase().includes(query)
     )
   }, [data?.data?.data, searchQuery])
+
+  //todo: logica de manejo de agregar imagen a actividad
+  const queryClient = useQueryClient();
+  const addImageMutation = useMutation({
+    mutationFn: addImageToActivity,
+    onSuccess: (message, variables) => {
+      toast.success(message || 'Imagen agregada a la actividad correctamente');
+      localStorage.removeItem('selectedImage');
+      setConfirmDialogOpen(false);
+      setSelectedActivityId(null);
+
+      queryClient.refetchQueries({ 
+        queryKey: [`activity-image-${variables.activityId}`] 
+      })
+  },
+  onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Error al agregar la imagen'
+      toast.error(errorMessage)
+  }
+  });
+
+   const replaceImageMutation = useMutation({
+    mutationFn: ({ activityId, imageData }: any) => replaceImageActivity(activityId, imageData),
+    onSuccess: (message, variables) => {
+      toast.success(message || 'Imagen reemplazada correctamente')
+      localStorage.removeItem('selectedImage')
+      setReplaceImageDialogOpen(false)
+      setConfirmDialogOpen(false)
+      setSelectedActivityId(null)
+    
+      queryClient.refetchQueries({ 
+        queryKey: [`activity-image-${variables.activityId}`] 
+      })
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Error al reemplazar la imagen'
+      toast.error(errorMessage)
+    }
+  });
+
+  const handleConfirmSelection = async () => {
+    const selectedImageStr = localStorage.getItem('selectedImage')
+    
+    if (!selectedImageStr || !selectedActivityId) {
+      toast.error('Imagen o actividad no seleccionada')
+      return
+    }
+    const selectedImage = JSON.parse(selectedImageStr)
+    try {
+      await articulo140Api.get(`/activities/images/by-activity/${selectedActivityId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      })
+      
+      setConfirmDialogOpen(false)
+      setReplaceImageDialogOpen(true)
+    } catch (error: any) {
+      if (error?.response?.status === 404) {
+        addImageMutation.mutate({
+          activityId: selectedActivityId,
+          imagePublicId: selectedImage.publicId,
+          imageUrl: selectedImage.secureUrl,
+          imageName: selectedImage.publicId,
+        })
+      } else {
+        toast.error('Error al verificar la imagen existente')
+      }
+    }
+  }
+
+   const handleReplaceImage = () => {
+    const selectedImageStr = localStorage.getItem('selectedImage')
+    
+    if (!selectedImageStr || !selectedActivityId) {
+      toast.error('Imagen o actividad no seleccionada')
+      return
+    }
+
+    const selectedImage = JSON.parse(selectedImageStr)
+
+    replaceImageMutation.mutate({
+      activityId: selectedActivityId,
+      imageData: {
+        imagePublicId: selectedImage.publicId,
+        imageUrl: selectedImage.secureUrl,
+        imageName: selectedImage.publicId,
+      }
+    })
+  }
 
   return (
     <div className="p-4">
@@ -125,20 +226,29 @@ export const AdminActivities = () => {
                           <TableCell>{activity.scopes}</TableCell>
                           <TableCell>{activity.Supervisor}</TableCell>
                           <TableCell>
-                            <div className="flex justify-center gap-2 relative group">
-                              <Link to={`/admin/activities/${activity.id}/attendance`}>
-                                <Button
-                                  variant="outline"
-                                  className="relative overflow-hidden border-teal-600 text-teal-700 hover:bg-teal-600 hover:text-white flex items-center font-medium shadow-sm transition-all duration-200"
-                                >
-                                  <Eye className="w-4 h-4 mr-1" />
-                                  Ver asistencias
-                                  {/* Efecto de onda */}
-                                  <span className="absolute inset-0 bg-teal-100 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
-                                </Button>
-                              </Link>
-                            </div>
-                          </TableCell>
+                        <div className="flex justify-center gap-2">
+                          {isFromFiles ? (
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                setSelectedActivityId(activity.id)
+                                setConfirmDialogOpen(true)
+                              }}
+                              className="border-teal-600 text-teal-700 hover:bg-teal-600 hover:text-white"
+                            >
+                              <Plus className="w-4 h-4 mr-1" />
+                              Seleccionar
+                            </Button>
+                          ) : (
+                            <Link to={`/admin/activities/${activity.id}/attendance`}>
+                              <Button variant="outline" className="border-teal-600 text-teal-700">
+                                <Eye className="w-4 h-4 mr-1" />
+                                Ver asistencias
+                              </Button>
+                            </Link>
+                          )}
+                        </div>
+                      </TableCell>
                         </TableRow>
                       ))
                     )}
@@ -149,6 +259,24 @@ export const AdminActivities = () => {
           )}
         </CardContent>
       </Card>
+      <ConfirmActionModal
+        open={confirmDialogOpen}
+        onOpenChange={setConfirmDialogOpen}
+        title="Confirmar selección"
+        message="¿Estás seguro de que deseas agregar la imagen seleccionada a esta actividad?"
+        confirmText="Confirmar"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmSelection}
+      />
+      <ConfirmActionModal
+        open={replaceImageDialogOpen}
+        onOpenChange={setReplaceImageDialogOpen}
+        title="Reemplazar imagen"
+        message="Esta actividad ya tiene una imagen asignada. ¿Deseas reemplazarla con la nueva?"
+        confirmText="Reemplazar"
+        cancelText="Cancelar"
+        onConfirm={handleReplaceImage}
+      />
     </div>
   )
 }

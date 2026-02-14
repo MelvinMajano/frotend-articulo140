@@ -95,17 +95,17 @@ export const useCloudinaryGallery = () => {
     }
   }
 
-  const handleDelete = async () => {
+  const handleDelete = async (publicId: string) => {
     if (!imageToDelete) return
     try {
       const response = await articulo140Api.delete(`/activities/images/delete`, {
-        data: { public_id: imageToDelete.publicId },
+        data: { public_id: publicId },
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
       })
       if (response.status !== 200) throw new Error(response.data?.message || "No se pudo eliminar la imagen")
-      setDeletingId(imageToDelete.publicId)
+      setDeletingId(publicId)
 
-      setImages(prev => prev.filter(img => img.publicId !== imageToDelete.publicId))
+      setImages(prev => prev.filter(img => img.publicId !== publicId))
       toast.success("Imagen eliminada exitosamente")
     } catch (error) {
       console.error(error)

@@ -1,7 +1,7 @@
 import { type FC, type ChangeEvent, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Upload, Trash2, Loader2, X, RefreshCw, ArrowLeft, Plus } from "lucide-react"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import { useCloudinaryGallery, type CloudinaryImage } from "@/articulo-140/hooks/activities/admin/useClaudinaryImage"
 
 interface GalleryHeaderProps {
@@ -52,9 +52,19 @@ export const GalleryGrid = () =>{
   const {handleDelete,images}=useCloudinaryGallery();
   const [deletingId] = useState<string | null>(null)
 
-  const handleAddtoActivity = ()=>{
+  const navigate = useNavigate();
 
+  const handleAddtoActivity = (img: any)=>{
+    localStorage.setItem('selectedImage',JSON.stringify({
+        publicId: img.publicId,
+        secureUrl: img.secureUrl,
+        name: img.displayName || img.publicId,
+    }))
+
+    navigate('/admin/activities?from=files')
   }
+
+
 
   return (
     <div className="w-full">
@@ -67,7 +77,7 @@ export const GalleryGrid = () =>{
 
         <div className="flex flex-col gap-2 w-full">
           <Button
-          onClick={e => {e.stopPropagation(), handleAddtoActivity()}}
+          onClick={e => {e.stopPropagation(), handleAddtoActivity(img)}}
           className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium transition-colors"
           disabled = {deletingId===img.publicId}
           >
@@ -75,7 +85,7 @@ export const GalleryGrid = () =>{
             Agregar a actividad
           </Button>
           <Button
-            onClick={handleDelete}
+            onClick={() => handleDelete(img.publicId)}
             variant="destructive"
             className="w-full "
             disabled={deletingId === img.publicId}
