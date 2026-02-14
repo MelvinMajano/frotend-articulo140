@@ -25,7 +25,7 @@ export const MinimalModal = ({
 }: MinimalModalProps)=> {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent
         className={cn("!max-w-3xl !w-[768px] !min-h-[600px] p-0 border-0 bg-transparent shadow-none", className)}
         showCloseButton={false}
