@@ -9,7 +9,6 @@ import { useForm, Controller } from 'react-hook-form';
 import { DateTimePicker } from "@/components/custom/DatetimePicker"
 import { Clock, User, FileText, Award, PlusCircle } from "lucide-react"
 import { useSupervisors } from "@/articulo-140/hooks/activities/admin/useSupervisors"
-import type { Supervisor } from "@/articulo-140/interfaces/admin.supervisors.response"
 import type { Datum } from "@/articulo-140/interfaces/activities.response"
 import { useActivities } from "@/articulo-140/hooks/activities/activities/useActivities"
 import { toast } from "sonner"
@@ -27,8 +26,9 @@ interface ActivityFormData {
 }
 
 export const ActivityForm = () => {
-  const { query } = useSupervisors()
-  const supervisors:Supervisor[]|undefined= query?.data?.data;
+
+  const { query } = useSupervisors(100, 1) // Obtener supervisores para el select
+  const supervisors = query?.data?.data?.data;
   const {createActivityMutation} = useActivities();
 
   const {

@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Link } from "react-router"
-import { ArrowLeft, RotateCcw, Loader2 } from 'lucide-react'
+import { ArrowLeft, RotateCcw, Loader2, CheckCircle2 } from 'lucide-react'
 import { ConfirmActionModal } from "../../components/custom/ConfirmActionModal"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
@@ -92,8 +92,17 @@ export const ActivitiesDeletedPage = () => {
         setFadingOutId(activityToRestore)
         await new Promise(resolve => setTimeout(resolve, 300))
         
-        setSearchParams({ page: '1' })
+        // Invalidar queries primero para actualizar los datos
         await queryClient.invalidateQueries({ queryKey: ['deletedActivities'] })
+        
+        // Si era la última actividad de la página actual y no es la página 1, ir a la página anterior
+        const remainingActivities = filteredActivities.length - 1
+        if (remainingActivities === 0 && currentPage > 1) {
+          setSearchParams({ page: String(currentPage - 1) })
+        } else {
+          // Si estamos en página 1 o hay más actividades, mantener página 1
+          setSearchParams({ page: '1' })
+        }
         
         toast.success("Actividad restaurada exitosamente")
         setActivityToRestore(null)
@@ -168,16 +177,24 @@ export const ActivitiesDeletedPage = () => {
               Error al cargar las actividades eliminadas
             </p>
           ) : !hasActivities ? (
-            /* Estado vacío limpio */
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="text-gray-400 mb-4">
-                <RotateCcw className="w-16 h-16" />
+            <div className="flex flex-col items-center justify-center py-16 px-4">
+              <div className="relative mb-6">
+                {/* Círculo de fondo con gradiente */}
+                <div className="absolute inset-0 bg-gradient-to-br from-teal-100 to-green-100 rounded-full blur-2xl opacity-50"></div>
+                {/* Ícono */}
+                <div className="relative bg-gradient-to-br from-teal-500 to-green-500 p-6 rounded-full shadow-lg">
+                  <CheckCircle2 className="w-16 h-16 text-white" />
+                </div>
               </div>
-              <p className="text-gray-600 text-lg font-medium mb-2">
+              
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                ¡Todo en orden!
+              </h3>
+              <p className="text-gray-600 text-center mb-1">
                 No hay actividades eliminadas
               </p>
-              <p className="text-gray-500 text-sm">
-                Todas las actividades están activas en el sistema
+              <p className="text-gray-500 text-sm text-center max-w-md">
+                Todas las actividades están activas en el sistema. Las actividades eliminadas aparecerán aquí.
               </p>
             </div>
           ) : (
