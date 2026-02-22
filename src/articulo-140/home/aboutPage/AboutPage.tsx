@@ -2,9 +2,13 @@ import { useState, useEffect } from "react"
 import { GraduationCap, Target, Eye, Users, Database, Network, ChevronLeft, ChevronRight, Shield, Zap, Globe, Terminal,  Cloud, Brain, Code2, Workflow, UserCheck, Mail, Award, Briefcase } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-// Colores institucionales UNAH
-const UNAH_BLUE = "#002D72"
-const UNAH_GOLD = "#FFD700"
+// Paleta de colores inspirada en el logo de Ingeniería en Sistemas UNAH (versión suavizada)
+const UNAH_BLUE = "#1E40AF";         // Azul institucional suavizado
+const UNAH_GOLD = "#FFD700";         // Dorado institucional
+const UNAH_WHITE = "#F9FAFB";        // Fondo institucional
+const UNAH_BLUE_SOFT = "#EFF6FF";    // Azul muy suave
+const UNAH_BLUE_GRADIENT = "#2563EB"; // Azul medio
+const UNAH_BLUE_LIGHT = "#60A5FA";   // Azul claro
 
 export const AboutPage = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -22,7 +26,7 @@ export const AboutPage = () => {
     `  nombre: "Universidad Nacional Autónoma de Honduras",`,
     `  colores: ["${UNAH_BLUE}", "${UNAH_GOLD}"],`,
     '  facultad: "Ingeniería",',
-    '  carrera: "Sistemas Computacionales"',
+    '  carrera: "Sistemas Computacionales"', 
     "};",
     "",
     "function desarrollarSolucion() {",
@@ -41,14 +45,14 @@ export const AboutPage = () => {
   ]
 
   const techStack = [
-    { name: "React", icon: "⚛️", color: "text-blue-400" },
-    { name: "TypeScript", icon: "TS", color: "text-blue-600" },
-    { name: "Tailwind CSS", icon: "🎨", color: "text-teal-400" },
-    { name: "Node.js", icon: "🟢", color: "text-green-600" },
-    { name: "My SQL", icon: "🗄️", color: "text-emerald-500" },
-    { name: "Vite", icon: "⚡", color: "text-purple-500" },
-    { name: "Lucide Icons", icon: "✨", color: "text-pink-400" },
-    { name: "Shadcn/UI", icon: "🎯", color: "text-cyan-500" }
+    { name: "React",         iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg",              fallback: "⚛️", color: "text-blue-400" },
+    { name: "TypeScript",   iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg",    fallback: "TS",  color: "text-blue-600" },
+    { name: "Tailwind CSS", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg",   fallback: "🎨", color: "text-teal-400" },
+    { name: "Node.js",      iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg",             fallback: "🟢", color: "text-green-600" },
+    { name: "MySQL",        iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original.svg",               fallback: "🗄️", color: "text-emerald-500" },
+    { name: "Vite",         iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitejs/vitejs-original.svg",             fallback: "⚡",  color: "text-purple-500" },
+    { name: "Zustand",      iconUrl: "https://cdn.simpleicons.org/zustand/443E38",                                                       fallback: "🐻",  color: "text-amber-800" },
+    { name: "Shadcn/UI",   iconUrl: "https://cdn.simpleicons.org/shadcnui/06b6d4",                                                      fallback: "🎯",  color: "text-cyan-500" }
   ]
 
   const competencias = [
@@ -120,7 +124,7 @@ export const AboutPage = () => {
         "Ingeniera en Sistemas",
       ],
       initials: "N",
-      bgColor: "from-blue-600 to-blue-800"
+      accentColor: UNAH_BLUE
     },
     {
       name: "Ing. Juan Alvarenga",
@@ -133,7 +137,7 @@ export const AboutPage = () => {
         "Ingeniero en Sistemas",
       ],
       initials: "JA",
-      bgColor: "from-slate-700 to-slate-900"
+      accentColor: UNAH_BLUE_GRADIENT
     }
   ]
 
@@ -199,69 +203,119 @@ export const AboutPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen" style={{ background: UNAH_WHITE }}>
       <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
         
-        {/* Hero Section - Estilo Código con colores UNAH */}
-        <div className="bg-gradient-to-br from-slate-900 via-[#001a4d] to-slate-900 shadow-2xl rounded-2xl overflow-hidden">
+        {/* Hero Section */}
+        <div className="rounded-2xl overflow-hidden border border-gray-200" style={{ background: UNAH_BLUE_SOFT }}>
           <div className="grid md:grid-cols-2 gap-0 min-h-[500px]">
             {/* Lado Izquierdo - Información */}
-            <div className="p-8 md:p-12 flex flex-col justify-center relative">
-              <div className="absolute top-6 left-6 flex gap-2">
-                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-              </div>
-              
-              <div className="mt-8 space-y-6">
-                <div className="inline-flex items-center gap-2 bg-blue-900/30 text-blue-200 px-4 py-2 rounded-full text-sm font-medium mb-2 border border-blue-700/30">
-                  <span className="w-2 h-2 bg-[#FFD700] rounded-full"></span>
+            <div className="p-8 md:p-12 flex flex-col justify-center" style={{ borderRight: `1px solid ${UNAH_BLUE}15` }}>
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border" style={{ borderColor: `${UNAH_BLUE}30`, color: UNAH_BLUE, background: `${UNAH_BLUE}08` }}>
+                  <span className="w-2 h-2 rounded-full" style={{ background: UNAH_GOLD }}></span>
                   UNAH - Ingeniería en Sistemas Computacionales
                 </div>
-                <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight">
-                  Sistema de Gestión <span className="text-[#FFD700]">VOAE</span>
+                <h1 className="text-4xl md:text-5xl font-bold leading-tight text-gray-900">
+                  Sistema de Gestión{" "}
+                  <span style={{ color: UNAH_BLUE }}>VOAE</span>
                 </h1>
-                <h2 className="text-2xl md:text-3xl font-semibold text-blue-300">
+                <h2 className="text-xl md:text-2xl font-medium" style={{ color: UNAH_BLUE }}>
                   Universidad Nacional Autónoma de Honduras
                 </h2>
-                <p className="text-gray-300 text-lg leading-relaxed">
+                <p className="text-base leading-relaxed text-gray-600">
                   Sistema desarrollado por estudiantes de Ingeniería en Sistemas Computacionales 
                   para la gestión eficiente de horas VOAE, promoviendo la innovación tecnológica 
                   en nuestra universidad.
                 </p>
+
               </div>
             </div>
 
-            {/* Lado Derecho - Código */}
-            <div className="bg-slate-950/50 p-8 md:p-12 flex items-center border-l border-slate-700/50">
-              <div className="w-full">
-                <div className="mb-4 flex items-center justify-between">
-                  <span className="text-xs text-gray-500 font-mono">sistema_voae.js</span>
-                  <div className="flex gap-1">
-                    <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                    <div className="w-2 h-2 rounded-full bg-[#FFD700]"></div>
-                    <div className="w-2 h-2 rounded-full bg-blue-800"></div>
-                  </div>
+            {/* Lado Derecho - Editor VS Code */}
+            <div className="flex flex-col rounded-tr-2xl rounded-br-2xl overflow-hidden" style={{ background: "#EFF6FF" }}>
+              
+              {/* Title bar */}
+              <div className="flex items-center gap-2 px-4 py-3" style={{ background: "#DBEAFE", borderBottom: "1px solid #BFDBFE" }}>
+                <div className="flex gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-400 cursor-pointer"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-400 hover:bg-yellow-300 cursor-pointer"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-500 hover:bg-green-400 cursor-pointer"></div>
                 </div>
-                <pre className="font-mono text-base leading-relaxed">
+                <span className="mx-auto text-xs font-medium" style={{ color: "#3D5A8A" }}>sistema_voae.js — VOAE UNAH</span>
+              </div>
+
+              {/* Tab bar */}
+              <div className="flex items-end" style={{ background: "#DBEAFE", borderBottom: "1px solid #BFDBFE" }}>
+                <div className="flex items-center gap-2 px-4 py-2 text-xs font-mono border-t-2" style={{ background: "#EFF6FF", borderTopColor: UNAH_BLUE, color: "#0D1117" }}>
+                  <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor" style={{ color: "#cb9b2e" }}><path d="M3 3h18v18H3V3zm16 16V5H5v14h14z"/></svg>
+                  sistema_voae.js
+                  <span className="ml-1 opacity-40 hover:opacity-80 cursor-pointer">×</span>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 text-xs font-mono opacity-50" style={{ color: "#3D5A8A" }}>
+                  package.json
+                </div>
+              </div>
+
+              {/* Explorer breadcrumb */}
+              <div className="px-4 py-1 text-xs flex items-center gap-1" style={{ background: "#EFF6FF", color: "#7B9FC7", borderBottom: "1px solid #BFDBFE" }}>
+                <span>VOAE</span>
+                <span className="opacity-40">›</span>
+                <span>src</span>
+                <span className="opacity-40">›</span>
+                <span style={{ color: "#1E3A6E" }}>sistema_voae.js</span>
+              </div>
+
+              {/* Editor area */}
+              <div className="flex flex-1 overflow-hidden px-0 py-4">
+                <pre className="font-mono text-sm leading-relaxed w-full">
                   {displayedText.split('\n').map((line, i) => (
-                    <div key={i} className="flex hover:bg-slate-800/30 px-2 -mx-2 rounded">
-                      <span className="text-gray-600 select-none w-8 text-right mr-4 text-sm">{i + 1}</span>
-                      <span className={
-                        line.includes('//') ? 'text-gray-500 italic' :
-                        line.includes('colores') ? 'text-[#FFD700]' :
-                        line.includes('const') || line.includes('function') || line.includes('return') || line.includes('new') ? 'text-purple-400 font-semibold' :
-                        line.includes('"') || line.includes("'") ? 'text-emerald-400' :
-                        line.includes('universidad') || line.includes('proyecto') ? 'text-blue-400' :
-                        line.includes('VOAE') || line.includes('desarrollarSolucion') ? 'text-[#FFD700]' :
-                        'text-gray-300'
-                      }>
-                        {line}
-                        {i === currentLine && <span className="animate-pulse text-[#FFD700]">|</span>}
+                    <div key={i} className="flex group" style={{ minHeight: "1.5rem", background: i === currentLine ? "#DBEAFE" : "transparent" }}>
+                      {/* Gutter */}
+                      <span className="select-none text-right pr-4 pl-4 text-xs transition-colors w-12 flex-shrink-0" style={{ color: "#7B9FC7", lineHeight: "1.5rem" }}>{i + 1}</span>
+                      {/* Active line indicator */}
+                      <span className="w-0.5 flex-shrink-0" style={{ background: i === currentLine ? UNAH_BLUE : "transparent" }}></span>
+                      {/* Code */}
+                      <span className="pl-4 pr-4 w-full" style={{ lineHeight: "1.5rem" }}>
+                        {line.includes('//') ? (
+                          <span style={{ color: "#6B7AA0", fontStyle: "italic" }}>{line}</span>
+                        ) : line.includes('//') || (line.includes('const') && !line.includes('"') && !line.includes("'")) || line.includes('function') || line.includes('return') || line.includes('new ') ? (
+                          <span>
+                            {line.split(/\b(const|function|return|new)\b/).map((part, pi) => (
+                              /^(const|function|return|new)$/.test(part)
+                                ? <span key={pi} style={{ color: "#0D2D9E", fontWeight: 500 }}>{part}</span>
+                                : <span key={pi} style={{ color: line.includes('colores') || line.includes('VOAE') || line.includes('desarrollarSolucion') ? "#5C2D06" : line.includes('universidad') || line.includes('proyecto') ? "#0B4FA8" : line.includes('"') || line.includes("'") ? "#1A4D0A" : "#0D1117" }}>{part}</span>
+                            ))}
+                          </span>
+                        ) : line.includes('colores') || line.includes('VOAE') || line.includes('desarrollarSolucion') ? (
+                          <span style={{ color: "#5C2D06" }}>{line}</span>
+                        ) : line.includes('"') || line.includes("'") ? (
+                          <span style={{ color: "#1A4D0A" }}>{line}</span>
+                        ) : line.includes('universidad') || line.includes('proyecto') ? (
+                          <span style={{ color: "#0B4FA8" }}>{line}</span>
+                        ) : (
+                          <span style={{ color: "#0D1117" }}>{line}</span>
+                        )}
+                        {i === currentLine && <span className="animate-pulse" style={{ borderLeft: "2px solid #555550", marginLeft: "1px" }}></span>}
                       </span>
                     </div>
                   ))}
                 </pre>
+              </div>
+
+              {/* Status bar */}
+              <div className="flex items-center justify-between px-4 py-1 text-xs" style={{ background: "#BFDBFE", color: "#1E3A6E" }}>
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-4.95 11.95L13.95 3.05A6.97 6.97 0 0 0 8 1zM2.05 12.95A7 7 0 0 0 13.95 3.05L2.05 12.95z"/></svg>
+                    main
+                  </span>
+                  <span>JavaScript</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span>UTF-8</span>
+                  <span style={{ color: UNAH_BLUE, fontWeight: 600 }}>VOAE UNAH</span>
+                </div>
               </div>
             </div>
           </div>
@@ -269,54 +323,54 @@ export const AboutPage = () => {
 
         {/* Banner de Estadísticas */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-gradient-to-r from-blue-900 to-blue-800 rounded-2xl p-6 shadow-lg transform hover:scale-[1.02] transition-all duration-300">
+          <div className="rounded-xl p-6 border transition-all duration-300" style={{ background: UNAH_BLUE_SOFT, borderColor: `${UNAH_BLUE}20`, borderLeft: `4px solid ${UNAH_BLUE}` }}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-200 text-sm font-medium">Horas Gestionadas</p>
-                <p className="text-4xl font-bold text-white mt-2">
+                <p className="text-sm font-medium" style={{ color: UNAH_BLUE }}>Horas Gestionadas</p>
+                <p className="text-4xl font-bold mt-2" style={{ color: UNAH_BLUE }}>
                   +{stats.hours.toLocaleString()}
-                  <span className="text-[#FFD700]">+</span>
+                  <span style={{ color: UNAH_GOLD }}>+</span>
                 </p>
               </div>
-              <div className="w-12 h-12 bg-blue-700/50 rounded-full flex items-center justify-center">
-                <Zap className="w-6 h-6 text-[#FFD700]" />
+              <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: `${UNAH_BLUE}10` }}>
+                <Zap className="w-6 h-6" style={{ color: UNAH_BLUE }} />
               </div>
             </div>
           </div>
           
-          <div className="bg-gradient-to-r from-blue-800 to-blue-700 rounded-2xl p-6 shadow-lg transform hover:scale-[1.02] transition-all duration-300">
+          <div className="rounded-xl p-6 border transition-all duration-300" style={{ background: UNAH_BLUE_SOFT, borderColor: `${UNAH_BLUE_GRADIENT}20`, borderLeft: `4px solid ${UNAH_BLUE_GRADIENT}` }}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-200 text-sm font-medium">Proceso Digitalizado</p>
-                <p className="text-4xl font-bold text-white mt-2">
+                <p className="text-sm font-medium" style={{ color: UNAH_BLUE_GRADIENT }}>Proceso Digitalizado</p>
+                <p className="text-4xl font-bold mt-2" style={{ color: UNAH_BLUE_GRADIENT }}>
                   {stats.digitalized}
-                  <span className="text-[#FFD700]">%</span>
+                  <span style={{ color: UNAH_GOLD }}>%</span>
                 </p>
               </div>
-              <div className="w-12 h-12 bg-blue-600/50 rounded-full flex items-center justify-center">
-                <Globe className="w-6 h-6 text-[#FFD700]" />
+              <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: `${UNAH_BLUE_GRADIENT}10` }}>
+                <Globe className="w-6 h-6" style={{ color: UNAH_BLUE_GRADIENT }} />
               </div>
             </div>
           </div>
           
-          <div className="bg-gradient-to-r from-blue-700 to-blue-600 rounded-2xl p-6 shadow-lg transform hover:scale-[1.02] transition-all duration-300">
+          <div className="rounded-xl p-6 border transition-all duration-300" style={{ background: UNAH_BLUE_SOFT, borderColor: `${UNAH_BLUE_LIGHT}30`, borderLeft: `4px solid ${UNAH_BLUE_LIGHT}` }}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-200 text-sm font-medium">Papel Desperdiciado</p>
-                <p className="text-4xl font-bold text-white mt-2">
+                <p className="text-sm font-medium" style={{ color: UNAH_BLUE }}>Papel Desperdiciado</p>
+                <p className="text-4xl font-bold mt-2" style={{ color: UNAH_BLUE }}>
                   {stats.paper}
-                  <span className="text-[#FFD700]">kg</span>
+                  <span style={{ color: UNAH_GOLD }}>kg</span>
                 </p>
               </div>
-              <div className="w-12 h-12 bg-blue-500/50 rounded-full flex items-center justify-center">
-                <Shield className="w-6 h-6 text-[#FFD700]" />
+              <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: `${UNAH_BLUE_LIGHT}15` }}>
+                <Shield className="w-6 h-6" style={{ color: UNAH_BLUE_LIGHT }} />
               </div>
             </div>
           </div>
         </div>
 
         {/* Tech Stack */}
-        <div className="bg-white rounded-2xl shadow-lg p-8">
+        <div className="rounded-xl border border-gray-200 p-8" style={{ background: UNAH_BLUE_SOFT }}>
           <div className="flex items-center gap-3 mb-8">
             <Terminal className="w-7 h-7" style={{ color: UNAH_BLUE }} />
             <h2 className="text-2xl font-bold text-gray-800">Stack Tecnológico</h2>
@@ -331,7 +385,19 @@ export const AboutPage = () => {
                 className="aspect-square bg-gradient-to-br from-white to-blue-50 border border-blue-100 rounded-xl flex flex-col items-center justify-center p-4 hover:border-blue-300 hover:shadow-lg hover:scale-105 transition-all duration-300 group"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <span className={`text-2xl mb-2 ${tech.color}`}>{tech.icon}</span>
+                <img
+                  src={tech.iconUrl}
+                  alt={tech.name}
+                  className="w-8 h-8 mb-2"
+                  onError={(e) => {
+                    const img = e.currentTarget;
+                    img.style.display = 'none';
+                    const fallbackEl = document.createElement('span');
+                    fallbackEl.className = `text-2xl mb-2 ${tech.color}`;
+                    fallbackEl.textContent = tech.fallback;
+                    img.parentNode?.insertBefore(fallbackEl, img);
+                  }}
+                />
                 <span className="text-sm font-medium text-gray-700 group-hover:text-blue-900">
                   {tech.name}
                 </span>
@@ -341,7 +407,7 @@ export const AboutPage = () => {
         </div>
 
         {/* Carrusel de Imágenes */}
-        <div className="bg-white rounded-2xl shadow-lg p-8">
+        <div className="rounded-xl border border-gray-200 p-8" style={{ background: UNAH_BLUE_SOFT }}>
           <div className="flex items-center gap-3 mb-8">
             <GraduationCap className="w-6 h-6" style={{ color: UNAH_BLUE }} />
             <h2 className="text-2xl font-bold text-gray-800">Galería</h2>
@@ -396,7 +462,7 @@ export const AboutPage = () => {
 
         {/* Misión y Visión */}
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow">
+          <div className="rounded-xl border border-gray-200 p-8 transition-shadow" style={{ background: UNAH_WHITE, borderColor: `${UNAH_BLUE}`, boxShadow: `0 4px 24px 0 ${UNAH_BLUE}20` }}>
             <div className="flex items-center gap-3 mb-6">
               <Target className="w-7 h-7" style={{ color: UNAH_BLUE }} />
               <h2 className="text-2xl font-bold text-gray-800">Misión</h2>
@@ -406,7 +472,7 @@ export const AboutPage = () => {
             </p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow">
+          <div className="rounded-xl border border-gray-200 p-8 transition-shadow" style={{ background: UNAH_WHITE, borderColor: `${UNAH_BLUE_GRADIENT}`, boxShadow: `0 4px 24px 0 ${UNAH_BLUE_GRADIENT}20` }}>
             <div className="flex items-center gap-3 mb-6">
               <Eye className="w-7 h-7" style={{ color: UNAH_BLUE }} />
               <h2 className="text-2xl font-bold text-gray-800">Visión</h2>
@@ -418,7 +484,7 @@ export const AboutPage = () => {
         </div>
 
         {/* Áreas de Competencia     */}
-        <div className="bg-white rounded-2xl shadow-lg p-8">
+        <div className="rounded-xl border border-gray-200 p-8" style={{ background: UNAH_BLUE_SOFT }}>
           <div className="flex items-center gap-3 mb-8">
             <Code2 className="w-7 h-7" style={{ color: UNAH_BLUE }} />
             <h2 className="text-2xl font-bold text-gray-800">Áreas de Competencia</h2>
@@ -459,7 +525,7 @@ export const AboutPage = () => {
         </div>
 
         {/* Objetivos */}
-        <div className="bg-white rounded-2xl shadow-lg p-8">
+        <div className="rounded-xl p-8" style={{ background: UNAH_WHITE, border: `2px solid ${UNAH_BLUE_GRADIENT}`, boxShadow: `0 4px 24px 0 ${UNAH_BLUE_GRADIENT}40` }}>
           <h2 className="text-2xl font-bold text-gray-800 mb-6">Objetivos de la Carrera</h2>
           <div className="space-y-5">
             <ObjectiveItem 
@@ -486,7 +552,7 @@ export const AboutPage = () => {
         </div>
 
         {/* Autoridades */}
-        <div className="bg-white rounded-2xl shadow-lg p-8">
+        <div className="rounded-xl border border-gray-200 p-8" style={{ background: UNAH_BLUE_SOFT }}>
           <div className="flex items-center gap-3 mb-8">
             <Users className="w-7 h-7" style={{ color: UNAH_BLUE }} />
             <h2 className="text-2xl font-bold text-gray-800">Autoridades del Proyecto</h2>
@@ -496,28 +562,28 @@ export const AboutPage = () => {
             {autoridades.map((autoridad, index) => (
               <div 
                 key={index}
-                className="bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-2xl p-0 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 h-full"
+                className="border border-gray-200 rounded-xl p-0 overflow-hidden transition-all duration-300 h-full hover:shadow-xl" style={{ background: UNAH_WHITE, boxShadow: `0 4px 20px 0 ${UNAH_BLUE}18` }}
               >
                 {/* Header con foto/avatar */}
-                <div className={`p-8 bg-gradient-to-r ${autoridad.bgColor} relative`}>
+                <div className="p-8 relative" style={{ background: UNAH_WHITE, borderBottom: `1px solid ${UNAH_BLUE}15`, borderTop: `4px solid ${autoridad.accentColor}` }}>
                   <div className="absolute top-4 right-4">
-                    <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center">
-                      <Briefcase className="w-6 h-6 text-white/80" />
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: `${autoridad.accentColor}10`, color: autoridad.accentColor }}>
+                      <Briefcase className="w-5 h-5" />
                     </div>
                   </div>
                   
                   <div className="flex items-center gap-6">
                     {/* Avatar con iniciales */}
-                    <div className="w-28 h-28 bg-white/20 backdrop-blur-sm rounded-full border-4 border-white/30 flex items-center justify-center shadow-xl">
-                      <span className="text-4xl font-bold text-white">
+                    <div className="w-20 h-20 rounded-full border-2 flex items-center justify-center" style={{ background: `${autoridad.accentColor}10`, borderColor: `${autoridad.accentColor}30` }}>
+                      <span className="text-2xl font-bold" style={{ color: autoridad.accentColor }}>
                         {autoridad.initials}
                       </span>
                     </div>
                     
-                    <div className="text-white">
-                      <h3 className="text-2xl font-bold mb-2">{autoridad.name}</h3>
-                      <p className="text-blue-200 font-medium mb-1">{autoridad.position}</p>
-                      <p className="text-gray-300 text-sm">{autoridad.department}</p>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-1">{autoridad.name}</h3>
+                      <p className="font-medium mb-1 text-sm" style={{ color: autoridad.accentColor }}>{autoridad.position}</p>
+                      <p className="text-gray-500 text-sm">{autoridad.department}</p>
                     </div>
                   </div>
                 </div>
@@ -580,8 +646,8 @@ export const AboutPage = () => {
           
           {/* Footer institucional */}
           <div className="mt-12 pt-8 border-t border-gray-200 text-center">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-800 text-white px-6 py-3 rounded-full text-sm font-medium mb-4 shadow-lg">
-              <span className="w-2 h-2 bg-[#FFD700] rounded-full"></span>
+            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium mb-4 border" style={{ borderColor: `${UNAH_BLUE}30`, color: UNAH_BLUE, background: `${UNAH_BLUE}08` }}>
+              <span className="w-2 h-2 rounded-full" style={{ background: UNAH_GOLD }}></span>
               Universidad Nacional Autónoma de Honduras
             </div>
             <p className="text-gray-700 text-base mb-4">

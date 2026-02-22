@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Link } from "react-router"
+import LogoSistemas from "@/assest/Ingenieria-en-Sistemas-Color.png"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu} from "lucide-react"
@@ -26,9 +27,12 @@ export function CustomNavBar() {
         {/* Logo */}
         <div className="mr-8 flex ml-8">
           <Link to="/" className="mr-6 flex items-center space-x-2">
-            <div className="h-6 w-6 bg-foreground rounded-sm flex items-center justify-center">
-              <div className="h-3 w-3 bg-background rounded-sm" />
-            </div>
+            <img
+              src={LogoSistemas}
+              alt="Logo Ingeniería en Sistemas UNAH"
+              className="h-8 w-8 object-contain"
+              style={{ minWidth: 32, minHeight: 32 }}
+            />
             <span className="hidden font-bold sm:inline-block text-foreground">Articulo 140</span>
           </Link>
         </div>
