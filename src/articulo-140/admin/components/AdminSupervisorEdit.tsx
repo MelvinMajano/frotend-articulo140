@@ -12,7 +12,9 @@ import { toast } from "sonner"
 export const AdminSupervisorEdit = () => {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { query } = useSupervisors()
+  
+  // Obtener todos los supervisores sin paginación para la búsqueda
+  const { query } = useSupervisors(1000, 1) // Límite alto para obtener todos
   const { data, isLoading } = query
 
   const { query: careersQuery } = useCareers()
@@ -28,10 +30,12 @@ export const AdminSupervisorEdit = () => {
   })
 
   useEffect(() => {
-    if (data?.data && id) {
+    if (data?.data?.data && Array.isArray(data.data.data) && id) {
       const accountNumber = Number(id)
       if (Number.isNaN(accountNumber)) return
-      const supervisor = data.data.find((sup) => sup.accountNumber === accountNumber)
+      
+      const supervisor = data.data.data.find((sup) => sup.accountNumber === accountNumber)
+      
       if (supervisor) {
         setFormData({
           name: supervisor.name,
@@ -58,7 +62,8 @@ export const AdminSupervisorEdit = () => {
     e.preventDefault()
     setIsSubmitting(true)
 
-    const supervisor = data?.data.find((sup) => sup.accountNumber === Number(formData.accountNumber))
+    const supervisor = data?.data?.data?.find((sup) => sup.accountNumber === Number(formData.accountNumber))
+    
     if (!supervisor) {
       toast.error("Supervisor no encontrado")
       setIsSubmitting(false)
@@ -76,7 +81,6 @@ export const AdminSupervisorEdit = () => {
       await updateSupervisor(supervisor.id, payload)
       toast.success("Supervisor actualizado correctamente")
 
-      
       setTimeout(() => navigate("/admin/supervisor"), 1000)
     } catch (error) {
       toast.error("Ocurrió un error al actualizar el supervisor")

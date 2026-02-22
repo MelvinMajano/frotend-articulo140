@@ -1,9 +1,14 @@
 export interface SupervisorsResponse {
   message: string;
-  data:    Supervisor[];
+  data:    Data;
 }
 
-export interface Supervisor {
+export interface Data {
+  data:       Datum[];
+  pagination: Pagination;
+}
+
+export interface Datum {
   id:             string;
   name:           string;
   email:          string;
@@ -11,4 +16,11 @@ export interface Supervisor {
   identityNumber: string;
   career:         string;
   isDeleted:      string;
+}
+
+export interface Pagination {
+    total:     number;
+    page:      string;
+    limit:     string;
+    totalPage: number;
 }
