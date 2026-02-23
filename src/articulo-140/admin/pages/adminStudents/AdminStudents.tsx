@@ -9,6 +9,7 @@ import { Loader2, UserRoundSearch, PlusCircle, ArrowLeft, Users } from "lucide-r
 import { Link, useSearchParams } from "react-router"
 import { AddActivityModal } from "../../components/AddActivityModel"
 import { CustomPagination } from "@/components/custom/CustomPagination"
+import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
 
 export const AdminStudents = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -97,7 +98,7 @@ export const AdminStudents = () => {
                   Gestión de Estudiantes
                 </h2>
                 {hasStudents && (
-                  <span className="inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full bg-teal-100 text-teal-700">
+                  <span className="inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full" style={{ background: UNAH_BLUE_SOFT, color: UNAH_BLUE }}>
                     {totalStudents}
                   </span>
                 )}
@@ -119,7 +120,7 @@ export const AdminStudents = () => {
           <div className="flex items-center justify-between">
             {/* Contador de búsqueda*/}
             {searchQuery && hasStudents ? (
-              <div className="flex items-center gap-2 text-sm text-gray-600 bg-teal-50 px-4 py-2 rounded-md">
+              <div className="flex items-center gap-2 text-sm text-gray-600 px-4 py-2 rounded-md" style={{ background: UNAH_BLUE_SOFT }}>
                 <span className="font-medium">{filteredStudents.length}</span>
                 <span>de</span>
                 <span className="font-medium">{totalStudents}</span>
@@ -131,7 +132,7 @@ export const AdminStudents = () => {
 
             {/* Botón Agregar*/}
             <Link to="/admin/students/create">
-              <Button className="bg-teal-600 hover:bg-teal-700 text-white flex items-center shadow-sm">
+              <Button className="text-white flex items-center shadow-sm" style={{ background: UNAH_BLUE }}>
                 <PlusCircle className="w-4 h-4 mr-2" />
                 Agregar Estudiante
               </Button>
@@ -143,7 +144,7 @@ export const AdminStudents = () => {
         <CardContent>
           {isLoading ? (
             <div className="flex justify-center py-10">
-              <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
+              <Loader2 className="w-8 h-8 animate-spin" style={{ color: UNAH_BLUE }} />
             </div>
           ) : isError ? (
             <p className="text-red-500 text-center py-6">Error al cargar los estudiantes</p>
@@ -165,14 +166,14 @@ export const AdminStudents = () => {
               <div className="overflow-x-auto">
                 <TooltipProvider>
                   <Table>
-                    <TableHeader>
+                    <TableHeader style={{ background: UNAH_BLUE_SOFT }}>
                       <TableRow>
-                        <TableHead><span className="text-gray-700"># Cuenta</span></TableHead>
-                        <TableHead><span className="text-gray-700">Nombre</span></TableHead>
-                        <TableHead><span className="text-gray-700">Correo</span></TableHead>
-                        <TableHead><span className="text-gray-700">Identidad</span></TableHead>
-                        <TableHead><span className="text-gray-700">Carrera</span></TableHead>
-                        <TableHead className="text-center"><span className="text-gray-700">Acciones</span></TableHead>
+                        <TableHead><span className="font-semibold text-black"># Cuenta</span></TableHead>
+                        <TableHead><span className="font-semibold text-black">Nombre</span></TableHead>
+                        <TableHead><span className="font-semibold text-black">Correo</span></TableHead>
+                        <TableHead><span className="font-semibold text-black">Identidad</span></TableHead>
+                        <TableHead><span className="font-semibold text-black">Carrera</span></TableHead>
+                        <TableHead className="text-center"><span className="font-semibold text-black">Acciones</span></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -189,7 +190,7 @@ export const AdminStudents = () => {
                         filteredStudents.map((student: any) => (
                           <TableRow 
                             key={student.accountNumber}
-                            className="hover:bg-gray-50 transition-colors duration-200"
+                            style={{ background: UNAH_BLUE_SOFT }}
                           >
                             <TableCell>
                               <span className="font-medium text-gray-900">{student.accountNumber}</span>
@@ -206,7 +207,8 @@ export const AdminStudents = () => {
                                     <Link to={`/admin/students/${student.id}`}>
                                       <Button
                                         variant="outline"
-                                        className="border-teal-600 text-teal-600 hover:bg-teal-50 flex items-center font-medium shadow-sm transition-all duration-200"
+                                      style={{ borderColor: UNAH_BLUE, color: UNAH_BLUE }}
+                                      className="flex items-center font-medium shadow-sm transition-all duration-200"
                                       >
                                         <UserRoundSearch className="w-4 h-4 mr-1" />
                                         Consultar
@@ -223,7 +225,8 @@ export const AdminStudents = () => {
                                   <TooltipTrigger asChild>
                                     <Button
                                       onClick={() => handleAddActivity(student.id)}
-                                      className="bg-teal-600 hover:bg-teal-700 text-white flex items-center font-medium shadow-sm transition-all duration-200"
+                                      className="text-white flex items-center font-medium shadow-sm transition-all duration-200"
+                                      style={{ background: UNAH_BLUE }}
                                     >
                                       <PlusCircle className="w-4 h-4 mr-1" />
                                       Agregar actividad

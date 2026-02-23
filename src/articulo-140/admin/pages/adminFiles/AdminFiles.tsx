@@ -3,6 +3,7 @@ import { GalleryHeader, GalleryGrid, GalleryPreviewModal } from "../../component
 import { ConfirmActionModal } from "../../components/custom/ConfirmActionModal"
 import { Card, CardContent } from "@/components/ui/card"
 import { Loader2, Upload } from "lucide-react"
+import { UNAH_BLUE } from "@/lib/colors"
 
 export const AdminFilesPage = () => {
   const {
@@ -23,7 +24,7 @@ export const AdminFilesPage = () => {
 
       {isLoading ? (
         <div className="flex justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
+          <Loader2 className="w-8 h-8 animate-spin" style={{ color: UNAH_BLUE }} />
         </div>
       ) : images.length === 0 ? (
         <Card className="border-dashed border-2">

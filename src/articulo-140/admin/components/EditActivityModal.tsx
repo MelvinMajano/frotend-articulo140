@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Save } from "lucide-react"
+import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
 
 interface EditActivityModalProps {
   activity: any
@@ -105,7 +106,7 @@ export const EditActivityModal = ({ activity, isOpen, onClose }: EditActivityMod
               id="supervisor"
               value={formData.supervisor}
               onChange={(e) => handleChange("supervisor", e.target.value)}
-              className="w-full border rounded-md p-2 border-gray-300 focus:border-teal-500"
+              className="w-full border rounded-md p-2 border-gray-300 focus:border-blue-700"
             >
               <option value="">Seleccionar supervisor</option>
               {isLoading ? (
@@ -180,7 +181,7 @@ export const EditActivityModal = ({ activity, isOpen, onClose }: EditActivityMod
                     type="checkbox"
                     checked={formData.scopes.includes(scope)}
                     onChange={() => handleScopeChange(scope)}
-                    className="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+                    className="h-4 w-4 border-gray-300 rounded focus:ring-blue-700" style={{ accentColor: UNAH_BLUE }}
                   />
                   <span>{scope}</span>
                 </label>
@@ -200,7 +201,8 @@ export const EditActivityModal = ({ activity, isOpen, onClose }: EditActivityMod
           </Button>
           <Button
             onClick={handleSubmit}
-            className="bg-teal-600 hover:bg-teal-700 text-white"
+            className="text-white"
+            style={{ background: UNAH_BLUE }}
           >
             <Save className="w-4 h-4 mr-2" />
             Guardar Cambios

@@ -9,6 +9,7 @@ import { Link } from "react-router"
 import { ConfirmActionModal } from "@/articulo-140/admin/components/custom/ConfirmActionModal"
 import { deleteCareer, restoreCareer } from "../../actions/softDeleteCareer"
 import { toast } from "sonner"
+import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
 
 export const AdminCareers = () => {
   const { query } = useCareers()
@@ -83,7 +84,9 @@ export const AdminCareers = () => {
             <Link to="/admin">
               <Button
                 variant="ghost"
-                className="text-gray-600 hover:text-teal-600 hover:bg-teal-50"
+                className="text-gray-600"
+                onMouseEnter={e => { e.currentTarget.style.color = UNAH_BLUE; e.currentTarget.style.background = UNAH_BLUE_SOFT }}
+                onMouseLeave={e => { e.currentTarget.style.color = ''; e.currentTarget.style.background = '' }}
               >
                 <ArrowLeft className="w-5 h-5 mr-2" />
                 Regresar
@@ -97,7 +100,7 @@ export const AdminCareers = () => {
             />
           </div>
           <Link to="/admin/careers/create">
-            <Button className="bg-teal-600 hover:bg-teal-700 text-white flex items-center">
+            <Button className="text-white flex items-center" style={{ background: UNAH_BLUE }}>
               <PlusCircle className="w-4 h-4 mr-1" />
               Agregar Carrera
             </Button>
@@ -108,7 +111,7 @@ export const AdminCareers = () => {
         <CardContent>
           {isLoading ? (
             <div className="flex justify-center py-10">
-              <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
+              <Loader2 className="w-8 h-8 animate-spin" style={{ color: UNAH_BLUE }} />
             </div>
           ) : isError ? (
             <p className="text-red-500 text-center py-6">Error al cargar las carreras</p>
@@ -126,12 +129,12 @@ export const AdminCareers = () => {
 
               <div className="overflow-x-auto">
                 <Table>
-                  <TableHeader>
+                  <TableHeader style={{ background: UNAH_BLUE_SOFT }}>
                     <TableRow>
-                      <TableHead><span className="text-gray-700"># Código</span></TableHead>
-                      <TableHead><span className="text-gray-700">Nombre</span></TableHead>
-                      <TableHead><span className="text-gray-700">Facultad</span></TableHead>
-                      <TableHead className="text-center"><span className="text-gray-700">Acciones</span></TableHead>
+                      <TableHead><span className="font-semibold text-black"># Código</span></TableHead>
+                      <TableHead><span className="font-semibold text-black">Nombre</span></TableHead>
+                      <TableHead><span className="font-semibold text-black">Facultad</span></TableHead>
+                      <TableHead className="text-center"><span className="font-semibold text-black">Acciones</span></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -146,7 +149,7 @@ export const AdminCareers = () => {
                       </TableRow>
                     ) : (
                       filteredCareers.map((career) => (
-                        <TableRow key={career.code}>
+                        <TableRow key={career.code} style={{ background: UNAH_BLUE_SOFT }}>
                           <TableCell><span className="font-medium">{career.code}</span></TableCell>
                           <TableCell>{career.name}</TableCell>
                           <TableCell>{career.faculty}</TableCell>
@@ -155,7 +158,8 @@ export const AdminCareers = () => {
                               <Link to={`/admin/careers/edit/${career.code}`}>
                                 <Button
                                   variant="outline"
-                                  className="border-teal-600 text-teal-600 hover:bg-teal-50 flex items-center"
+                                  style={{ borderColor: UNAH_BLUE, color: UNAH_BLUE }}
+                                  className="flex items-center"
                                 >
                                   <PenLine className="w-4 h-4 mr-1" />
                                   Editar

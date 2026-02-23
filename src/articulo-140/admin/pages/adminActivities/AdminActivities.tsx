@@ -13,6 +13,7 @@ import { toast } from "sonner"
 import { articulo140Api } from "@/articulo-140/api/articulo140Api"
 import { ConfirmActionModal } from "../../components/custom/ConfirmActionModal"
 import { CustomPagination } from "@/components/custom/CustomPagination"
+import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
 
 export const AdminActivities = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -208,15 +209,15 @@ export const AdminActivities = () => {
             <div className="overflow-x-auto">
               <TooltipProvider>
                 <Table>
-                  <TableHeader>
+                  <TableHeader style={{ background: UNAH_BLUE_SOFT }}>
                     <TableRow>
-                      <TableHead><span className="text-gray-700">Título</span></TableHead>
-                      <TableHead><span className="text-gray-700">Fecha de Inicio</span></TableHead>
-                      <TableHead><span className="text-gray-700">Fecha de Fin</span></TableHead>
-                      <TableHead><span className="text-gray-700">Horas VOAE</span></TableHead>
-                      <TableHead><span className="text-gray-700">Ámbitos</span></TableHead>
-                      <TableHead><span className="text-gray-700">Supervisor</span></TableHead>
-                      <TableHead className="text-center">Acciones</TableHead>
+                      <TableHead><span className="font-semibold text-black">Título</span></TableHead>
+                      <TableHead><span className="font-semibold text-black">Fecha de Inicio</span></TableHead>
+                      <TableHead><span className="font-semibold text-black">Fecha de Fin</span></TableHead>
+                      <TableHead><span className="font-semibold text-black">Horas VOAE</span></TableHead>
+                      <TableHead><span className="font-semibold text-black">Ámbitos</span></TableHead>
+                      <TableHead><span className="font-semibold text-black">Supervisor</span></TableHead>
+                      <TableHead className="text-center"><span className="font-semibold text-black">Acciones</span></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -233,7 +234,7 @@ export const AdminActivities = () => {
                       filteredActivities.map((activity: any) => (
                         <TableRow
                           key={activity.id}
-                          className="hover:bg-gray-50 transition-colors duration-200"
+                          style={{ background: UNAH_BLUE_SOFT }}
                         >
                           <TableCell className="font-medium text-gray-800">{activity.title}</TableCell>
                           <TableCell>{activity.startDate}</TableCell>
@@ -252,7 +253,10 @@ export const AdminActivities = () => {
                                         setSelectedActivityId(activity.id)
                                         setConfirmDialogOpen(true)
                                       }}
-                                      className="border-teal-600 text-teal-700 hover:bg-teal-600 hover:text-white transition-all duration-200"
+                                      style={{ borderColor: UNAH_BLUE, color: UNAH_BLUE }}
+                                      className="hover:text-white transition-all duration-200"
+                                      onMouseEnter={e => { e.currentTarget.style.background = UNAH_BLUE }}
+                                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
                                     >
                                       <Plus className="w-4 h-4 mr-1" />
                                       Seleccionar
@@ -267,8 +271,8 @@ export const AdminActivities = () => {
                                   <TooltipTrigger asChild>
                                     <Link to={`/admin/activities/${activity.id}/attendance`}>
                                       <Button
-                                        variant="outline"
-                                        className="border-teal-600 text-teal-700 hover:bg-teal-600 hover:text-white transition-all duration-200"
+                                        style={{ background: UNAH_BLUE, color: 'white' }}
+                                        className="transition-all duration-200"
                                       >
                                         <Eye className="w-4 h-4 mr-1" />
                                         Ver asistencias

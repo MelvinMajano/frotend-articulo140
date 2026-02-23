@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Link, useParams } from "react-router"
 import { ArrowLeft, User, Clock, Award, Trophy, Microscope, Palette, Users, Loader2 } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
 
 export const AdminStudentDetail = () => {
   const { id } = useParams()
@@ -28,7 +29,7 @@ export const AdminStudentDetail = () => {
   if (isLoading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: UNAH_BLUE }} />
       </div>
     )
   }
@@ -56,7 +57,9 @@ export const AdminStudentDetail = () => {
       <Link to="/admin/students">
         <Button
           variant="ghost"
-          className="text-gray-600 hover:text-teal-600 hover:bg-teal-50"
+          className="text-gray-600"
+          onMouseEnter={e => { e.currentTarget.style.color = UNAH_BLUE; e.currentTarget.style.background = UNAH_BLUE_SOFT }}
+          onMouseLeave={e => { e.currentTarget.style.color = ''; e.currentTarget.style.background = '' }}
         >
           <ArrowLeft className="w-5 h-5 mr-2" />
           Regresar a estudiantes
@@ -64,15 +67,15 @@ export const AdminStudentDetail = () => {
       </Link>
 
       {/* Card de información del estudiante */}
-      <Card className="bg-white shadow-xl border-0 overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white py-6">
+      <Card className="bg-white shadow-xl border-0 overflow-hidden py-0 gap-0">
+        <CardHeader className="py-6" style={{ background: UNAH_BLUE_SOFT }}>
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
-              <User className="w-6 h-6" />
+            <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm" style={{ background: UNAH_BLUE }}>
+              <User className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold">{studentHours?.studentName || "Estudiante"}</h2>
-              <p className="text-teal-50 text-sm mt-1">
+              <h2 className="text-2xl font-bold" style={{ color: UNAH_BLUE }}>{studentHours?.studentName || "Estudiante"}</h2>
+              <p className="text-gray-500 text-sm mt-1">
                 Resumen de actividades y horas VOAE
               </p>
             </div>
@@ -83,7 +86,7 @@ export const AdminStudentDetail = () => {
           {/* Resumen de horas */}
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-4">
-              <Clock className="w-5 h-5 text-teal-600" />
+              <Clock className="w-5 h-5" style={{ color: UNAH_BLUE }} />
               <h3 className="text-xl font-bold text-gray-800">Horas por Ámbito</h3>
             </div>
             
@@ -129,13 +132,13 @@ export const AdminStudentDetail = () => {
               </div>
 
               {/* Total */}
-              <div className="bg-gradient-to-br from-teal-50 to-cyan-100 border-2 border-teal-300 rounded-lg p-4">
+              <div className="rounded-lg p-4 border-2" style={{ background: UNAH_BLUE_SOFT, borderColor: UNAH_BLUE }}>
                 <div className="flex items-center gap-2 mb-2">
-                  <Award className="w-5 h-5 text-teal-600" />
-                  <span className="text-sm font-semibold text-teal-900">Total</span>
+                  <Award className="w-5 h-5" style={{ color: UNAH_BLUE }} />
+                  <span className="text-sm font-semibold" style={{ color: UNAH_BLUE }}>Total</span>
                 </div>
-                <p className="text-3xl font-bold text-teal-600">{studentHours?.totalHours || "0"}</p>
-                <p className="text-xs text-teal-700 mt-1">horas</p>
+                <p className="text-3xl font-bold" style={{ color: UNAH_BLUE }}>{studentHours?.totalHours || "0"}</p>
+                <p className="text-xs mt-1" style={{ color: UNAH_BLUE }}>horas</p>
               </div>
             </div>
           </div>
@@ -143,7 +146,7 @@ export const AdminStudentDetail = () => {
           {/* Tabla de actividades */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Award className="w-5 h-5 text-teal-600" />
+              <Award className="w-5 h-5" style={{ color: UNAH_BLUE }} />
               <h3 className="text-xl font-bold text-gray-800">Actividades Participadas</h3>
             </div>
 
@@ -151,7 +154,7 @@ export const AdminStudentDetail = () => {
               <div className="overflow-x-auto border border-gray-200 rounded-lg">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-gray-50">
+                    <TableRow style={{ background: UNAH_BLUE_SOFT }}>
                       <TableHead className="w-20">
                         <span className="text-gray-700 font-semibold">#</span>
                       </TableHead>

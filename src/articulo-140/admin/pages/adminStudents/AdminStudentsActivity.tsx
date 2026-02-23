@@ -9,6 +9,7 @@ import {Select,SelectContent,SelectItem,SelectTrigger,SelectValue} from "@/compo
 import { DateTimePicker } from "@/components/custom/DatetimePicker"
 import { Link } from "react-router"
 import { Clock, GraduationCap, User, FileText, Award, PlusCircle } from "lucide-react"
+import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
 
 export const AdminAddActivityToStudent = () => {
   const [formData, setFormData] = useState({
@@ -70,27 +71,27 @@ export const AdminAddActivityToStudent = () => {
 
   return (
     <div className="p-6 flex items-center justify-center">
-      <Card className="w-full max-w-4xl bg-white shadow-xl border-0 overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white py-6">
+      <Card className="w-full max-w-4xl bg-white shadow-xl border-0 overflow-hidden py-0 gap-0">
+        <CardHeader className="py-6" style={{ background: UNAH_BLUE_SOFT }}>
           <div className="flex items-center justify-center gap-3">
-            <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
-              <PlusCircle className="w-6 h-6" />
+            <div className="p-3 rounded-lg" style={{ background: UNAH_BLUE }}>
+              <PlusCircle className="w-6 h-6 text-white" />
             </div>
             <div className="text-center">
-              <h2 className="text-2xl font-bold">Agregar Actividad a Estudiante</h2>
-              <p className="text-teal-50 text-sm mt-1">
+              <h2 className="text-2xl font-bold" style={{ color: UNAH_BLUE }}>Agregar Actividad a Estudiante</h2>
+              <p className="text-gray-500 text-sm mt-1">
                 Complete la información de la actividad
               </p>
             </div>
           </div>
         </CardHeader>
 
-        <CardContent className="p-6">
+        <CardContent className="p-6 bg-white">
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Título */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-teal-600" />
+                <FileText className="w-4 h-4" style={{ color: UNAH_BLUE }} />
                 Título de la actividad
               </label>
               <Input
@@ -107,7 +108,7 @@ export const AdminAddActivityToStudent = () => {
             {/* Descripción */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-teal-600" />
+                <FileText className="w-4 h-4" style={{ color: UNAH_BLUE }} />
                 Descripción
               </label>
               <Textarea
@@ -125,7 +126,7 @@ export const AdminAddActivityToStudent = () => {
               {/* Carrera */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <GraduationCap className="w-4 h-4 text-teal-600" />
+                  <GraduationCap className="w-4 h-4" style={{ color: UNAH_BLUE }} />
                   Carrera
                 </label>
                 <Select
@@ -149,7 +150,7 @@ export const AdminAddActivityToStudent = () => {
               {/* Supervisor */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <User className="w-4 h-4 text-teal-600" />
+                  <User className="w-4 h-4" style={{ color: UNAH_BLUE }} />
                   Supervisor
                 </label>
                 <Select
@@ -173,7 +174,7 @@ export const AdminAddActivityToStudent = () => {
               {/* Horas VOAE */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-teal-600" />
+                  <Clock className="w-4 h-4" style={{ color: UNAH_BLUE }} />
                   Horas VOAE
                 </label>
                 <Input
@@ -194,7 +195,7 @@ export const AdminAddActivityToStudent = () => {
               {/* Fecha de inicio */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-teal-600" />
+                  <Clock className="w-4 h-4" style={{ color: UNAH_BLUE }} />
                   Fecha y hora de inicio
                 </label>
                 <DateTimePicker
@@ -207,7 +208,7 @@ export const AdminAddActivityToStudent = () => {
               {/* Fecha de fin */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-teal-600" />
+                  <Clock className="w-4 h-4" style={{ color: UNAH_BLUE }} />
                   Fecha y hora de fin
                 </label>
                 <DateTimePicker
@@ -221,10 +222,10 @@ export const AdminAddActivityToStudent = () => {
             {/* Ámbitos (Checkboxes) */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                <Award className="w-4 h-4 text-teal-600" />
+                <Award className="w-4 h-4" style={{ color: UNAH_BLUE }} />
                 Ámbitos
               </label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 rounded-lg border border-gray-200" style={{ background: UNAH_BLUE_SOFT }}>
                 {scopes.map((scope) => (
                   <div key={scope.id} className="flex items-center space-x-2">
                     <Checkbox
@@ -233,7 +234,7 @@ export const AdminAddActivityToStudent = () => {
                       onCheckedChange={(checked) =>
                         handleCheckboxChange(scope.value, checked as boolean)
                       }
-                      className="border-gray-400 data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600"
+                      className="border-gray-400 data-[state=checked]:border-blue-800" style={{ accentColor: UNAH_BLUE }}
                     />
                     <Label
                       htmlFor={scope.id}
@@ -260,7 +261,8 @@ export const AdminAddActivityToStudent = () => {
                 </Link>
                 <Button
                   type="submit"
-                  className="w-full sm:w-auto h-10 px-8 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold shadow-lg shadow-teal-200 transition-all"
+                  className="w-full sm:w-auto h-10 px-8 text-white font-semibold transition-all"
+                  style={{ background: UNAH_BLUE }}
                 >
                   <PlusCircle className="w-4 h-4 mr-2" />
                   Agregar Actividad

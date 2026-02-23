@@ -8,6 +8,7 @@ import { ArrowLeft, Loader2, UserPlus } from "lucide-react"
 import type { role } from "@/articulo-140/auth/pages/register/registerInterfaces/register.interface"
 import { registerActions } from "@/articulo-140/auth/pages/register/actions/register.action"
 import { toast } from "sonner"
+import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
 
 interface FormDataRegister {
   name: string
@@ -103,13 +104,15 @@ export const AdminStudentForm = () => {
             <Link to="/admin/students">
             <Button
                 variant="ghost"
-                className="text-gray-600 hover:text-teal-600 hover:bg-teal-50"
+                className="text-gray-600"
+                onMouseEnter={e => { e.currentTarget.style.color = UNAH_BLUE; e.currentTarget.style.background = UNAH_BLUE_SOFT }}
+                onMouseLeave={e => { e.currentTarget.style.color = ''; e.currentTarget.style.background = '' }}
             >
                 <ArrowLeft className="w-5 h-5" />
             </Button>
             </Link>
-            <div className="p-2 bg-teal-100 rounded-lg">
-            <UserPlus className="w-6 h-6 text-teal-600" />
+            <div className="p-2 rounded-lg" style={{ background: UNAH_BLUE_SOFT }}>
+            <UserPlus className="w-6 h-6" style={{ color: UNAH_BLUE }} />
             </div>
             <div>
             <h2 className="text-2xl font-bold text-gray-800">Agregar Estudiante</h2>
@@ -222,7 +225,7 @@ export const AdminStudentForm = () => {
             </div>
 
             {/* Requisitos de contraseña */}
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <div className="border border-gray-200 rounded-lg p-4" style={{ background: UNAH_BLUE_SOFT }}>
               <p className="text-sm font-medium text-gray-700 mb-2">
                 Requisitos de la contraseña:
               </p>
@@ -247,7 +250,8 @@ export const AdminStudentForm = () => {
               </Link>
               <Button
                 type="submit"
-                className="bg-teal-600 hover:bg-teal-700 text-white"
+                className="text-white"
+                style={{ background: UNAH_BLUE }}
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (

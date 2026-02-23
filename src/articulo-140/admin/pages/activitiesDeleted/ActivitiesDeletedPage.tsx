@@ -13,6 +13,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { CustomPagination } from "@/components/custom/CustomPagination"
 import { useSearchParams } from "react-router"
+import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
 
 export const ActivitiesDeletedPage = () => {
   const queryClient = useQueryClient()
@@ -137,7 +138,7 @@ export const ActivitiesDeletedPage = () => {
                   Actividades Eliminadas
                 </h2>
                 {hasActivities && (
-                  <span className="inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-700">
+                  <span className="inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full" style={{ background: UNAH_BLUE_SOFT, color: UNAH_BLUE }}>
                     {totalActivities}
                   </span>
                 )}
@@ -157,7 +158,7 @@ export const ActivitiesDeletedPage = () => {
 
           {/* Contador de búsqueda (solo cuando hay búsqueda activa) */}
           {searchQuery && hasActivities && (
-            <div className="flex items-center gap-2 text-sm text-gray-600 bg-teal-50 px-4 py-2 rounded-md">
+              <div className="flex items-center gap-2 text-sm text-gray-600 px-4 py-2 rounded-md" style={{ background: UNAH_BLUE_SOFT }}>
               <span className="font-medium">{filteredActivities.length}</span>
               <span>de</span>
               <span className="font-medium">{totalActivities}</span>
@@ -170,7 +171,7 @@ export const ActivitiesDeletedPage = () => {
         <CardContent>
           {isLoading ? (
             <div className="flex justify-center py-10">
-              <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
+              <Loader2 className="w-8 h-8 animate-spin" style={{ color: UNAH_BLUE }} />
             </div>
           ) : isError ? (
             <p className="text-red-500 text-center py-6">
@@ -202,15 +203,15 @@ export const ActivitiesDeletedPage = () => {
               <div className="overflow-x-auto">
                 <TooltipProvider>
                   <Table>
-                    <TableHeader>
+                    <TableHeader style={{ background: UNAH_BLUE_SOFT }}>
                       <TableRow>
-                        <TableHead><span className="text-gray-700">Título</span></TableHead>
-                        <TableHead><span className="text-gray-700">Fecha de Inicio</span></TableHead>
-                        <TableHead><span className="text-gray-700">Fecha de Fin</span></TableHead>
-                        <TableHead><span className="text-gray-700">Horas VOAE</span></TableHead>
-                        <TableHead><span className="text-gray-700">Ámbitos</span></TableHead>
-                        <TableHead><span className="text-gray-700">Supervisor</span></TableHead>
-                        <TableHead className="text-center">Acciones</TableHead>
+                        <TableHead><span className="font-semibold text-black">Título</span></TableHead>
+                        <TableHead><span className="font-semibold text-black">Fecha de Inicio</span></TableHead>
+                        <TableHead><span className="font-semibold text-black">Fecha de Fin</span></TableHead>
+                        <TableHead><span className="font-semibold text-black">Horas VOAE</span></TableHead>
+                        <TableHead><span className="font-semibold text-black">Ámbitos</span></TableHead>
+                        <TableHead><span className="font-semibold text-black">Supervisor</span></TableHead>
+                        <TableHead className="text-center"><span className="font-semibold text-black">Acciones</span></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -231,7 +232,8 @@ export const ActivitiesDeletedPage = () => {
                             /* Animación de salida */
                             <TableRow
                               key={activity.id}
-                              className={`hover:bg-gray-50 transition-all duration-300 ${
+                              style={fadingOutId !== activity.id ? { background: UNAH_BLUE_SOFT } : undefined}
+                              className={`transition-all duration-300 ${
                                 fadingOutId === activity.id ? 'opacity-0 scale-95' : 'opacity-100'
                               }`}
                             >
@@ -253,7 +255,8 @@ export const ActivitiesDeletedPage = () => {
                                   <Tooltip>
                                     <TooltipTrigger asChild>
                                       <Button
-                                        className="bg-teal-600 hover:bg-teal-700 text-white flex items-center font-medium shadow-sm transition-all duration-200"
+                                        className="text-white flex items-center font-medium shadow-sm transition-all duration-200"
+                                      style={{ background: UNAH_BLUE }}
                                         onClick={() => handleRestoreClick(activity.id)}
                                         disabled={restoringActivityId !== null}
                                       >

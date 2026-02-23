@@ -1,5 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { CheckCircle } from "lucide-react"
+import { UNAH_BLUE } from "@/lib/colors"
 import { ExistingActivitySelector } from "./custom/ActivitySelector"
 
 interface AddActivityModalProps {
@@ -22,7 +23,7 @@ export const AddActivityModal = ({ open, onOpenChange, studentId }: AddActivityM
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-            <CheckCircle className="w-6 h-6 text-teal-600" />
+            <CheckCircle className="w-6 h-6" style={{ color: UNAH_BLUE }} />
             Asignar Actividad al Estudiante
           </DialogTitle>
         </DialogHeader>

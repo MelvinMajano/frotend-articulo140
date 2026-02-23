@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Upload, Trash2, Loader2, X, RefreshCw, ArrowLeft, Plus } from "lucide-react"
 import { Link, useNavigate } from "react-router"
 import { useCloudinaryGallery, type CloudinaryImage } from "@/articulo-140/hooks/activities/admin/useClaudinaryImage"
+import { UNAH_BLUE } from "@/lib/colors"
 
 interface GalleryHeaderProps {
   imagesCount: number
@@ -20,7 +21,10 @@ export const GalleryHeader: FC<GalleryHeaderProps> = ({
       <Link to="/admin">
               <Button
                 variant="ghost"
-                className="text-gray-600 hover:text-teal-600 hover:bg-teal-50"
+                className="text-gray-600"
+                style={{ color: 'inherit' }}
+                onMouseEnter={e => { e.currentTarget.style.color = UNAH_BLUE; e.currentTarget.style.background = `${UNAH_BLUE}10` }}
+                onMouseLeave={e => { e.currentTarget.style.color = ''; e.currentTarget.style.background = '' }}
               >
                 <ArrowLeft className="w-5 h-5 mr-2" />
                 Regresar
@@ -32,13 +36,13 @@ export const GalleryHeader: FC<GalleryHeaderProps> = ({
       </p>
     </div>
     <div className="flex gap-2">
-      <Button onClick={onReload} disabled={isLoading} variant="outline" className="border-teal-600 text-teal-600 hover:bg-teal-50">
+      <Button onClick={onReload} disabled={isLoading} variant="outline" style={{ borderColor: UNAH_BLUE, color: UNAH_BLUE }}>
         {isLoading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin"/>Cargando...</> : <><RefreshCw className="w-4 h-4 mr-2"/>Recargar</>}
       </Button>
 
       <input type="file" accept="image/*" className="hidden" id="cloudinary-upload" onChange={onFileChange} disabled={isUploading}/>
       <label htmlFor="cloudinary-upload">
-        <Button asChild disabled={isUploading} className="bg-teal-600 hover:bg-teal-700 text-white cursor-pointer">
+        <Button asChild disabled={isUploading} className="text-white cursor-pointer" style={{ background: UNAH_BLUE }}>
           <span>{isUploading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin"/>Subiendo...</> : <><Upload className="w-4 h-4 mr-2"/>Subir Imagen</>}</span>
         </Button>
       </label>
@@ -78,7 +82,8 @@ export const GalleryGrid = () =>{
         <div className="flex flex-col gap-2 w-full">
           <Button
           onClick={e => {e.stopPropagation(), handleAddtoActivity(img)}}
-          className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium transition-colors"
+          className="w-full text-white font-medium transition-colors"
+          style={{ background: UNAH_BLUE }}
           disabled = {deletingId===img.publicId}
           >
             <Plus className="w-4 h-4 mr-2"/>

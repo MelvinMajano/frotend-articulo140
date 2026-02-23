@@ -11,6 +11,7 @@ import { Link, useSearchParams } from "react-router"
 import { ConfirmActionModal } from "../../components/custom/ConfirmActionModal"
 import { toast } from "sonner"
 import { CustomPagination } from "@/components/custom/CustomPagination"
+import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
 
 export const AdminSupervisor = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -125,7 +126,9 @@ export const AdminSupervisor = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-gray-600 hover:text-teal-600 hover:bg-teal-50"
+                  className="text-gray-600"
+                  onMouseEnter={e => { e.currentTarget.style.color = UNAH_BLUE; e.currentTarget.style.background = UNAH_BLUE_SOFT }}
+                  onMouseLeave={e => { e.currentTarget.style.color = ''; e.currentTarget.style.background = '' }}
                 >
                   <ArrowLeft className="w-5 h-5" />
                 </Button>
@@ -135,7 +138,7 @@ export const AdminSupervisor = () => {
                   Gestión de Supervisores
                 </h2>
                 {hasSupervisors && (
-                  <span className="inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full bg-teal-100 text-teal-700">
+                  <span className="inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full" style={{ background: UNAH_BLUE_SOFT, color: UNAH_BLUE }}>
                     {totalSupervisors}
                   </span>
                 )}
@@ -156,7 +159,7 @@ export const AdminSupervisor = () => {
           {/*Botón Agregar y contador de búsqueda */}
           <div className="flex items-center justify-between">
             <Link to="/admin/supervisor/create">
-              <Button className="bg-teal-600 hover:bg-teal-700 text-white flex items-center shadow-sm">
+              <Button className="text-white flex items-center shadow-sm" style={{ background: UNAH_BLUE }}>
                 <PlusCircle className="w-4 h-4 mr-2" />
                 Agregar Supervisor
               </Button>
@@ -178,7 +181,7 @@ export const AdminSupervisor = () => {
         <CardContent>
           {isLoading ? (
             <div className="flex justify-center py-10">
-              <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
+              <Loader2 className="w-8 h-8 animate-spin" style={{ color: UNAH_BLUE }} />
             </div>
           ) : isError ? (
             <p className="text-red-500 text-center py-6">Error al cargar los supervisores</p>
@@ -200,14 +203,14 @@ export const AdminSupervisor = () => {
               <div className="overflow-x-auto">
                 <TooltipProvider>
                   <Table>
-                    <TableHeader>
+                    <TableHeader style={{ background: UNAH_BLUE_SOFT }}>
                       <TableRow>
-                        <TableHead><span className="text-gray-700"># Cuenta</span></TableHead>
-                        <TableHead><span className="text-gray-700">Nombre</span></TableHead>
-                        <TableHead><span className="text-gray-700">Correo</span></TableHead>
-                        <TableHead><span className="text-gray-700">Identidad</span></TableHead>
-                        <TableHead><span className="text-gray-700">Carrera</span></TableHead>
-                        <TableHead className="text-center"><span className="text-gray-700">Acciones</span></TableHead>
+                        <TableHead><span className="font-semibold text-black"># Cuenta</span></TableHead>
+                        <TableHead><span className="font-semibold text-black">Nombre</span></TableHead>
+                        <TableHead><span className="font-semibold text-black">Correo</span></TableHead>
+                        <TableHead><span className="font-semibold text-black">Identidad</span></TableHead>
+                        <TableHead><span className="font-semibold text-black">Carrera</span></TableHead>
+                        <TableHead className="text-center"><span className="font-semibold text-black">Acciones</span></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -231,12 +234,13 @@ export const AdminSupervisor = () => {
                             /* Animación mejorada de cambio de estado */
                             <TableRow 
                               key={supervisor.accountNumber}
+                              style={!isAnimating && !isDisabled ? { background: UNAH_BLUE_SOFT } : undefined}
                               className={`transition-all duration-400 ${
                                 isAnimating 
                                   ? 'animate-pulse bg-yellow-50 scale-[0.98]' 
                                   : isDisabled 
                                     ? 'bg-red-50/30 hover:bg-red-50/50' 
-                                    : 'bg-white hover:bg-gray-50'
+                                    : ''
                               }`}
                             >
                               <TableCell>
@@ -264,7 +268,8 @@ export const AdminSupervisor = () => {
                                       <Link to={`/admin/supervisor/edit/${supervisor.accountNumber}`}>
                                         <Button
                                           variant="outline"
-                                          className="border-teal-600 text-teal-600 hover:bg-teal-50 flex items-center font-medium shadow-sm transition-all duration-200"
+                                          style={{ borderColor: UNAH_BLUE, color: UNAH_BLUE }}
+                                          className="flex items-center font-medium shadow-sm transition-all duration-200"
                                           disabled={changingStateId !== null}
                                         >
                                           <PenLine className="w-4 h-4 mr-1" />

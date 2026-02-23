@@ -1,7 +1,7 @@
 import { CustomCombobox} from "@/components/custom/CustomCombobox";
 import { DateTimePicker } from "@/components/custom/DatetimePicker"
 import { Badge } from "@/components/ui/badge";
-import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors";
+import { UNAH_BLUE } from "@/lib/colors";
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox";
@@ -138,7 +138,7 @@ const onSubmit = handleSubmit(async (data: ActivityFormValues) => {
         <Separator />
 
         {/* Título */}
-        <div className="space-y-2 rounded-lg p-4" style={{ background: UNAH_BLUE_SOFT }}>
+        <div className="space-y-2">
           <Label htmlFor="title" className="font-medium">Título</Label>
           <Input 
             {...register("title")}
@@ -149,7 +149,7 @@ const onSubmit = handleSubmit(async (data: ActivityFormValues) => {
         </div>
 
         {/* Descripción */}
-        <div className="space-y-2 rounded-lg p-4" style={{ background: UNAH_BLUE_SOFT }}>
+        <div className="space-y-2">
           <Label htmlFor="description" className="font-medium">Descripción</Label>
           <Input 
             {...register("description")}
@@ -159,7 +159,7 @@ const onSubmit = handleSubmit(async (data: ActivityFormValues) => {
         </div>
 
         {/* Horas y Capacidad */}
-        <div className="grid grid-cols-2 gap-6 rounded-lg p-4" style={{ background: UNAH_BLUE_SOFT }}>
+        <div className="grid grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label className="font-medium">Cantidad de horas VOAE</Label>
             <Input
@@ -181,7 +181,7 @@ const onSubmit = handleSubmit(async (data: ActivityFormValues) => {
         </div>
 
         {/* Fechas con Controller */}
-        <div className="grid grid-cols-2 gap-6 rounded-lg p-4" style={{ background: UNAH_BLUE_SOFT }}>
+        <div className="grid grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label className="font-medium">Fecha y Hora de Inicio</Label>
             <Controller
@@ -218,7 +218,7 @@ const onSubmit = handleSubmit(async (data: ActivityFormValues) => {
         </div>
 
         {/* Ámbitos y Supervisor */}
-        <div className="grid grid-cols-2 gap-6 rounded-lg p-4" style={{ background: UNAH_BLUE_SOFT }}>
+        <div className="grid grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label className="font-medium">Ámbitos</Label>
             <Controller
@@ -269,7 +269,7 @@ const onSubmit = handleSubmit(async (data: ActivityFormValues) => {
       </section>
 
       {/* Footer Persistente */}
-      <footer className="sticky bottom-0 backdrop-blur border-t p-4" style={{ background: UNAH_BLUE_SOFT }}>
+      <footer className="sticky bottom-0 bg-background/95 backdrop-blur border-t p-4">
         <div className="container mx-auto flex justify-end gap-3">
           <Button 
             type="button" 

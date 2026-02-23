@@ -8,6 +8,7 @@ import type { Datum } from "@/articulo-140/interfaces/activities.response"
 import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
 import { Card } from "@/components/ui/card"
+import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
 
 interface ExistingActivitySelectorProps {
   studentId: string
@@ -124,7 +125,7 @@ export const ExistingActivitySelector = ({
       {/* Lista de actividades */}
       {isLoading ? (
         <div className="flex justify-center py-10">
-          <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
+          <Loader2 className="w-8 h-8 animate-spin" style={{ color: UNAH_BLUE }} />
         </div>
       ) : isError ? (
         <p className="text-red-500 text-center py-6">Error al cargar las actividades</p>
@@ -148,10 +149,13 @@ export const ExistingActivitySelector = ({
                     }}
                     disabled={isSubmitting}
                     className={`w-full text-left p-4 rounded-xl border-2 shadow-sm transition-all duration-200 ${
-                      selectedActivityId === activity.id
-                        ? "border-teal-600 bg-teal-50 shadow-md"
-                        : "border-gray-200 hover:border-teal-300 hover:bg-gray-50"
-                    } ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
+                      isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                    style={{
+                      borderColor: selectedActivityId === activity.id ? UNAH_BLUE : '#E5E7EB',
+                      background: selectedActivityId === activity.id ? UNAH_BLUE_SOFT : 'white',
+                      boxShadow: selectedActivityId === activity.id ? `0 4px 12px 0 ${UNAH_BLUE}20` : undefined
+                    }}
                   >
                     <h4 className="font-semibold text-gray-800 mb-1">
                       {activity.title}
@@ -199,7 +203,8 @@ export const ExistingActivitySelector = ({
             <Button
               onClick={handleAssignActivity}
               disabled={!selectedActivityId || isSubmitting}
-              className="bg-teal-600 hover:bg-teal-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ background: UNAH_BLUE }}
             >
               {isSubmitting ? (
                 <>

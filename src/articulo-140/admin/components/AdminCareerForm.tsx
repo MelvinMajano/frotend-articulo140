@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router"
 import { BookOpen, Hash, Building } from "lucide-react"
 import { postCareer } from "../actions/postCareers"
 import { toast } from "sonner"
+import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
 
 export const AdminCareerForm = () => {
   const navigate = useNavigate()
@@ -61,16 +62,16 @@ export const AdminCareerForm = () => {
 
   return (
     <div className="p-6 flex items-center justify-center">
-      <Card className="w-full max-w-xl bg-white shadow-xl border-0 overflow-hidden">
+      <Card className="w-full max-w-xl bg-white shadow-xl border-0 overflow-hidden py-0 gap-0">
         {/* Encabezado con gradiente */}
-        <CardHeader className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white py-8">
+        <CardHeader className="py-8" style={{ background: UNAH_BLUE_SOFT }}>
           <div className="flex items-center justify-center gap-5">
-            <div className="p-4 bg-white/20 rounded-lg backdrop-blur-sm">
-              <BookOpen className="w-6 h-6" />
+            <div className="p-4 rounded-lg" style={{ background: UNAH_BLUE }}>
+              <BookOpen className="w-6 h-6 text-white" />
             </div>
             <div className="text-center">
-              <h2 className="text-2xl font-bold">Registrar Nueva Carrera</h2>
-              <p className="text-sm text-indigo-100 mt-1">
+              <h2 className="text-2xl font-bold" style={{ color: UNAH_BLUE }}>Registrar Nueva Carrera</h2>
+              <p className="text-sm text-gray-500 mt-1">
                 Complete la información de la carrera
               </p>
             </div>
@@ -78,7 +79,7 @@ export const AdminCareerForm = () => {
         </CardHeader>
 
         {/* Contenido del formulario */}
-        <CardContent className="p-8">
+        <CardContent className="p-8 bg-white">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Mensaje de error */}
             {error && (
@@ -90,7 +91,7 @@ export const AdminCareerForm = () => {
             {/* Código de carrera */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                <Hash className="w-4 h-4 text-teal-600" />
+                <Hash className="w-4 h-4" style={{ color: UNAH_BLUE }} />
                 Código de carrera
               </label>
               <Input
@@ -108,7 +109,7 @@ export const AdminCareerForm = () => {
             {/* Nombre de carrera */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-teal-600" />
+                <BookOpen className="w-4 h-4" style={{ color: UNAH_BLUE }} />
                 Nombre de la carrera
               </label>
               <Input
@@ -126,7 +127,7 @@ export const AdminCareerForm = () => {
             {/* Facultad */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                <Building className="w-4 h-4 text-teal-600" />
+                <Building className="w-4 h-4" style={{ color: UNAH_BLUE }} />
                 Facultad
               </label>
               <Input
@@ -156,7 +157,8 @@ export const AdminCareerForm = () => {
                 </Link>
                 <Button
                   type="submit"
-                  className="w-full sm:w-auto h-11 px-8 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold shadow-lg shadow-teal-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full sm:w-auto h-11 px-8 text-white font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ background: UNAH_BLUE }}
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Registrando..." : "Registrar Carrera"}
