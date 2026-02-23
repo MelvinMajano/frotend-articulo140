@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Loader2, Search, Calendar,UserCheck, Users, ArrowLeft, Clock, Info, AlertCircle} from "lucide-react"
+import { Loader2, Search, Calendar,UserCheck, Users, Clock, Info, AlertCircle} from "lucide-react"
 import { useActivities } from "@/articulo-140/hooks/activities/activities/useActivities"
 import { assignStudentToFinishedActivity } from "../../actions/studentActivityEnrollment"
 import type { Datum } from "@/articulo-140/interfaces/activities.response"
@@ -19,7 +19,6 @@ type Activity = Datum
 
 export const ExistingActivitySelector = ({
   studentId,
-  onBack,
   onClose
 }: ExistingActivitySelectorProps) => {
   const [searchQuery, setSearchQuery] = useState("")
@@ -28,7 +27,7 @@ export const ExistingActivitySelector = ({
   const [duplicateError, setDuplicateError] = useState(false)
   const queryClient = useQueryClient()
 
-  const { query } = useActivities()
+  const { query } = useActivities('1','1000') // Cargar todas las actividades para el selector
   const { data, isLoading, isError } = query
 
   const handleAssignActivity = async () => {
@@ -84,16 +83,6 @@ export const ExistingActivitySelector = ({
 
   return (
     <div className="space-y-3">
-      {/* Botón de volver */}
-      <Button
-        variant="ghost"
-        onClick={onBack}
-        className="text-gray-600 hover:text-teal-600 hover:bg-teal-50 -mt-2"
-        disabled={isSubmitting}
-      >
-        <ArrowLeft className="w-4 h-4 mr-2" />
-        Volver
-      </Button>
 
       {/* Buscador */}
       <div className="relative">

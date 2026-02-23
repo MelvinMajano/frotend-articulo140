@@ -2,21 +2,25 @@ import { useState, useMemo, useEffect, useRef } from "react"
 import { useActivities } from '@/articulo-140/hooks/activities/activities/useActivities'
 import { CustomImput } from "@/components/custom/CustomImput"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Link, useSearchParams } from "react-router"
 import { ArrowLeft, Eye, Loader2, Plus } from 'lucide-react'
-import { useQueryClient } from "@tanstack/react-query"
-import { useMutation } from "@tanstack/react-query"
+import { useQueryClient, useMutation } from "@tanstack/react-query"
 import { addImageToActivity, replaceImageActivity } from "../../actions/addImageToActivity.action"
 import { toast } from "sonner"
 import { articulo140Api } from "@/articulo-140/api/articulo140Api"
 import { ConfirmActionModal } from "../../components/custom/ConfirmActionModal"
+import { CustomPagination } from "@/components/custom/CustomPagination"
 
 export const AdminActivities = () => {
-  const { query } = useActivities()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const currentPage = searchParams.get('page') || '1'
+
+  const { query } = useActivities(currentPage)
   const { data, isLoading, isError } = query
-  const [searchParams] = useSearchParams()
+
   const [searchQuery, setSearchQuery] = useState("")
   const searchInputRef = useRef<HTMLInputElement>(null)
 
@@ -25,8 +29,21 @@ export const AdminActivities = () => {
   const [replaceImageDialogOpen, setReplaceImageDialogOpen] = useState(false)
 
   const isFromFiles = searchParams.get('from') === 'files'
-   
-  //todo:logica de filtrado mediante la barra de busqueda, se puede filtrar por titulo, horas, ambitos o supervisor
+
+  const totalPages = data?.data?.pagination?.totalPage || 1
+  const totalActivities = data?.data?.pagination?.total || 0
+  const hasActivities = data?.data?.data && data.data.data.length > 0
+
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      setSearchParams(prev => {
+        const next = new URLSearchParams(prev)
+        next.set('page', '1')
+        return next
+      })
+    }
+  }, [searchQuery])
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -34,47 +51,40 @@ export const AdminActivities = () => {
         searchInputRef.current?.focus()
       }
     }
-
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
 
   const filteredActivities = useMemo(() => {
     if (!data?.data?.data) return []
-    
     if (!searchQuery.trim()) return data.data.data
 
-    const query = searchQuery.toLowerCase().trim()
-    
-    return data.data.data.filter((activity: any) => 
-      activity.title.toLowerCase().includes(query) ||
-      activity.voaeHours.toString().includes(query) ||
-      activity.scopes.toLowerCase().includes(query) ||
-      activity.Supervisor.toLowerCase().includes(query)
+    const q = searchQuery.toLowerCase().trim()
+    return data.data.data.filter((activity: any) =>
+      activity.title.toLowerCase().includes(q) ||
+      activity.voaeHours.toString().includes(q) ||
+      activity.scopes.toLowerCase().includes(q) ||
+      activity.Supervisor.toLowerCase().includes(q)
     )
   }, [data?.data?.data, searchQuery])
 
-  //todo: logica de manejo de agregar imagen a actividad
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
+
   const addImageMutation = useMutation({
     mutationFn: addImageToActivity,
     onSuccess: (message, variables) => {
-      toast.success(message || 'Imagen agregada a la actividad correctamente');
-      localStorage.removeItem('selectedImage');
-      setConfirmDialogOpen(false);
-      setSelectedActivityId(null);
+      toast.success(message || 'Imagen agregada a la actividad correctamente')
+      localStorage.removeItem('selectedImage')
+      setConfirmDialogOpen(false)
+      setSelectedActivityId(null)
+      queryClient.refetchQueries({ queryKey: [`activity-image-${variables.activityId}`] })
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || error?.message || 'Error al agregar la imagen')
+    }
+  })
 
-      queryClient.refetchQueries({ 
-        queryKey: [`activity-image-${variables.activityId}`] 
-      })
-  },
-  onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Error al agregar la imagen'
-      toast.error(errorMessage)
-  }
-  });
-
-   const replaceImageMutation = useMutation({
+  const replaceImageMutation = useMutation({
     mutationFn: ({ activityId, imageData }: any) => replaceImageActivity(activityId, imageData),
     onSuccess: (message, variables) => {
       toast.success(message || 'Imagen reemplazada correctamente')
@@ -82,20 +92,15 @@ export const AdminActivities = () => {
       setReplaceImageDialogOpen(false)
       setConfirmDialogOpen(false)
       setSelectedActivityId(null)
-    
-      queryClient.refetchQueries({ 
-        queryKey: [`activity-image-${variables.activityId}`] 
-      })
+      queryClient.refetchQueries({ queryKey: [`activity-image-${variables.activityId}`] })
     },
     onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Error al reemplazar la imagen'
-      toast.error(errorMessage)
+      toast.error(error?.response?.data?.message || error?.message || 'Error al reemplazar la imagen')
     }
-  });
+  })
 
   const handleConfirmSelection = async () => {
     const selectedImageStr = localStorage.getItem('selectedImage')
-    
     if (!selectedImageStr || !selectedActivityId) {
       toast.error('Imagen o actividad no seleccionada')
       return
@@ -105,7 +110,6 @@ export const AdminActivities = () => {
       await articulo140Api.get(`/activities/images/by-activity/${selectedActivityId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       })
-      
       setConfirmDialogOpen(false)
       setReplaceImageDialogOpen(true)
     } catch (error: any) {
@@ -122,16 +126,13 @@ export const AdminActivities = () => {
     }
   }
 
-   const handleReplaceImage = () => {
+  const handleReplaceImage = () => {
     const selectedImageStr = localStorage.getItem('selectedImage')
-    
     if (!selectedImageStr || !selectedActivityId) {
       toast.error('Imagen o actividad no seleccionada')
       return
     }
-
     const selectedImage = JSON.parse(selectedImageStr)
-
     replaceImageMutation.mutate({
       activityId: selectedActivityId,
       imageData: {
@@ -146,24 +147,51 @@ export const AdminActivities = () => {
     <div className="p-4">
       <Card className="bg-white shadow-lg border-0 w-full">
         {/* Header */}
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <Link to="/admin">
-              <Button
-                variant="ghost"
-                className="text-gray-600 hover:text-teal-600 hover:bg-teal-50"
-              >
-                <ArrowLeft className="w-5 h-5 mr-2" />
-                Regresar
-              </Button>
-            </Link>
-            <CustomImput 
-              ref={searchInputRef}
-              value={searchQuery}
-              onChange={setSearchQuery}
-              placeholder="Buscar por título, horas, ámbitos o supervisor..."
-            />
+        <CardHeader className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* Título y badge */}
+            <div className="flex items-center gap-3">
+              <Link to="/admin">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-gray-600 hover:text-teal-600 hover:bg-teal-50"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </Button>
+              </Link>
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  Gestión de Actividades
+                </h2>
+                {hasActivities && (
+                  <span className="inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full bg-teal-100 text-teal-700">
+                    {totalActivities}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Buscador */}
+            <div className="w-full sm:w-auto sm:min-w-[300px]">
+              <CustomImput
+                ref={searchInputRef}
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Buscar por título, horas, ámbitos o supervisor..."
+              />
+            </div>
           </div>
+
+          {/* Contador de búsqueda */}
+          {searchQuery && hasActivities && (
+            <div className="flex items-center gap-2 text-sm text-gray-600 bg-teal-50 px-4 py-2 rounded-md">
+              <span className="font-medium">{filteredActivities.length}</span>
+              <span>de</span>
+              <span className="font-medium">{totalActivities}</span>
+              <span>actividades encontradas</span>
+            </div>
+          )}
         </CardHeader>
 
         {/* Contenido */}
@@ -177,18 +205,8 @@ export const AdminActivities = () => {
               Error al cargar las actividades
             </p>
           ) : (
-            <>
-              {/* Contador de resultados */}
-              {searchQuery && (
-                <div className="mb-4 text-sm text-gray-600">
-                  {filteredActivities.length === 0 
-                    ? "No se encontraron resultados" 
-                    : `Mostrando ${filteredActivities.length} de ${data?.data?.data?.length} actividades`
-                  }
-                </div>
-              )}
-
-              <div className="overflow-x-auto">
+            <div className="overflow-x-auto">
+              <TooltipProvider>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -205,8 +223,8 @@ export const AdminActivities = () => {
                     {filteredActivities.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={7} className="text-center py-10 text-gray-500">
-                          {searchQuery 
-                            ? "No se encontraron actividades que coincidan con tu búsqueda" 
+                          {searchQuery
+                            ? "No se encontraron actividades que coincidan con tu búsqueda"
                             : "No hay actividades disponibles"
                           }
                         </TableCell>
@@ -217,48 +235,71 @@ export const AdminActivities = () => {
                           key={activity.id}
                           className="hover:bg-gray-50 transition-colors duration-200"
                         >
-                          <TableCell className="font-medium text-gray-800">
-                            {activity.title}
-                          </TableCell>
+                          <TableCell className="font-medium text-gray-800">{activity.title}</TableCell>
                           <TableCell>{activity.startDate}</TableCell>
                           <TableCell>{activity.endDate}</TableCell>
                           <TableCell>{activity.voaeHours}</TableCell>
                           <TableCell>{activity.scopes}</TableCell>
                           <TableCell>{activity.Supervisor}</TableCell>
                           <TableCell>
-                        <div className="flex justify-center gap-2">
-                          {isFromFiles ? (
-                            <Button
-                              variant="outline"
-                              onClick={() => {
-                                setSelectedActivityId(activity.id)
-                                setConfirmDialogOpen(true)
-                              }}
-                              className="border-teal-600 text-teal-700 hover:bg-teal-600 hover:text-white"
-                            >
-                              <Plus className="w-4 h-4 mr-1" />
-                              Seleccionar
-                            </Button>
-                          ) : (
-                            <Link to={`/admin/activities/${activity.id}/attendance`}>
-                              <Button variant="outline" className="border-teal-600 text-teal-700">
-                                <Eye className="w-4 h-4 mr-1" />
-                                Ver asistencias
-                              </Button>
-                            </Link>
-                          )}
-                        </div>
-                      </TableCell>
+                            <div className="flex justify-center gap-2">
+                              {isFromFiles ? (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      onClick={() => {
+                                        setSelectedActivityId(activity.id)
+                                        setConfirmDialogOpen(true)
+                                      }}
+                                      className="border-teal-600 text-teal-700 hover:bg-teal-600 hover:text-white transition-all duration-200"
+                                    >
+                                      <Plus className="w-4 h-4 mr-1" />
+                                      Seleccionar
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Asignar imagen seleccionada a esta actividad</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              ) : (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Link to={`/admin/activities/${activity.id}/attendance`}>
+                                      <Button
+                                        variant="outline"
+                                        className="border-teal-600 text-teal-700 hover:bg-teal-600 hover:text-white transition-all duration-200"
+                                      >
+                                        <Eye className="w-4 h-4 mr-1" />
+                                        Ver asistencias
+                                      </Button>
+                                    </Link>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Ver lista de asistencias de esta actividad</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              )}
+                            </div>
+                          </TableCell>
                         </TableRow>
                       ))
                     )}
                   </TableBody>
                 </Table>
-              </div>
-            </>
+              </TooltipProvider>
+            </div>
           )}
         </CardContent>
+
+        {/* Footer con paginación */}
+        {!searchQuery && hasActivities && totalPages > 1 && (
+          <CardFooter className="flex justify-center pt-4">
+            <CustomPagination totalPages={totalPages} />
+          </CardFooter>
+        )}
       </Card>
+
       <ConfirmActionModal
         open={confirmDialogOpen}
         onOpenChange={setConfirmDialogOpen}

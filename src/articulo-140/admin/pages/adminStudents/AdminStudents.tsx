@@ -2,14 +2,21 @@ import { useState, useMemo, useEffect, useRef } from "react"
 import { useStudents } from "@/articulo-140/hooks/activities/admin/useStudents"
 import { CustomImput } from "@/components/custom/CustomImput"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Loader2, UserRoundSearch, PlusCircle, ArrowLeft } from "lucide-react"
-import { Link } from "react-router"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Loader2, UserRoundSearch, PlusCircle, ArrowLeft, Users } from "lucide-react"
+import { Link, useSearchParams } from "react-router"
 import { AddActivityModal } from "../../components/AddActivityModel"
+import { CustomPagination } from "@/components/custom/CustomPagination"
 
 export const AdminStudents = () => {
-  const { query } = useStudents()
+  const [searchParams, setSearchParams] = useSearchParams()
+  
+  const currentPage = parseInt(searchParams.get('page') || '1', 10)
+  const limit = 5
+  
+  const { query } = useStudents(limit, currentPage)
   const { data, isLoading, isError } = query
   
   const [modalOpen, setModalOpen] = useState(false)
@@ -18,6 +25,14 @@ export const AdminStudents = () => {
   
   const searchInputRef = useRef<HTMLInputElement>(null)
 
+  // Resetear a página 1 cuando cambie la búsqueda
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      setSearchParams({ page: '1' })
+    }
+  }, [searchQuery, setSearchParams])
+
+  // Atajo de teclado Cmd+K / Ctrl+K
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -30,55 +45,98 @@ export const AdminStudents = () => {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
 
+  // Filtrado local para la búsqueda
   const filteredStudents = useMemo(() => {
-    if (!data?.data) return []
+    if (!data?.data?.data) return []
     
-    if (!searchQuery.trim()) return data.data
+    const students = data.data.data 
+    
+    if (!searchQuery.trim()) return students
 
     const query = searchQuery.toLowerCase().trim()
     
-    return data.data.filter((student) => 
+    return students.filter((student) => 
       student.accountNumber.toString().toLowerCase().includes(query) ||
       student.name.toLowerCase().includes(query) ||
       student.email.toLowerCase().includes(query) ||
       student.identityNumber.toLowerCase().includes(query) ||
       student.career.toLowerCase().includes(query)
     )
-  }, [data?.data, searchQuery])
+  }, [data?.data?.data, searchQuery])
 
   const handleAddActivity = (studentId: string) => {
     setSelectedStudentId(studentId)
     setModalOpen(true)
   }
 
+  // Total de páginas y estudiantes desde la paginación del backend
+  const totalPages = data?.data?.pagination?.totalPage || 1
+  const totalStudents = data?.data?.pagination?.total || 0
+  const hasStudents = data?.data?.data && data.data.data.length > 0
+
   return (
     <div className="p-4">
       <Card className="bg-white shadow-lg border-0 w-full">
         {/* Header */}
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div className="flex items-center gap-4 w-full">
-            <Link to='/admin'>
-              <Button
-                variant="ghost"
-                className="text-gray-600 hover:text-teal-600 hover:bg-teal-50"
-              >
-                <ArrowLeft className="w-5 h-5 mr-2" />
-                Regresar
+          {/* Primera fila: Título con badge y buscador */}
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            {/* Título y badge */}
+            <div className="flex items-center gap-3">
+              <Link to="/admin">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-gray-600 hover:text-teal-600 hover:bg-teal-50"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </Button>
+              </Link>
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  Gestión de Estudiantes
+                </h2>
+                {hasStudents && (
+                  <span className="inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full bg-teal-100 text-teal-700">
+                    {totalStudents}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Buscador */}
+            <div className="w-full lg:w-auto lg:min-w-[320px]">
+              <CustomImput 
+                ref={searchInputRef}
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Buscar estudiantes..."
+              />
+            </div>
+          </div>
+
+          {/* Segunda fila: Contador de búsqueda y Botón Agregar */}
+          <div className="flex items-center justify-between">
+            {/* Contador de búsqueda*/}
+            {searchQuery && hasStudents ? (
+              <div className="flex items-center gap-2 text-sm text-gray-600 bg-teal-50 px-4 py-2 rounded-md">
+                <span className="font-medium">{filteredStudents.length}</span>
+                <span>de</span>
+                <span className="font-medium">{totalStudents}</span>
+                <span>estudiantes encontrados</span>
+              </div>
+            ) : (
+              <div></div> // Espacio vacío cuando no hay búsqueda
+            )}
+
+            {/* Botón Agregar*/}
+            <Link to="/admin/students/create">
+              <Button className="bg-teal-600 hover:bg-teal-700 text-white flex items-center shadow-sm">
+                <PlusCircle className="w-4 h-4 mr-2" />
+                Agregar Estudiante
               </Button>
             </Link>
-            <CustomImput 
-              ref={searchInputRef}
-              value={searchQuery}
-              onChange={setSearchQuery}
-              placeholder="Buscar por cuenta, nombre, correo, identidad o carrera..."
-            />
           </div>
-          <Link to="/admin/students/create">
-            <Button className="bg-teal-600 hover:bg-teal-700 text-white flex items-center">
-              <PlusCircle className="w-4 h-4 mr-1" />
-              Agregar Estudiante
-            </Button>
-          </Link>
         </CardHeader>
 
         {/* Contenido */}
@@ -89,79 +147,111 @@ export const AdminStudents = () => {
             </div>
           ) : isError ? (
             <p className="text-red-500 text-center py-6">Error al cargar los estudiantes</p>
+          ) : !hasStudents ? (
+            /* Estado vacío */
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="text-gray-400 mb-4">
+                <Users className="w-16 h-16" />
+              </div>
+              <p className="text-gray-600 text-lg font-medium mb-2">
+                No hay estudiantes registrados
+              </p>
+              <p className="text-gray-500 text-sm">
+                Agrega un estudiante para comenzar
+              </p>
+            </div>
           ) : (
             <>
-              {/* Contador de resultados */}
-              {searchQuery && (
-                <div className="mb-4 text-sm text-gray-600">
-                  {filteredStudents.length === 0 
-                    ? "No se encontraron resultados" 
-                    : `Mostrando ${filteredStudents.length} de ${data?.data.length} estudiantes`
-                  }
-                </div>
-              )}
-
               <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead><span className="text-gray-700"># Cuenta</span></TableHead>
-                      <TableHead><span className="text-gray-700">Nombre</span></TableHead>
-                      <TableHead><span className="text-gray-700">Correo</span></TableHead>
-                      <TableHead><span className="text-gray-700">Identidad</span></TableHead>
-                      <TableHead><span className="text-gray-700">Carrera</span></TableHead>
-                      <TableHead className="text-center"><span className="text-gray-700">Acciones</span></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredStudents.length === 0 ? (
+                <TooltipProvider>
+                  <Table>
+                    <TableHeader>
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-10 text-gray-500">
-                          {searchQuery 
-                            ? "No se encontraron estudiantes que coincidan con tu búsqueda" 
-                            : "No hay estudiantes registrados"
-                          }
-                        </TableCell>
+                        <TableHead><span className="text-gray-700"># Cuenta</span></TableHead>
+                        <TableHead><span className="text-gray-700">Nombre</span></TableHead>
+                        <TableHead><span className="text-gray-700">Correo</span></TableHead>
+                        <TableHead><span className="text-gray-700">Identidad</span></TableHead>
+                        <TableHead><span className="text-gray-700">Carrera</span></TableHead>
+                        <TableHead className="text-center"><span className="text-gray-700">Acciones</span></TableHead>
                       </TableRow>
-                    ) : (
-                      filteredStudents.map((student) => (
-                        <TableRow key={student.accountNumber}>
-                          <TableCell>
-                            <span className="font-medium">{student.accountNumber}</span>
-                          </TableCell>
-                          <TableCell>{student.name}</TableCell>
-                          <TableCell>{student.email}</TableCell>
-                          <TableCell>{student.identityNumber}</TableCell>
-                          <TableCell>{student.career}</TableCell>
-                          <TableCell>
-                            <div className="flex justify-center gap-2">
-                              <Link to={`/admin/students/${student.id}`}>
-                                <Button
-                                  variant="outline"
-                                  className="border-teal-600 text-teal-600 hover:bg-teal-50 flex items-center"
-                                >
-                                  <UserRoundSearch className="w-4 h-4 mr-1" />
-                                  Consultar
-                                </Button>
-                              </Link>
-                              <Button
-                                onClick={() => handleAddActivity(student.id)}
-                                className="bg-teal-600 hover:bg-teal-700 text-white flex items-center"
-                              >
-                                <PlusCircle className="w-4 h-4 mr-1" />
-                                Agregar actividad
-                              </Button>
-                            </div>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredStudents.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center py-10 text-gray-500">
+                            {searchQuery 
+                              ? "No se encontraron estudiantes que coincidan con tu búsqueda" 
+                              : "No hay estudiantes registrados"
+                            }
                           </TableCell>
                         </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
+                      ) : (
+                        filteredStudents.map((student: any) => (
+                          <TableRow 
+                            key={student.accountNumber}
+                            className="hover:bg-gray-50 transition-colors duration-200"
+                          >
+                            <TableCell>
+                              <span className="font-medium text-gray-900">{student.accountNumber}</span>
+                            </TableCell>
+                            <TableCell className="text-gray-900">{student.name}</TableCell>
+                            <TableCell className="text-gray-600">{student.email}</TableCell>
+                            <TableCell className="text-gray-600">{student.identityNumber}</TableCell>
+                            <TableCell className="text-gray-600">{student.career}</TableCell>
+                            <TableCell>
+                              <div className="flex justify-center gap-2">
+                                {/* Tooltip para Consultar */}
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Link to={`/admin/students/${student.id}`}>
+                                      <Button
+                                        variant="outline"
+                                        className="border-teal-600 text-teal-600 hover:bg-teal-50 flex items-center font-medium shadow-sm transition-all duration-200"
+                                      >
+                                        <UserRoundSearch className="w-4 h-4 mr-1" />
+                                        Consultar
+                                      </Button>
+                                    </Link>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Ver Horas VOAE del estudiante</p>
+                                  </TooltipContent>
+                                </Tooltip>
+
+                                {/* Tooltip para Agregar Actividad */}
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      onClick={() => handleAddActivity(student.id)}
+                                      className="bg-teal-600 hover:bg-teal-700 text-white flex items-center font-medium shadow-sm transition-all duration-200"
+                                    >
+                                      <PlusCircle className="w-4 h-4 mr-1" />
+                                      Agregar actividad
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Asignar una nueva actividad VOAE</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </TooltipProvider>
               </div>
             </>
           )}
         </CardContent>
+
+        {/* Footer con paginación - solo mostrar si no hay búsqueda activa */}
+        {!searchQuery && hasStudents && (
+          <CardFooter className="flex justify-center pt-4">
+            <CustomPagination totalPages={totalPages} />
+          </CardFooter>
+        )}
       </Card>
 
       {/* Modal para agregar actividad */}
