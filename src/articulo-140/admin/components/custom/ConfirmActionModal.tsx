@@ -2,6 +2,7 @@ import type { FC, ReactNode } from "react"
 import { Button } from "@/components/ui/button"
 import { MinimalModal } from "@/components/custom/CustomModal"
 import { AlertTriangle } from "lucide-react"
+import { UNAH_BLUE } from "@/lib/colors"
 
 interface ConfirmActionModalProps {
   open: boolean
@@ -11,6 +12,7 @@ interface ConfirmActionModalProps {
   confirmText?: string
   cancelText?: string
   onConfirm: () => void
+  variant?: "default" | "danger"
 }
 
 export const ConfirmActionModal: FC<ConfirmActionModalProps> = ({
@@ -20,12 +22,17 @@ export const ConfirmActionModal: FC<ConfirmActionModalProps> = ({
   message,
   confirmText = "Sí",
   cancelText = "Cancelar",
-  onConfirm
+  onConfirm,
+  variant = "default"
 }) => {
+  const isDanger = variant === "danger"
+  const accentColor = isDanger ? "#dc2626" : UNAH_BLUE
+  const iconBg = isDanger ? "#fee2e2" : `${UNAH_BLUE}18`
+
   return (
     <MinimalModal open={open} onOpenChange={onOpenChange} trigger={null}>
       <div className="bg-white rounded-2xl shadow-2xl p-10 flex flex-col items-center justify-center text-center space-y-6">
-        <div className="bg-red-100 text-red-600 p-4 rounded-full">
+        <div className="p-4 rounded-full" style={{ background: iconBg, color: accentColor }}>
           <AlertTriangle className="w-10 h-10" />
         </div>
         <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
@@ -34,13 +41,15 @@ export const ConfirmActionModal: FC<ConfirmActionModalProps> = ({
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="w-full sm:w-auto border-gray-300 text-gray-700 hover:bg-gray-50"
+            className="w-full sm:w-auto"
+            style={{ borderColor: accentColor, color: accentColor }}
           >
             {cancelText}
           </Button>
           <Button
             onClick={onConfirm}
-            className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white font-semibold"
+            className="w-full sm:w-auto text-white font-semibold"
+            style={{ background: accentColor }}
           >
             {confirmText}
           </Button>

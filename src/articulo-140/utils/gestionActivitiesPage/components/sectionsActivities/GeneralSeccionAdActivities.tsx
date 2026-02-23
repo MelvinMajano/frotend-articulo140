@@ -1,6 +1,7 @@
 import { CustomCombobox} from "@/components/custom/CustomCombobox";
 import { DateTimePicker } from "@/components/custom/DatetimePicker"
 import { Badge } from "@/components/ui/badge";
+import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors";
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox";
@@ -76,7 +77,7 @@ const GeneralSeccionForm = ({ activities, scopesFromApi, updateActivityMutation,
     handleSubmit,
     reset,
     control,
-    formState: {isDirty,errors,isSubmitting},
+    formState: {isDirty,errors,isSubmitting,dirtyFields},
   } = useForm<ActivityFormValues>({
     resolver: zodResolver(activitySchema),
     defaultValues: {
@@ -136,30 +137,29 @@ const onSubmit = handleSubmit(async (data: ActivityFormValues) => {
 
         <Separator />
 
-        {/* Título y Descripción */}
-        <div className="grid gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="title" className="font-medium">Título</Label>
-            <Input 
-              {...register("title")}
-              className={`!border-0 !border-b focus:!ring-0 !bg-transparent ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
-            />
-            {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
-            <p className="text-sm text-muted-foreground">Al hacer clic en el título podrá editarlo.</p>
-          </div>
+        {/* Título */}
+        <div className="space-y-2 rounded-lg p-4" style={{ background: UNAH_BLUE_SOFT }}>
+          <Label htmlFor="title" className="font-medium">Título</Label>
+          <Input 
+            {...register("title")}
+            className={`!border-0 !border-b focus:!ring-0 !bg-transparent ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
+          />
+          {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
+          <p className="text-sm text-muted-foreground">Al hacer clic en el título podrá editarlo.</p>
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description" className="font-medium">Descripción</Label>
-            <Input 
-              {...register("description")}
-              className={`!border-0 !border-b focus:!ring-0 !bg-transparent ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
-            />
-            <p className="text-sm text-muted-foreground">Al hacer clic en la descripción podrá editarlo.</p>
-          </div>
+        {/* Descripción */}
+        <div className="space-y-2 rounded-lg p-4" style={{ background: UNAH_BLUE_SOFT }}>
+          <Label htmlFor="description" className="font-medium">Descripción</Label>
+          <Input 
+            {...register("description")}
+            className={`!border-0 !border-b focus:!ring-0 !bg-transparent ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
+          />
+          <p className="text-sm text-muted-foreground">Al hacer clic en la descripción podrá editarlo.</p>
         </div>
 
         {/* Horas y Capacidad */}
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 gap-6 rounded-lg p-4" style={{ background: UNAH_BLUE_SOFT }}>
           <div className="space-y-2">
             <Label className="font-medium">Cantidad de horas VOAE</Label>
             <Input
@@ -181,7 +181,7 @@ const onSubmit = handleSubmit(async (data: ActivityFormValues) => {
         </div>
 
         {/* Fechas con Controller */}
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 gap-6 rounded-lg p-4" style={{ background: UNAH_BLUE_SOFT }}>
           <div className="space-y-2">
             <Label className="font-medium">Fecha y Hora de Inicio</Label>
             <Controller
@@ -192,6 +192,7 @@ const onSubmit = handleSubmit(async (data: ActivityFormValues) => {
                   date={field.value}
                   setDate={field.onChange}
                   placeholder="Seleccionar inicio"
+                  isModified={!!dirtyFields.startDate}
                 />
               )}
             />
@@ -208,6 +209,7 @@ const onSubmit = handleSubmit(async (data: ActivityFormValues) => {
                   date={field.value}
                   setDate={field.onChange}
                   placeholder="Seleccionar fin"
+                  isModified={!!dirtyFields.endDate}
                 />
               )}
             />
@@ -216,7 +218,7 @@ const onSubmit = handleSubmit(async (data: ActivityFormValues) => {
         </div>
 
         {/* Ámbitos y Supervisor */}
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 gap-6 rounded-lg p-4" style={{ background: UNAH_BLUE_SOFT }}>
           <div className="space-y-2">
             <Label className="font-medium">Ámbitos</Label>
             <Controller
@@ -229,6 +231,7 @@ const onSubmit = handleSubmit(async (data: ActivityFormValues) => {
                       <Checkbox 
                         id={scope.id}
                         checked={field.value?.includes(scope.value)}
+                        className="data-[state=checked]:bg-[#1E40AF] data-[state=checked]:border-[#1E40AF]"
                         onCheckedChange={(checked) => {
                           const current = field.value || [];
                           field.onChange(checked 
@@ -266,20 +269,22 @@ const onSubmit = handleSubmit(async (data: ActivityFormValues) => {
       </section>
 
       {/* Footer Persistente */}
-      <footer className="sticky bottom-0 bg-background/95 backdrop-blur border-t p-4">
+      <footer className="sticky bottom-0 backdrop-blur border-t p-4" style={{ background: UNAH_BLUE_SOFT }}>
         <div className="container mx-auto flex justify-end gap-3">
           <Button 
             type="button" 
             variant="outline" 
             onClick={() => reset()} 
             disabled={!isDirty || isSubmitting}
+            style={{ borderColor: UNAH_BLUE, color: UNAH_BLUE }}
           >
             Cancelar
           </Button>
           <Button 
             type="submit" 
             disabled={!isDirty || isSubmitting} 
-            className="bg-slate-900 text-white shadow-md transition-all hover:bg-slate-800"
+            className="text-white shadow-md transition-all"
+            style={{ background: UNAH_BLUE }}
           >
             {isSubmitting ? 'Guardando...' : 'Aceptar'}
           </Button>

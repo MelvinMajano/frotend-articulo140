@@ -10,6 +10,7 @@ import { Table,
   TableHeader,
   TableRow, } from "@/components/ui/table"
 import { useParams } from "react-router"
+import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
 
 export const StudentsAdActivities = () => {
   const {id: activityId} = useParams();
@@ -27,22 +28,22 @@ export const StudentsAdActivities = () => {
                     <Separator />
                     <div className="space-y-6 ">
                       <div className="space-y-2">
-                        <div className="rounded-lg border bg-background shadow-sm overflow-visible [&_[data-slot=table-container]]:overflow-visible">
+                        <div className="rounded-lg overflow-visible [&_[data-slot=table-container]]:overflow-visible" style={{ border: `1.5px solid ${UNAH_BLUE}20`, boxShadow: `0 2px 12px 0 ${UNAH_BLUE}10` }}>
                           <Table className="min-w-full">
                             <TableCaption className="text-xs">Tabla de asistencias</TableCaption>
-                            <TableHeader className="bg-muted/30">
+                            <TableHeader style={{ background: UNAH_BLUE_SOFT }}>
                               <TableRow className="hover:bg-transparent">
-                                <TableHead className="w-[140px] text-center">Número de cuenta</TableHead>
-                                <TableHead className="w-[180px] text-left">Nombre</TableHead>
-                                <TableHead className="w-[150px] text-center">Hora de entrada</TableHead>
-                                <TableHead className="w-[150px] text-center">Hora de salida</TableHead>
-                                <TableHead className="w-[120px] text-center">Horas obtenidas</TableHead>
-                                <TableHead className="w-[120px] text-center">Ambitos</TableHead>
+                                <TableHead className="w-[140px] text-center text-black font-semibold">Número de cuenta</TableHead>
+                                <TableHead className="w-[180px] text-left text-black font-semibold">Nombre</TableHead>
+                                <TableHead className="w-[150px] text-center text-black font-semibold">Hora de entrada</TableHead>
+                                <TableHead className="w-[150px] text-center text-black font-semibold">Hora de salida</TableHead>
+                                <TableHead className="w-[120px] text-center text-black font-semibold">Horas obtenidas</TableHead>
+                                <TableHead className="w-[120px] text-center text-black font-semibold">Ambitos</TableHead>
                               </TableRow>
                             </TableHeader>
-                            <TableBody className="[&>tr:nth-child(even)]:bg-muted/20">
+                            <TableBody>
                                 {data?.message.data.map((e)=>(
-                                <TableRow key={e.accountNumber}>
+                                <TableRow key={e.accountNumber} style={{ background: UNAH_BLUE_SOFT }}>
                                 <TableCell className="text-center">{e.accountNumber}</TableCell>
                                 <TableCell className="font-medium">{e.name}</TableCell>
                                 

@@ -2,6 +2,7 @@ import { SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, S
 import { GraduationCap, Settings, UserCog, type LucideProps } from "lucide-react"
 import { SideBarActivitiesContext, type item } from "../context/SideBarActivitiesContext";
 import { use, type ForwardRefExoticComponent } from "react";
+import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors";
 
 
 
@@ -35,7 +36,7 @@ const sections:detailsActivities[] = [
 
 
 export const CustomSidebarAdActivities = () => {
-    const {onSelection} = use(SideBarActivitiesContext);
+    const {onSelection, itemsSelected} = use(SideBarActivitiesContext);
 
     const groupedSections = sections.reduce(
         (acc, section) => {
@@ -62,9 +63,14 @@ export const CustomSidebarAdActivities = () => {
                                 const Icon = section.icon
                                 return (
                                     <SidebarMenuItem key={section.id}>
-                                        <SidebarMenuButton className="w-full justify-start"
-                                        onClick={()=>onSelection(section.id)}>
-                                            <Icon className="h-4 w-4" />
+                                        <SidebarMenuButton
+                                          className="w-full justify-start"
+                                          onClick={() => onSelection(section.id)}
+                                          style={itemsSelected === section.id
+                                            ? { background: UNAH_BLUE_SOFT, color: UNAH_BLUE, fontWeight: 600 }
+                                            : {}}
+                                        >
+                                            <Icon className="h-4 w-4" style={itemsSelected === section.id ? { color: UNAH_BLUE } : {}} />
                                             <span>{section.title}</span>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>

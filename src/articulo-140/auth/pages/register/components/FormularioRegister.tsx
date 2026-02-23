@@ -7,6 +7,7 @@ import { Link } from "react-router"
 import type { role } from "../registerInterfaces/register.interface"
 import { authStore } from "@/articulo-140/auth/store/authStore"
 import { toast } from "sonner"
+import { UNAH_BLUE, UNAH_GOLD } from "@/lib/colors"
 
 interface formdataRegister{
       name:string;
@@ -100,15 +101,17 @@ export const RegisterForm =() => {
   }
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md" style={{ border: `1.5px solid ${UNAH_BLUE}25`, boxShadow: `0 4px 32px 0 ${UNAH_BLUE}18` }}>
       <CardHeader>
-        <CardTitle className="text-2xl">Crear Cuenta</CardTitle>
-        <CardDescription>Completa el formulario para registrarte</CardDescription>
+        {/* Franja decorativa dorada */}
+        <div className="w-10 h-1 rounded-full mb-3" style={{ background: UNAH_GOLD }} />
+        <CardTitle className="text-2xl m-auto" style={{ color: UNAH_BLUE }}>Crear Cuenta</CardTitle>
+        <CardDescription className="m-auto font-medium text-black">Completa el formulario para registrarte</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Nombre</Label>
+            <Label htmlFor="name" style={{ color: UNAH_BLUE }}>Nombre</Label>
             <Input
               id="name"
               name="name"
@@ -119,7 +122,7 @@ export const RegisterForm =() => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Correo Electrónico</Label>
+            <Label htmlFor="email" style={{ color: UNAH_BLUE }}>Correo Electrónico</Label>
             <Input
               id="email"
               name="email"
@@ -130,7 +133,7 @@ export const RegisterForm =() => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="accountNumber">Número de Cuenta</Label>
+            <Label htmlFor="accountNumber" style={{ color: UNAH_BLUE }}>Número de Cuenta</Label>
             <Input
               id="accountNumber"
               name="accountNumber"
@@ -140,7 +143,7 @@ export const RegisterForm =() => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="identityNumber">Número de Identidad</Label>
+            <Label htmlFor="identityNumber" style={{ color: UNAH_BLUE }}>Número de Identidad</Label>
             <Input
               id="identityNumber"
               name="identityNumber"
@@ -151,7 +154,7 @@ export const RegisterForm =() => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Contraseña</Label>
+            <Label htmlFor="password" style={{ color: UNAH_BLUE }}>Contraseña</Label>
             <Input
               id="password"
               name="password"
@@ -163,7 +166,7 @@ export const RegisterForm =() => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
+            <Label htmlFor="confirmPassword" style={{ color: UNAH_BLUE }}>Confirmar Contraseña</Label>
             <Input
               id="confirmPassword"
               name="confirmPassword"
@@ -175,12 +178,12 @@ export const RegisterForm =() => {
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-4 mt-3">
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full" style={{ background: UNAH_BLUE, color: "#fff" }}>
             Registrarse
           </Button>
-          <p className="text-sm text-muted-foreground text-center">
+          <p className="text-sm text-black text-center">
             ¿Ya tienes una cuenta?{" "}
-            <Link to="/auth/login" className="text-primary hover:underline">
+            <Link to="/auth/login" className="hover:underline font-medium" style={{ color: UNAH_BLUE }}>
               Inicia sesión aquí
             </Link>
           </p>

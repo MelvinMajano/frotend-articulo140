@@ -2,11 +2,12 @@
 
 import { useState } from "react"
 import { Link } from "react-router"
-import LogoSistemas from "@/assest/Ingenieria-en-Sistemas-Color.png"
+import LogoSistemas from "@/assest/Ingenieria-en-Sistemas-Logo.png.jpeg"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu} from "lucide-react"
 import { authStore } from "@/articulo-140/auth/store/authStore"
+import { UNAH_BLUE, UNAH_BLUE_GRADIENT } from "@/lib/colors"
 
 
 export function CustomNavBar() {
@@ -43,7 +44,10 @@ export function CustomNavBar() {
             <Link
               key={item.name}
               to={item.href}
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
+              className="transition-colors font-medium"
+              style={{ color: "#4B5563" }}
+              onMouseEnter={e => (e.currentTarget.style.color = UNAH_BLUE)}
+              onMouseLeave={e => (e.currentTarget.style.color = "#4B5563")}
             >
               {item.name}
             </Link>
@@ -55,16 +59,16 @@ export function CustomNavBar() {
           {/* CTA Button */}
           <div className="hidden md:flex items-center space-x-2">
             {state==="no-authenticated"?(<Link to="/auth/login">
-            <Button size="sm">
+            <Button size="sm" style={{ background: UNAH_BLUE, color: "#fff" }} className="hover:opacity-90">
               Iniciar Sesión
             </Button>
             </Link>):<Link to="/">
-            <Button variant="ghost" size="sm" onClick={logout}>
+            <Button variant="ghost" size="sm" onClick={logout} style={{ color: UNAH_BLUE }} className="hover:bg-blue-50">
               Cerrar Sesión
             </Button>
             </Link>}
             {isAdmin() && ( <Link to="/admin">
-            <Button size="sm" className="bg-red-500 text-background hover:bg-red-700">
+            <Button size="sm" style={{ background: UNAH_BLUE }} className="text-white hover:opacity-90">
               Administrar
             </Button>
             </Link>)} 
@@ -97,19 +101,24 @@ export function CustomNavBar() {
                       key={item.name}
                       to={item.href}
                       onClick={() => setIsOpen(false)}
-                      className="text-foreground/60 transition-colors hover:text-foreground"
+                      className="transition-colors font-medium text-sm"
+                      style={{ color: "#4B5563" }}
                     >
                       {item.name}
                     </Link>
                   ))}
                 </div>
                 <div className="mt-8 flex flex-col space-y-3">
-                  <Button variant="ghost" className="justify-start">
-                    Iniciar Sesión
-                  </Button>
-                  <Button className="justify-start bg-foreground text-background hover:bg-foreground/90">
-                    Comenzar
-                  </Button>
+                  <Link to="/auth/login" onClick={() => setIsOpen(false)}>
+                    <Button className="justify-start w-full" style={{ background: UNAH_BLUE, color: "#fff" }}>
+                      Iniciar Sesión
+                    </Button>
+                  </Link>
+                  <Link to="/" onClick={() => { setIsOpen(false); logout(); }}>
+                    <Button variant="ghost" className="justify-start w-full" style={{ color: UNAH_BLUE_GRADIENT }}>
+                      Cerrar Sesión
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </SheetContent>

@@ -1,6 +1,7 @@
 
 import { Calendar } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
+import { UNAH_BLUE } from "@/lib/colors"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 import { CalendarIcon, Clock } from "lucide-react"
@@ -19,6 +20,7 @@ interface DateTimePickerProps {
 export function DateTimePicker({ date, setDate, placeholder = "Seleccionar fecha y hora", className, isModified = false }: DateTimePickerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [timeStep, setTimeStep] = useState<"calendar" | "hour" | "minute">("calendar")
+  const [pendingDate, setPendingDate] = useState<Date | undefined>(undefined)
   const [selectedHour, setSelectedHour] = useState(date instanceof Date ? date.getHours() : 12)
   const [selectedMinute, setSelectedMinute] = useState(date instanceof Date ? date.getMinutes() : 0)
   const [period, setPeriod] = useState<"AM" | "PM">(
@@ -26,24 +28,19 @@ export function DateTimePicker({ date, setDate, placeholder = "Seleccionar fecha
   )
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
-    if (selectedDate) {
-      const newDate = new Date(selectedDate)
-      if (date instanceof Date) {
-        newDate.setHours(date.getHours())
-        newDate.setMinutes(date.getMinutes())
-      } else {
-        const hour24 =
-          period === "PM" && selectedHour !== 12
-            ? selectedHour + 12
-            : period === "AM" && selectedHour === 12
-              ? 0
-              : selectedHour
-        newDate.setHours(hour24)
-        newDate.setMinutes(selectedMinute)
-      }
-      setDate(newDate)
+    setPendingDate(selectedDate)
+  }
+
+  const handleDateConfirm = () => {
+    if (pendingDate) {
       setTimeStep("hour")
     }
+  }
+
+  const handleDateCancel = () => {
+    setPendingDate(undefined)
+    setIsOpen(false)
+    setTimeStep("calendar")
   }
 
   const handleHourSelect = (hour: number) => {
@@ -51,8 +48,9 @@ export function DateTimePicker({ date, setDate, placeholder = "Seleccionar fecha
   }
 
   const handleTimeConfirm = () => {
-    if (date instanceof Date) {
-      const newDate = new Date(date)
+    const base = pendingDate ?? date
+    if (base instanceof Date) {
+      const newDate = new Date(base)
       const hour24 =
         period === "PM" && selectedHour !== 12
           ? selectedHour + 12
@@ -63,6 +61,7 @@ export function DateTimePicker({ date, setDate, placeholder = "Seleccionar fecha
       newDate.setMinutes(selectedMinute)
       setDate(newDate)
     }
+    setPendingDate(undefined)
     setIsOpen(false)
     setTimeStep("calendar")
   }
@@ -108,15 +107,30 @@ export function DateTimePicker({ date, setDate, placeholder = "Seleccionar fecha
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0 max-h-[350px] overflow-y-auto" align="start">
         {timeStep === "calendar" ? (
-          <Calendar
-            mode="single"
-            selected={date}
-            onSelect={handleDateSelect}
-            initialFocus
-            captionLayout="dropdown"
-            fromYear={2020}
-            toYear={2030}
-          />
+          <div>
+            <Calendar
+              mode="single"
+              selected={pendingDate ?? date}
+              onSelect={handleDateSelect}
+              initialFocus
+              captionLayout="dropdown"
+              fromYear={2020}
+              toYear={2030}
+            />
+            <div className="flex justify-end gap-2 p-3 border-t">
+              <Button variant="ghost" onClick={handleDateCancel}>
+                Cancelar
+              </Button>
+              <Button
+                disabled={!pendingDate}
+                onClick={handleDateConfirm}
+                style={{ background: UNAH_BLUE }}
+                className="text-white disabled:opacity-40"
+              >
+                Confirmar
+              </Button>
+            </div>
+          </div>
         ) : (
           <div className="p-6 space-y-4">
             <div className="flex items-center justify-between mb-4">
@@ -141,23 +155,15 @@ export function DateTimePicker({ date, setDate, placeholder = "Seleccionar fecha
               <div className="flex flex-col gap-1 ml-2">
                 <button
                   onClick={() => setPeriod("AM")}
-                  className={cn(
-                    "text-sm px-2 py-0.5 rounded transition-colors",
-                    period === "AM"
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground",
-                  )}
+                  className="text-sm px-2 py-0.5 rounded transition-colors"
+                  style={period === "AM" ? { background: UNAH_BLUE, color: "white" } : { color: "#6B7280" }}
                 >
                   AM
                 </button>
                 <button
                   onClick={() => setPeriod("PM")}
-                  className={cn(
-                    "text-sm px-2 py-0.5 rounded transition-colors",
-                    period === "PM"
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground",
-                  )}
+                  className="text-sm px-2 py-0.5 rounded transition-colors"
+                  style={period === "PM" ? { background: UNAH_BLUE, color: "white" } : { color: "#6B7280" }}
                 >
                   PM
                 </button>
@@ -187,10 +193,8 @@ export function DateTimePicker({ date, setDate, placeholder = "Seleccionar fecha
                           cx={pos.x}
                           cy={pos.y}
                           r="18"
-                          className={cn(
-                            "cursor-pointer transition-all",
-                            selectedHour === hour ? "fill-primary" : "fill-muted hover:fill-accent",
-                          )}
+                          className={cn("cursor-pointer transition-all", selectedHour !== hour && "fill-muted hover:fill-accent")}
+                          style={selectedHour === hour ? { fill: UNAH_BLUE } : {}}
                           onClick={() => handleHourSelect(hour)}
                         />
                         <text
@@ -198,10 +202,8 @@ export function DateTimePicker({ date, setDate, placeholder = "Seleccionar fecha
                           y={pos.y}
                           textAnchor="middle"
                           dominantBaseline="middle"
-                          className={cn(
-                            "text-base font-medium pointer-events-none select-none",
-                            selectedHour === hour ? "fill-primary-foreground" : "fill-foreground",
-                          )}
+                          className={cn("text-base font-medium pointer-events-none select-none", selectedHour !== hour && "fill-foreground")}
+                          style={selectedHour === hour ? { fill: "white" } : {}}
                         >
                           {hour}
                         </text>
@@ -218,10 +220,8 @@ export function DateTimePicker({ date, setDate, placeholder = "Seleccionar fecha
                           cx={pos.x}
                           cy={pos.y}
                           r="16"
-                          className={cn(
-                            "cursor-pointer transition-all",
-                            selectedMinute === minute ? "fill-primary" : "fill-muted hover:fill-accent",
-                          )}
+                          className={cn("cursor-pointer transition-all", selectedMinute !== minute && "fill-muted hover:fill-accent")}
+                          style={selectedMinute === minute ? { fill: UNAH_BLUE } : {}}
                           onClick={() => handleMinuteClick(minute)}
                         />
                         <text
@@ -229,10 +229,8 @@ export function DateTimePicker({ date, setDate, placeholder = "Seleccionar fecha
                           y={pos.y}
                           textAnchor="middle"
                           dominantBaseline="middle"
-                          className={cn(
-                            "text-sm font-medium pointer-events-none select-none",
-                            selectedMinute === minute ? "fill-primary-foreground" : "fill-muted-foreground",
-                          )}
+                          className={cn("text-sm font-medium pointer-events-none select-none", selectedMinute !== minute && "fill-muted-foreground")}
+                          style={selectedMinute === minute ? { fill: "white" } : {}}
                         >
                           {minute.toString().padStart(2, "0")}
                         </text>
@@ -275,9 +273,8 @@ export function DateTimePicker({ date, setDate, placeholder = "Seleccionar fecha
                         y1="120"
                         x2={x}
                         y2={y}
-                        stroke="currentColor"
+                        stroke={UNAH_BLUE}
                         strokeWidth="2"
-                        className="text-primary"
                       />
                     )
                   })()}
@@ -289,14 +286,15 @@ export function DateTimePicker({ date, setDate, placeholder = "Seleccionar fecha
               <Button
                 variant="ghost"
                 onClick={() => {
+                  setPendingDate(undefined)
                   setIsOpen(false)
                   setTimeStep("calendar")
                 }}
               >
                 Cancelar
               </Button>
-              {timeStep === "hour" && <Button onClick={() => setTimeStep("minute")}>Continuar</Button>}
-              {timeStep === "minute" && <Button onClick={handleTimeConfirm}>Confirmar</Button>}
+              {timeStep === "hour" && <Button onClick={() => setTimeStep("minute")} style={{ background: UNAH_BLUE }} className="text-white">Continuar</Button>}
+              {timeStep === "minute" && <Button onClick={handleTimeConfirm} style={{ background: UNAH_BLUE }} className="text-white">Confirmar</Button>}
             </div>
           </div>
         )}

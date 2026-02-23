@@ -12,6 +12,7 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { ConfirmActionModal } from "@/articulo-140/admin/components/custom/ConfirmActionModal"
 import { DateTimePicker } from "@/components/custom/DatetimePicker"
+import { UNAH_BLUE_SOFT } from "@/lib/colors"
 
 export const ControlZoneAdActivities = () => {
   const [disableConfirmOpen, setDisableConfirmOpen] = useState(false);
@@ -28,13 +29,19 @@ export const ControlZoneAdActivities = () => {
   const [nextStatus, setNextStatus] = useState<string | null>(null);
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [originalStartDate, setOriginalStartDate] = useState<Date | undefined>(undefined);
+  const [originalEndDate, setOriginalEndDate] = useState<Date | undefined>(undefined);
 
   const handleStatusChange = (newStatus: string) => {
     setNextStatus(newStatus);
     const activity = activityByIDquery.data;
     if (activity) {
-      setStartDate(activity.startDate ? new Date(activity.startDate) : undefined);
-      setEndDate(activity.endDate ? new Date(activity.endDate) : undefined);
+      const sd = activity.startDate ? new Date(activity.startDate) : undefined;
+      const ed = activity.endDate ? new Date(activity.endDate) : undefined;
+      setStartDate(sd);
+      setEndDate(ed);
+      setOriginalStartDate(sd);
+      setOriginalEndDate(ed);
       setConfirmOpen(true);
     } else {
       toast.error("No se pudo obtener la información de la actividad.");
@@ -178,7 +185,7 @@ export const ControlZoneAdActivities = () => {
       </div>
       <Separator />
       <div className="space-y-6">
-        <Card className="border flex flex-row items-center gap-4 px-3 py-6 sm:justify-between">
+        <Card className="border flex flex-row items-center gap-4 px-3 py-6 sm:justify-between" style={{ background: UNAH_BLUE_SOFT }}>
           <div className="flex items-center space-x-2">
             <div>
               <Label htmlFor="estado-activitie" className="font-medium">
@@ -224,7 +231,7 @@ export const ControlZoneAdActivities = () => {
       </div>
       <Separator />
       <div className="space-y-6">
-        <Card className="border-red-600 flex flex-row">
+        <Card className="border-red-600 flex flex-row" style={{ background: UNAH_BLUE_SOFT }}>
           <div className="flex items-center space-x-2 ml-3">
             <div>
               <Label htmlFor="desable-activitie" className="font-medium">
@@ -256,7 +263,7 @@ export const ControlZoneAdActivities = () => {
         </Card>
       </div>
 
-      <Card className="border-red-600 flex flex-row">
+      <Card className="border-red-600 flex flex-row" style={{ background: UNAH_BLUE_SOFT }}>
         <div className="flex items-center space-x-2 ml-3">
           <div>
             <Label htmlFor="desable-activitie" className="font-medium">
@@ -295,6 +302,7 @@ export const ControlZoneAdActivities = () => {
         open={deleteConfirmOpen}
         onOpenChange={setDeleteConfirmOpen}
         title="Eliminar Actividad"
+        variant="danger"
         message={
           <>
             ¿Estás seguro de que deseas <strong>Eliminar</strong> esta actividad?
@@ -321,6 +329,7 @@ export const ControlZoneAdActivities = () => {
                 <DateTimePicker
                   date={startDate}
                   setDate={setStartDate}
+                  isModified={!!startDate && !!originalStartDate && startDate.getTime() !== originalStartDate.getTime()}
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -328,6 +337,7 @@ export const ControlZoneAdActivities = () => {
                 <DateTimePicker
                   date={endDate}
                   setDate={setEndDate}
+                  isModified={!!endDate && !!originalEndDate && endDate.getTime() !== originalEndDate.getTime()}
                 />
               </div>
             </div>

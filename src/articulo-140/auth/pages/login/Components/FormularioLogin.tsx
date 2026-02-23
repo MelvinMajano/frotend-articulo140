@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router"
 import { type FormEvent } from "react"
 import { authStore } from "@/articulo-140/auth/store/authStore"
 import { toast } from "sonner"
+import { UNAH_BLUE, UNAH_GOLD } from "@/lib/colors"
 
 export const LoginForm = () => {
   const {login} = authStore();
@@ -44,41 +45,47 @@ export const LoginForm = () => {
   }
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md" style={{ border: `1.5px solid ${UNAH_BLUE}25`, boxShadow: `0 4px 32px 0 ${UNAH_BLUE}18` }}>
       <CardHeader className="m-2">
-        <CardTitle className="text-2xl">Iniciar Sesión</CardTitle>
-        <CardDescription >Ingresa tu correo electrónico y contraseña para acceder</CardDescription>
+        {/* Franja decorativa dorada */}
+        <div className="w-10 h-1 rounded-full mb-3" style={{ background: UNAH_GOLD }} />
+        <CardTitle className="text-2xl m-auto" style={{ color: UNAH_BLUE }}>Iniciar Sesión</CardTitle>
+        <CardDescription className="font-medium text-black m-auto">Ingresa tu correo electrónico y contraseña para acceder</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4 m-2">
           <div className="space-y-2">
-            <Label htmlFor="email">Correo Electrónico</Label>
+            <Label htmlFor="email" style={{ color: UNAH_BLUE }}>Correo Electrónico</Label>
             <Input
               id="email"
               type="email"
               name="email"
               placeholder="example@unah.hn"
               required
+              className="focus-visible:ring-2"
+              style={{ "--tw-ring-color": UNAH_BLUE } as React.CSSProperties}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Contraseña</Label>
+            <Label htmlFor="password" style={{ color: UNAH_BLUE }}>Contraseña</Label>
             <Input
               id="password"
               type="password"
               name="password"
               placeholder="••••••••"
               required
+              className="focus-visible:ring-2"
+              style={{ "--tw-ring-color": UNAH_BLUE } as React.CSSProperties}
             />
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-4 m-2 mt-4">
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full" style={{ background: UNAH_BLUE, color: "#fff" }}>
             Iniciar Sesión
           </Button>
-          <p className="text-sm text-muted-foreground text-center">
+          <p className="text-sm text-black text-center">
             ¿No tienes una cuenta?{" "}
-            <Link to='/auth/register' className="text-primary hover:underline">
+            <Link to='/auth/register' className="hover:underline font-medium" style={{ color: UNAH_BLUE }}>
               Regístrate aquí
             </Link>
           </p>

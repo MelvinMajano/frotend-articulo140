@@ -10,6 +10,7 @@ import { Link } from 'react-router'
 import { gestionActivitiesStore } from '@/articulo-140/utils/gestionActivitiesPage/stores/gestionActivitiesStore'
 import { DetailsInscriptionsActivity } from './CustomDetailsInscriptionActivitys'
 import { CustomStatusIndicator } from './CustomStatusIndicator'
+import { UNAH_BLUE, UNAH_BLUE_GRADIENT, UNAH_BLUE_SOFT } from '@/lib/colors'
 
 
 interface ActivityCardProps {
@@ -32,8 +33,9 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
       className={`flex flex-col overflow-hidden transition-all duration-300 ${
         isActivityDisabled
           ? 'opacity-60 bg-gray-50 border-gray-200 max-w-xs w-64 h-full'
-          : 'hover:shadow-xl hover:-translate-y-1 bg-white border border-gray-100 max-w-xs w-64 h-full'
+          : 'hover:shadow-xl hover:-translate-y-1 bg-[#EFF6FF] max-w-xs w-64 h-full'
       }`}
+      style={!isActivityDisabled ? { border: `1.5px solid ${UNAH_BLUE}20`, boxShadow: `0 2px 12px 0 ${UNAH_BLUE}12` } : {}}
     >
       <CardHeader className="p-0">
         <div className="aspect-video relative overflow-hidden">
@@ -45,7 +47,7 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
             }`}
           />
           <div className="absolute top-3 right-3 flex items-center gap-2">
-            <Badge variant="secondary" className="bg-white/90 text-gray-700 text-xs">
+            <Badge variant="secondary" className="text-xs" style={{ background: UNAH_BLUE_SOFT, color: UNAH_BLUE, border: `1px solid ${UNAH_BLUE}20` }}>
               {activity.scopes}
             </Badge>
             <CustomStatusIndicator
@@ -65,23 +67,23 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
 
         <div className="space-y-3 text-sm text-gray-600">
           <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-teal-600" />
+            <Calendar className="w-4 h-4" style={{ color: UNAH_BLUE }} />
             <span className="font-medium">Inicio: {activity.startDate}</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <CalendarX className="w-4 h-4 text-teal-600" />
+            <CalendarX className="w-4 h-4" style={{ color: UNAH_BLUE }} />
             <span className="font-medium">Fin: {activity.endDate}</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <User className="w-4 h-4 text-teal-600" />
+            <User className="w-4 h-4" style={{ color: UNAH_BLUE }} />
             Cupos:
             <span className="font-medium"> {activity.availableSpots}</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <Gem className="w-4 h-4 text-teal-600" />
+            <Gem className="w-4 h-4" style={{ color: UNAH_BLUE }} />
             Horas Voae:
             <span className="font-medium"> {activity.voaeHours}</span>
           </div>
@@ -92,8 +94,9 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
         {isAdmin() && (
           <Link to={`/activities-details/${activity.id}?Status=${estadoParam}`} className="block w-full">
             <Button
-              className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 transition-colors duration-200"
+              className="w-full text-white font-medium py-2.5 transition-colors duration-200"
               variant={isActivityDisabled ? 'ghost' : 'default'}
+              style={{ background: UNAH_BLUE }}
             >
               Gestionar
             </Button>
@@ -101,7 +104,7 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
         )}
         {isSupervisor() && (
           <Link to={`/supervisor/incriptions-attendance/${activity.id}`} className="block w-full">
-            <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-2.5 transition-colors duration-200">
+            <Button className="w-full text-white font-medium py-2.5 transition-colors duration-200" style={{ background: UNAH_BLUE_GRADIENT }}>
               Supervisar
             </Button>
           </Link>
@@ -109,7 +112,7 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
         {isStudent() && (
           <MinimalModal
             trigger={
-              <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-2.5 transition-colors duration-200">
+              <Button className="w-full text-white font-medium py-2.5 transition-colors duration-200" style={{ background: UNAH_BLUE_GRADIENT }}>
                 Ver Detalles
               </Button>
             }

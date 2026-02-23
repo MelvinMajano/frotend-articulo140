@@ -1,14 +1,7 @@
 import { useState, useEffect } from "react"
 import { GraduationCap, Target, Eye, Users, Database, Network, ChevronLeft, ChevronRight, Shield, Zap, Globe, Terminal,  Cloud, Brain, Code2, Workflow, UserCheck, Mail, Award, Briefcase } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
-// Paleta de colores inspirada en el logo de Ingeniería en Sistemas UNAH (versión suavizada)
-const UNAH_BLUE = "#1E40AF";         // Azul institucional suavizado
-const UNAH_GOLD = "#FFD700";         // Dorado institucional
-const UNAH_WHITE = "#F9FAFB";        // Fondo institucional
-const UNAH_BLUE_SOFT = "#EFF6FF";    // Azul muy suave
-const UNAH_BLUE_GRADIENT = "#2563EB"; // Azul medio
-const UNAH_BLUE_LIGHT = "#60A5FA";   // Azul claro
+import { UNAH_BLUE, UNAH_GOLD, UNAH_WHITE, UNAH_BLUE_SOFT, UNAH_BLUE_GRADIENT, UNAH_BLUE_LIGHT } from "@/lib/colors"
 
 export const AboutPage = () => {
   const [currentSlide, setCurrentSlide] = useState(0)

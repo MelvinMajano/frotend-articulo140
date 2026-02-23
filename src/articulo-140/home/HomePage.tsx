@@ -5,11 +5,14 @@ import { ActivitiesPage } from "./activitiesPage/ActivitiesPage"
 import { authStore } from "../auth/store/authStore"
 import { MinimalModal } from "@/components/custom/CustomModal"
 import { ActivityForm } from "./activitiesPage/components/custom/CustomFormActivities"
+import { UNAH_BLUE, UNAH_GOLD_DARK } from "@/lib/colors"
+import { Plus } from "lucide-react"
 
 export const HomePage = () => {
   const { state, isAdmin } = authStore()
   const [searchQuery, setSearchQuery] = useState("")
   const searchInputRef = useRef<HTMLInputElement>(null)
+  const [formOpen, setFormOpen] = useState(false)
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -36,11 +39,34 @@ export const HomePage = () => {
             />
             {isAdmin() && (
               <MinimalModal
-                trigger={<Button>Agregar actividad</Button>}
+                open={formOpen}
+                onOpenChange={setFormOpen}
+                trigger={
+                  <Button
+                    variant="outline"
+                    className="flex items-center gap-2 font-medium transition-all duration-200"
+                    style={{ borderColor: UNAH_BLUE, color: UNAH_BLUE, background: "white", boxShadow: `0 2px 10px 0 ${UNAH_BLUE}25` }}
+                    onMouseEnter={e => {
+                      const btn = e.currentTarget;
+                      btn.style.background = UNAH_BLUE;
+                      btn.style.color = "white";
+                      btn.style.boxShadow = `0 4px 16px 0 ${UNAH_BLUE}45`;
+                    }}
+                    onMouseLeave={e => {
+                      const btn = e.currentTarget;
+                      btn.style.background = "white";
+                      btn.style.color = UNAH_BLUE;
+                      btn.style.boxShadow = `0 2px 10px 0 ${UNAH_BLUE}25`;
+                    }}
+                  >
+                    <Plus className="w-4 h-4" style={{ color: UNAH_GOLD_DARK }} strokeWidth={2.5} />
+                    Agregar actividad
+                  </Button>
+                }
                 title="Agregar nueva actividad"
                 description="Formulario para crear una nueva actividad con todos los detalles requeridos"
               >
-                <ActivityForm />
+                <ActivityForm onClose={() => setFormOpen(false)} />
               </MinimalModal>
             )}
           </div>

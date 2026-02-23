@@ -12,6 +12,7 @@ import { useSupervisors } from "@/articulo-140/hooks/activities/admin/useSupervi
 import type { Datum } from "@/articulo-140/interfaces/activities.response"
 import { useActivities } from "@/articulo-140/hooks/activities/activities/useActivities"
 import { toast } from "sonner"
+import { UNAH_BLUE, UNAH_GOLD, UNAH_GOLD_DARK } from "@/lib/colors"
 
 // Interfaz para el formulario
 interface ActivityFormData {
@@ -25,7 +26,11 @@ interface ActivityFormData {
   scopesId: string[]
 }
 
-export const ActivityForm = () => {
+interface ActivityFormProps {
+  onClose?: () => void
+}
+
+export const ActivityForm = ({ onClose }: ActivityFormProps) => {
 
   const { query } = useSupervisors(100, 1) // Obtener supervisores para el select
   const supervisors = query?.data?.data?.data;
@@ -99,11 +104,12 @@ export const ActivityForm = () => {
 
   return (
     <div className="p-6 flex items-center justify-center">
-      <Card className="w-full max-w-4xl bg-white shadow-xl border-0 overflow-hidden">
+      <Card className="w-full max-w-4xl bg-white shadow-xl border-0 overflow-hidden" style={{ borderTop: `4px solid ${UNAH_GOLD_DARK}` }}>
         <CardHeader>
             <div className="text-center">
               <h2 className="text-2xl font-bold">Agregar Actividad</h2>
-              <p className="text-sm mt-1">
+              <div style={{ width: '3rem', height: '3px', background: `linear-gradient(90deg, ${UNAH_GOLD}, ${UNAH_GOLD_DARK})`, borderRadius: '2px', margin: '8px auto 0' }} />
+              <p className="text-sm mt-2">
                 Complete la información de la actividad
               </p>
             </div>
@@ -114,14 +120,14 @@ export const ActivityForm = () => {
             {/* Título */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-teal-600" />
+                <FileText className="w-4 h-4" style={{ color: UNAH_BLUE }} />
                 Título de la actividad
               </label>
               <Input
                 {...register("title", { required: "El título es obligatorio" })}
                 type="text"
                 placeholder="Ej. Charla sobre circuitos"
-                className="h-10 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                className="h-10 border-gray-300 focus:border-blue-700 focus:ring-blue-700"
               />
               {errors.title && (
                 <p className="text-sm text-red-600">{errors.title.message}</p>
@@ -131,13 +137,13 @@ export const ActivityForm = () => {
             {/* Descripción */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-teal-600" />
+                <FileText className="w-4 h-4" style={{ color: UNAH_BLUE }} />
                 Descripción
               </label>
               <Textarea
                 {...register("description", { required: "La descripción es obligatoria" })}
                 placeholder="Ej. Charla de estudiantes sobre circuitos electrónicos"
-                className="min-h-[80px] border-gray-300 focus:border-teal-500 focus:ring-teal-500 resize-none"
+                className="min-h-[80px] border-gray-300 focus:border-blue-700 focus:ring-blue-700 resize-none"
               />
               {errors.description && (
                 <p className="text-sm text-red-600">{errors.description.message}</p>
@@ -150,7 +156,7 @@ export const ActivityForm = () => {
               {/* Supervisor */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <User className="w-4 h-4 text-teal-600" />
+                  <User className="w-4 h-4" style={{ color: UNAH_BLUE }} />
                   Supervisor
                 </label>
                 <Controller
@@ -159,7 +165,7 @@ export const ActivityForm = () => {
                   rules={{ required: "Debe seleccionar un supervisor" }}
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="h-10 border-gray-300 focus:border-teal-500 focus:ring-teal-500">
+                      <SelectTrigger className="h-10 border-gray-300 focus:border-blue-700 focus:ring-blue-700">
                         <SelectValue placeholder="Seleccione un supervisor" />
                       </SelectTrigger>
                       <SelectContent>
@@ -183,7 +189,7 @@ export const ActivityForm = () => {
               {/* Horas VOAE */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-teal-600" />
+                  <Clock className="w-4 h-4" style={{ color: UNAH_BLUE }} />
                   Horas VOAE
                 </label>
                 <Input
@@ -195,7 +201,7 @@ export const ActivityForm = () => {
                   type="number"
                   placeholder="Ej. 5"
                   min="1"
-                  className="h-10 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                  className="h-10 border-gray-300 focus:border-blue-700 focus:ring-blue-700"
                 />
                 {errors.voaeHours && (
                   <p className="text-sm text-red-600">{errors.voaeHours.message}</p>
@@ -205,7 +211,7 @@ export const ActivityForm = () => {
               {/* Cupos disponibles */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <User className="w-4 h-4 text-teal-600" />
+                  <User className="w-4 h-4" style={{ color: UNAH_BLUE }} />
                   Cupos disponibles
                 </label>
                 <Input
@@ -217,7 +223,7 @@ export const ActivityForm = () => {
                   type="number"
                   placeholder="Ej. 30"
                   min="1"
-                  className="h-10 border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                  className="h-10 border-gray-300 focus:border-blue-700 focus:ring-blue-700"
                 />
                 {errors.availableSpots && (
                   <p className="text-sm text-red-600">{errors.availableSpots.message}</p>
@@ -230,7 +236,7 @@ export const ActivityForm = () => {
               {/* Fecha de inicio */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-teal-600" />
+                  <Clock className="w-4 h-4" style={{ color: UNAH_BLUE }} />
                   Fecha y hora de inicio
                 </label>
                 <Controller
@@ -253,7 +259,7 @@ export const ActivityForm = () => {
               {/* Fecha de fin */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-teal-600" />
+                  <Clock className="w-4 h-4" style={{ color: UNAH_BLUE }} />
                   Fecha y hora de fin
                 </label>
                 <Controller
@@ -277,7 +283,7 @@ export const ActivityForm = () => {
             {/* Ámbitos (Checkboxes) */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                <Award className="w-4 h-4 text-teal-600" />
+                <Award className="w-4 h-4" style={{ color: UNAH_BLUE }} />
                 Ámbitos
               </label>
               <Controller
@@ -285,7 +291,7 @@ export const ActivityForm = () => {
                 control={control}
                 rules={{ required: "Debe seleccionar al menos un ámbito" }}
                 render={({ field }) => (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200" style={{ borderLeft: `3px solid ${UNAH_GOLD_DARK}` }}>
                     {scopes.map((scope) => (
                       <div key={scope.id} className="flex items-center space-x-2">
                         <Checkbox
@@ -297,7 +303,7 @@ export const ActivityForm = () => {
                               : (field.value || []).filter((id: string) => id !== scope.value);
                             field.onChange(updatedValue);
                           }}
-                          className="border-gray-400 data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600"
+                          className="border-gray-400 data-[state=checked]:bg-[#1E40AF] data-[state=checked]:border-[#1E40AF]"
                         />
                         <Label
                           htmlFor={scope.id}
@@ -321,15 +327,18 @@ export const ActivityForm = () => {
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full sm:w-auto h-10 px-6 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-colors"
+                    className="w-full sm:w-auto h-10 px-6 transition-colors"
+                    style={{ borderColor: UNAH_BLUE, color: UNAH_BLUE }}
+                    onClick={onClose}
                   >
                     Cancelar
                   </Button>
                 <Button
                   type="submit"
-                  className="w-full sm:w-auto h-10 px-8 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold shadow-lg shadow-teal-200 transition-all"
+                  className="w-full sm:w-auto h-10 px-8 text-white font-semibold transition-all"
+                  style={{ background: UNAH_BLUE }}
                 >
-                  <PlusCircle className="w-4 h-4 mr-2" />
+                  <PlusCircle className="w-4 h-4 mr-2" style={{ color: UNAH_GOLD_DARK }} />
                   Agregar Actividad
                 </Button>
               </div>
