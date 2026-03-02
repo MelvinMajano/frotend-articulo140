@@ -14,6 +14,59 @@ import { toast } from "sonner"
 import { CustomPagination } from "@/components/custom/CustomPagination"
 import { useSearchParams } from "react-router"
 import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
+import { GuidedTour } from "../../components/custom/GuidedTour"
+import type { TourStep } from "../../components/custom/GuidedTour"
+
+// ─── Pasos del tour ───────────────────────────────────────────────────────────
+
+const DELETED_ACTIVITIES_STEPS: TourStep[] = [
+  {
+    target: "body",
+    title: "🗑️ Actividades Eliminadas",
+    content: "Aquí puedes ver todas las actividades que han sido eliminadas del sistema y restaurarlas si es necesario.",
+    placement: "center",
+    disableBeacon: true,
+    pumaMood: "wave",
+    pumaLabel: "¡Hola!",
+  },
+  {
+    target: '[data-tour="deleted-search"]',
+    title: "Buscador",
+    content: "Filtra las actividades eliminadas por título, horas VOAE, ámbitos o supervisor. También puedes usar Ctrl+K.",
+    placement: "bottom",
+    disableBeacon: true,
+    pumaMood: "search",
+    pumaLabel: "Busca aquí",
+  },
+  {
+    target: '[data-tour="deleted-table"]',
+    title: "Tabla de Actividades",
+    content: "Aquí se listan todas las actividades eliminadas con su información: fechas, horas VOAE, ámbitos y supervisor.",
+    placement: "top",
+    disableBeacon: true,
+    pumaMood: "inspect",
+    pumaLabel: "¡Aquí están tus actividades!",
+  },
+  {
+    target: '[data-tour="action-restore"]',
+    title: "Restaurar Actividad",
+    content: "Usa este botón para reactivar la actividad en el sistema. Se pedirá confirmación antes de restaurarla.",
+    placement: "left",
+    disableBeacon: true,
+    pumaPosition: "right",
+    pumaMood: "look_right",
+    pumaLabel: "¡Restaurar!",
+  },
+  {
+    target: "body",
+    title: "¡Todo listo! 🎉",
+    content: "Ya conoces el módulo. Recuerda que puedes restaurar cualquier actividad eliminada cuando la necesites.",
+    placement: "center",
+    disableBeacon: true,
+    pumaMood: "celebrate",
+    pumaLabel: "¡Listo!",
+  },
+]
 
 export const ActivitiesDeletedPage = () => {
   const queryClient = useQueryClient()
@@ -57,15 +110,15 @@ export const ActivitiesDeletedPage = () => {
   }, [])
 
   const filteredActivities = useMemo(() => {
-    
+
     if (!data?.data?.data) return []
-    
+
     const activities = data.data.data
-    
+
     if (!searchQuery.trim()) return activities
 
     const query = searchQuery.toLowerCase().trim()
-    
+
     return activities.filter((activity: any) => 
       activity.title.toLowerCase().includes(query) ||
       activity.voaeHours.toString().includes(query) ||
@@ -84,18 +137,18 @@ export const ActivitiesDeletedPage = () => {
   const handleConfirmRestore = async () => {
     if (activityToRestore) {
       setRestoringActivityId(activityToRestore)
-      setIsConfirmOpen(false) 
-      
+      setIsConfirmOpen(false)
+
       try {
         await restoreDeletedActivity(activityToRestore)
-        
+
         // Animar salida antes de actualizar
         setFadingOutId(activityToRestore)
         await new Promise(resolve => setTimeout(resolve, 300))
-        
+
         // Invalidar queries primero para actualizar los datos
         await queryClient.invalidateQueries({ queryKey: ['deletedActivities'] })
-        
+
         // Si era la última actividad de la página actual y no es la página 1, ir a la página anterior
         const remainingActivities = filteredActivities.length - 1
         if (remainingActivities === 0 && currentPage > 1) {
@@ -104,7 +157,7 @@ export const ActivitiesDeletedPage = () => {
           // Si estamos en página 1 o hay más actividades, mantener página 1
           setSearchParams({ page: '1' })
         }
-        
+
         toast.success("Actividad restaurada exitosamente")
         setActivityToRestore(null)
       } catch (error) {
@@ -118,6 +171,10 @@ export const ActivitiesDeletedPage = () => {
 
   return (
     <div className="p-4">
+
+      {/* Tour guiado — primera vez automático, F1 para repetir */}
+      <GuidedTour tourId="admin-deleted-activities" steps={DELETED_ACTIVITIES_STEPS} />
+
       <Card className="bg-white shadow-lg border-0 w-full">
         {/* Header */}
         <CardHeader className="space-y-4">
@@ -145,8 +202,8 @@ export const ActivitiesDeletedPage = () => {
               </div>
             </div>
 
-            {/* Buscador */}
-            <div className="w-full sm:w-auto sm:min-w-[300px]">
+            {/* data-tour en el buscador */}
+            <div className="w-full sm:w-auto sm:min-w-[300px]" data-tour="deleted-search">
               <CustomImput 
                 ref={searchInputRef}
                 value={searchQuery}
@@ -158,7 +215,7 @@ export const ActivitiesDeletedPage = () => {
 
           {/* Contador de búsqueda (solo cuando hay búsqueda activa) */}
           {searchQuery && hasActivities && (
-              <div className="flex items-center gap-2 text-sm text-gray-600 px-4 py-2 rounded-md" style={{ background: UNAH_BLUE_SOFT }}>
+            <div className="flex items-center gap-2 text-sm text-gray-600 px-4 py-2 rounded-md" style={{ background: UNAH_BLUE_SOFT }}>
               <span className="font-medium">{filteredActivities.length}</span>
               <span>de</span>
               <span className="font-medium">{totalActivities}</span>
@@ -182,25 +239,26 @@ export const ActivitiesDeletedPage = () => {
               <div className="relative mb-6">
                 {/* Círculo de fondo con gradiente */}
                 <div className="absolute inset-0 bg-gradient-to-br from-teal-100 to-green-100 rounded-full blur-2xl opacity-50"></div>
-                {/* Ícono */}
+                 {/* Ícono */}
                 <div className="relative bg-gradient-to-br from-teal-500 to-green-500 p-6 rounded-full shadow-lg">
                   <CheckCircle2 className="w-16 h-16 text-white" />
                 </div>
               </div>
-              
+
               <h3 className="text-2xl font-bold text-gray-800 mb-2">
                 ¡Todo en orden!
-              </h3>
+                </h3>
               <p className="text-gray-600 text-center mb-1">
                 No hay actividades eliminadas
-              </p>
+                </p>
               <p className="text-gray-500 text-sm text-center max-w-md">
                 Todas las actividades están activas en el sistema. Las actividades eliminadas aparecerán aquí.
               </p>
             </div>
           ) : (
             <>
-              <div className="overflow-x-auto">
+              {/* data-tour en la tabla */}
+              <div className="overflow-x-auto" data-tour="deleted-table">
                 <TooltipProvider>
                   <Table>
                     <TableHeader style={{ background: UNAH_BLUE_SOFT }}>
@@ -225,11 +283,11 @@ export const ActivitiesDeletedPage = () => {
                           </TableCell>
                         </TableRow>
                       ) : (
-                        filteredActivities.map((activity: any) => {
+                        filteredActivities.map((activity: any, index: number) => {
                           const isRestoring = restoringActivityId === activity.id
-                          
+
                           return (
-                            /* Animación de salida */
+                             /* Animación de salida */
                             <TableRow
                               key={activity.id}
                               style={fadingOutId !== activity.id ? { background: UNAH_BLUE_SOFT } : undefined}
@@ -239,7 +297,7 @@ export const ActivitiesDeletedPage = () => {
                             >
                               <TableCell className="font-medium text-gray-800">
                                 {activity.title}
-                              </TableCell>
+                                </TableCell>
                               <TableCell>{activity.startDate}</TableCell>
                               <TableCell>{activity.endDate}</TableCell>
                               <TableCell>{activity.voaeHours}</TableCell>
@@ -251,14 +309,15 @@ export const ActivitiesDeletedPage = () => {
                               <TableCell>{activity.supervisor}</TableCell>
                               <TableCell>
                                 <div className="flex justify-center gap-2">
-                                  {/* Tooltip*/}
+                                  {/* data-tour en el primer botón Restaurar */}
                                   <Tooltip>
                                     <TooltipTrigger asChild>
                                       <Button
                                         className="text-white flex items-center font-medium shadow-sm transition-all duration-200"
-                                      style={{ background: UNAH_BLUE }}
+                                        style={{ background: UNAH_BLUE }}
                                         onClick={() => handleRestoreClick(activity.id)}
                                         disabled={restoringActivityId !== null}
+                                        {...(index === 0 ? { "data-tour": "action-restore" } : {})}
                                       >
                                         {isRestoring ? (
                                           <Loader2 className="w-4 h-4 mr-1 animate-spin" />

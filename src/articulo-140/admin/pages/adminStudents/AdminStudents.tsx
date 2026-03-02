@@ -10,6 +10,74 @@ import { Link, useSearchParams } from "react-router"
 import { AddActivityModal } from "../../components/AddActivityModel"
 import { CustomPagination } from "@/components/custom/CustomPagination"
 import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
+import { GuidedTour } from "../../components/custom/GuidedTour"
+import type { TourStep } from "../../components/custom/GuidedTour"
+
+const ADMIN_STUDENTS_STEPS: TourStep[] = [
+  {
+    target: "body",
+    title: "👋 ¡Bienvenido!",
+    content:
+      "Este es el módulo de Gestión de Estudiantes. Te mostraremos las funciones principales en unos pocos pasos.",
+    placement: "center",
+    disableBeacon: true,
+  },
+  {
+    target: '[data-tour="search-input"]',
+    title: "Buscador",
+    content:
+      "Usa este campo para buscar estudiantes por nombre, número de cuenta, correo, identidad o carrera. También puedes usar Ctrl+K para enfocarlo rápidamente.",
+    placement: "bottom",
+    disableBeacon: true,
+  },
+  {
+    target: '[data-tour="add-student-btn"]',
+    title: "Agregar Estudiante",
+    content:
+      "Haz clic aquí para registrar un nuevo estudiante en el sistema.",
+    placement: "left",
+    disableBeacon: true,
+    pumaPosition: "right",
+    pumaLabel: "¡Click aquí!"
+  },
+  {
+    target: '[data-tour="students-table"]',
+    title: "Tabla de Estudiantes",
+    content:
+      "Aquí se listan todos los estudiantes registrados. Puedes ver su información y realizar acciones sobre cada uno.",
+    placement: "top",
+    disableBeacon: true,
+    pumaLabel: "¡Aquí están tus estudiantes!",
+  },
+  {
+    target: '[data-tour="action-consult"]',
+    title: "Consultar",
+    content:
+      "Presiona este botón para ver el detalle de horas VOAE acumuladas por el estudiante.",
+    placement: "left",
+    disableBeacon: true,
+    pumaPosition: "right",
+    pumaLabel: "¡Consulta las horas VOAE aquí!"
+  },
+  {
+    target: '[data-tour="action-add-activity"]',
+    title: "Agregar Actividad",
+    content:
+      "Usa este botón para asignarle una nueva actividad VOAE al estudiante directamente desde esta vista.",
+    placement: "left",
+    disableBeacon: true,
+    pumaPosition: "right",
+    pumaLabel: "¡Agrega una actividad VOAE aquí!"
+  },
+  {
+    target: '[data-tour="pagination"]',
+    title: "Paginación",
+    content:
+      "Navega entre páginas de estudiantes desde aquí cuando la lista sea extensa.",
+    placement: "top",
+    disableBeacon: true,
+  },
+]
 
 export const AdminStudents = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -50,7 +118,7 @@ export const AdminStudents = () => {
   const filteredStudents = useMemo(() => {
     if (!data?.data?.data) return []
     
-    const students = data.data.data 
+    const students = data.data.data
     
     if (!searchQuery.trim()) return students
 
@@ -77,6 +145,10 @@ export const AdminStudents = () => {
 
   return (
     <div className="p-4">
+
+      {/* Tour guiado — primera vez automático, F1 para repetir */}
+      <GuidedTour tourId="admin-students" steps={ADMIN_STUDENTS_STEPS} />
+
       <Card className="bg-white shadow-lg border-0 w-full">
         {/* Header */}
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
@@ -105,8 +177,8 @@ export const AdminStudents = () => {
               </div>
             </div>
 
-            {/* Buscador */}
-            <div className="w-full lg:w-auto lg:min-w-[320px]">
+            {/* data-tour en el buscador */}
+            <div className="w-full lg:w-auto lg:min-w-[320px]" data-tour="search-input">
               <CustomImput 
                 ref={searchInputRef}
                 value={searchQuery}
@@ -130,8 +202,8 @@ export const AdminStudents = () => {
               <div></div> // Espacio vacío cuando no hay búsqueda
             )}
 
-            {/* Botón Agregar*/}
-            <Link to="/admin/students/create">
+            {/*data-tour en el botón de agregar */}
+            <Link to="/admin/students/create" data-tour="add-student-btn">
               <Button className="text-white flex items-center shadow-sm" style={{ background: UNAH_BLUE }}>
                 <PlusCircle className="w-4 h-4 mr-2" />
                 Agregar Estudiante
@@ -163,7 +235,8 @@ export const AdminStudents = () => {
             </div>
           ) : (
             <>
-              <div className="overflow-x-auto">
+              {/* data-tour en la tabla */}
+              <div className="overflow-x-auto" data-tour="students-table">
                 <TooltipProvider>
                   <Table>
                     <TableHeader style={{ background: UNAH_BLUE_SOFT }}>
@@ -187,7 +260,7 @@ export const AdminStudents = () => {
                           </TableCell>
                         </TableRow>
                       ) : (
-                        filteredStudents.map((student: any) => (
+                        filteredStudents.map((student: any, index: number) => (
                           <TableRow 
                             key={student.accountNumber}
                             style={{ background: UNAH_BLUE_SOFT }}
@@ -202,13 +275,17 @@ export const AdminStudents = () => {
                             <TableCell>
                               <div className="flex justify-center gap-2">
                                 {/* Tooltip para Consultar */}
+                                {/* data-tour en el primer botón Consultar */}
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <Link to={`/admin/students/${student.id}`}>
+                                    <Link
+                                      to={`/admin/students/${student.id}`}
+                                      {...(index === 0 ? { "data-tour": "action-consult" } : {})}
+                                    >
                                       <Button
                                         variant="outline"
-                                      style={{ borderColor: UNAH_BLUE, color: UNAH_BLUE }}
-                                      className="flex items-center font-medium shadow-sm transition-all duration-200"
+                                        style={{ borderColor: UNAH_BLUE, color: UNAH_BLUE }}
+                                        className="flex items-center font-medium shadow-sm transition-all duration-200"
                                       >
                                         <UserRoundSearch className="w-4 h-4 mr-1" />
                                         Consultar
@@ -221,12 +298,14 @@ export const AdminStudents = () => {
                                 </Tooltip>
 
                                 {/* Tooltip para Agregar Actividad */}
+                                {/* data-tour en el primer botón Agregar actividad */}
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <Button
                                       onClick={() => handleAddActivity(student.id)}
                                       className="text-white flex items-center font-medium shadow-sm transition-all duration-200"
                                       style={{ background: UNAH_BLUE }}
+                                      {...(index === 0 ? { "data-tour": "action-add-activity" } : {})}
                                     >
                                       <PlusCircle className="w-4 h-4 mr-1" />
                                       Agregar actividad
@@ -249,9 +328,9 @@ export const AdminStudents = () => {
           )}
         </CardContent>
 
-        {/* Footer con paginación - solo mostrar si no hay búsqueda activa */}
+        {/*  data-tour en la paginación — solo si aplica */}
         {!searchQuery && hasStudents && (
-          <CardFooter className="flex justify-center pt-4">
+          <CardFooter className="flex justify-center pt-4" data-tour="pagination">
             <CustomPagination totalPages={totalPages} />
           </CardFooter>
         )}

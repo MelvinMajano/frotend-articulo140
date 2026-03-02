@@ -12,6 +12,77 @@ import { ConfirmActionModal } from "../../components/custom/ConfirmActionModal"
 import { toast } from "sonner"
 import { CustomPagination } from "@/components/custom/CustomPagination"
 import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
+import { GuidedTour } from "../../components/custom/GuidedTour"
+import type { TourStep } from "../../components/custom/GuidedTour"
+
+// ─── Pasos del tour ───────────────────────────────────────────────────────────
+
+const SUPERVISOR_STEPS: TourStep[] = [
+  {
+    target: "body",
+    title: "👋 ¡Bienvenido!",
+    content: "Este es el módulo de Gestión de Supervisores. Aquí puedes administrar los supervisores del sistema.",
+    placement: "center",
+    disableBeacon: true,
+    pumaLabel: "¡Hola!",
+  },
+  {
+    target: '[data-tour="supervisor-search"]',
+    title: "Buscador",
+    content: "Filtra supervisores por nombre, número de cuenta, correo, identidad o carrera. Usa Ctrl+K para enfocarlo rápidamente.",
+    placement: "bottom",
+    disableBeacon: true,
+    pumaLabel: "Busca aquí",
+  },
+  {
+    target: '[data-tour="add-supervisor-btn"]',
+    title: "Agregar Supervisor",
+    content: "Haz clic aquí para registrar un nuevo supervisor en el sistema.",
+    placement: "bottom",
+    disableBeacon: true,
+    pumaPosition: "left",
+    pumaMood: "point",
+    pumaLabel: "¡Agregar!",
+  },
+  {
+    target: '[data-tour="supervisors-table"]',
+    title: "Tabla de Supervisores",
+    content: "Aquí se listan todos los supervisores. Los deshabilitados aparecen en rojo con su nombre tachado.",
+    placement: "top",
+    disableBeacon: true,
+    pumaMood: "inspect",
+    pumaLabel: "¡Aquí están los supervisores!",
+  },
+  {
+    target: '[data-tour="action-edit"]',
+    title: "Editar Supervisor",
+    content: "Usa este botón para modificar la información del supervisor: nombre, correo, carrera y más.",
+    placement: "left",
+    disableBeacon: true,
+    pumaPosition: "right",
+    pumaMood: "look_right",
+    pumaLabel: "Editar",
+  },
+  {
+    target: '[data-tour="action-toggle"]',
+    title: "Habilitar / Deshabilitar",
+    content: "Este botón cambia el estado del supervisor. Si está activo lo deshabilita, y si está deshabilitado lo vuelve a habilitar.",
+    placement: "left",
+    disableBeacon: true,
+    pumaPosition: "right",
+    pumaMood: "look_right",
+    pumaLabel: "Estado",
+  },
+  {
+    target: '[data-tour="supervisor-pagination"]',
+    title: "¡Todo listo! 🎉",
+    content: "Ya conoces el módulo. Usa la paginación para navegar entre páginas cuando haya muchos supervisores.",
+    placement: "top",
+    disableBeacon: true,
+    pumaMood: "celebrate",
+    pumaLabel: "¡Listo para gestionar!",
+  },
+]
 
 export const AdminSupervisor = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -53,13 +124,13 @@ export const AdminSupervisor = () => {
 
   const filteredSupervisors = useMemo(() => {
     if (!data?.data?.data) return []
-    
+
     const supervisors = data.data.data
-    
+
     if (!searchQuery.trim()) return supervisors
 
     const query = searchQuery.toLowerCase().trim()
-    
+
     return supervisors.filter((supervisor) => 
       supervisor.accountNumber.toString().toLowerCase().includes(query) ||
       supervisor.name.toLowerCase().includes(query) ||
@@ -96,9 +167,9 @@ export const AdminSupervisor = () => {
       }
 
       await query.refetch()
-      
+
       await new Promise(resolve => setTimeout(resolve, 200))
-      
+
     } catch (error) {
       toast.error(`Error al ${isRestoreAction ? "habilitar" : "deshabilitar"} el supervisor`)
     } finally {
@@ -115,10 +186,13 @@ export const AdminSupervisor = () => {
 
   return (
     <div className="p-4">
+
+      {/*  Tour guiado — primera vez automático, F1 para repetir */}
+      <GuidedTour tourId="admin-supervisors" steps={SUPERVISOR_STEPS} />
+
       <Card className="bg-white shadow-lg border-0 w-full">
         {/* Header */}
-        <CardHeader className= "flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          {/* Primera fila: Título con badge y buscador */}
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             {/* Título y badge */}
             <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -145,8 +219,8 @@ export const AdminSupervisor = () => {
               </div>
             </div>
 
-            {/* Buscador*/}
-            <div className="w-full lg:w-auto lg:min-w-[320px]">
+            {/* data-tour en el buscador */}
+            <div className="w-full lg:w-auto lg:min-w-[320px]" data-tour="supervisor-search">
               <CustomImput 
                 ref={searchInputRef}
                 value={searchQuery}
@@ -156,9 +230,9 @@ export const AdminSupervisor = () => {
             </div>
           </div>
 
-          {/*Botón Agregar y contador de búsqueda */}
           <div className="flex items-center justify-between">
-            <Link to="/admin/supervisor/create">
+            {/* data-tour en el botón agregar */}
+            <Link to="/admin/supervisor/create" data-tour="add-supervisor-btn">
               <Button className="text-white flex items-center shadow-sm" style={{ background: UNAH_BLUE }}>
                 <PlusCircle className="w-4 h-4 mr-2" />
                 Agregar Supervisor
@@ -200,7 +274,8 @@ export const AdminSupervisor = () => {
             </div>
           ) : (
             <>
-              <div className="overflow-x-auto">
+              {/* data-tour en la tabla */}
+              <div className="overflow-x-auto" data-tour="supervisors-table">
                 <TooltipProvider>
                   <Table>
                     <TableHeader style={{ background: UNAH_BLUE_SOFT }}>
@@ -224,7 +299,7 @@ export const AdminSupervisor = () => {
                           </TableCell>
                         </TableRow>
                       ) : (
-                        filteredSupervisors.map((supervisor) => {
+                        filteredSupervisors.map((supervisor, index) => {
                           const supervisorId = supervisor.accountNumber.toString()
                           const isChangingState = changingStateId === supervisorId
                           const isAnimating = animatingId === supervisorId
@@ -262,10 +337,14 @@ export const AdminSupervisor = () => {
                               </TableCell>
                               <TableCell>
                                 <div className="flex justify-center gap-2">
-                                  {/* Tooltip para Editar */}
+
+                                  {/* data-tour en el primer botón Editar */}
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <Link to={`/admin/supervisor/edit/${supervisor.accountNumber}`}>
+                                      <Link
+                                        to={`/admin/supervisor/edit/${supervisor.accountNumber}`}
+                                        {...(index === 0 ? { "data-tour": "action-edit" } : {})}
+                                      >
                                         <Button
                                           variant="outline"
                                           style={{ borderColor: UNAH_BLUE, color: UNAH_BLUE }}
@@ -282,7 +361,7 @@ export const AdminSupervisor = () => {
                                     </TooltipContent>
                                   </Tooltip>
 
-                                  {/* Tooltip para Habilitar/Deshabilitar */}
+                                  {/* data-tour en el primer botón Habilitar/Deshabilitar */}
                                   <Tooltip>
                                     <TooltipTrigger asChild>
                                       {isDisabled ? (
@@ -290,12 +369,12 @@ export const AdminSupervisor = () => {
                                           onClick={() => handleActionClick(supervisor)}
                                           className="bg-green-600 hover:bg-green-700 text-white flex items-center font-medium shadow-sm transition-all duration-200"
                                           disabled={changingStateId !== null}
+                                          {...(index === 0 ? { "data-tour": "action-toggle" } : {})}
                                         >
-                                          {isChangingState ? (
-                                            <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                                          ) : (
-                                            <Unlock className="w-4 h-4 mr-1" />
-                                          )}
+                                          {isChangingState
+                                            ? <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                            : <Unlock className="w-4 h-4 mr-1" />
+                                          }
                                           Habilitar
                                         </Button>
                                       ) : (
@@ -303,12 +382,12 @@ export const AdminSupervisor = () => {
                                           onClick={() => handleActionClick(supervisor)}
                                           className="bg-gray-500 hover:bg-gray-600 text-white flex items-center font-medium shadow-sm transition-all duration-200"
                                           disabled={changingStateId !== null}
+                                          {...(index === 0 ? { "data-tour": "action-toggle" } : {})}
                                         >
-                                          {isChangingState ? (
-                                            <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                                          ) : (
-                                            <Lock className="w-4 h-4 mr-1" />
-                                          )}
+                                          {isChangingState
+                                            ? <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                            : <Lock className="w-4 h-4 mr-1" />
+                                          }
                                           Deshabilitar
                                         </Button>
                                       )}
@@ -317,6 +396,7 @@ export const AdminSupervisor = () => {
                                       <p>{isDisabled ? "Habilitar supervisor" : "Deshabilitar supervisor"}</p>
                                     </TooltipContent>
                                   </Tooltip>
+
                                 </div>
                               </TableCell>
                             </TableRow>
@@ -331,9 +411,9 @@ export const AdminSupervisor = () => {
           )}
         </CardContent>
 
-        {/* Footer con paginación - solo mostrar si no hay búsqueda activa */}
+        {/* data-tour en la paginación */}
         {!searchQuery && hasSupervisors && (
-          <CardFooter className="flex justify-center pt-4">
+          <CardFooter className="flex justify-center pt-4" data-tour="supervisor-pagination">
             <CustomPagination totalPages={totalPages} />
           </CardFooter>
         )}

@@ -14,11 +14,11 @@ export const AdminSupervisorEdit = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   
-  // Obtener todos los supervisores sin paginación para la búsqueda
+  // Obtener todos los supervisores y carreras sin paginación para la búsqueda
   const { query } = useSupervisors(1000, 1) // Límite alto para obtener todos
   const { data, isLoading } = query
 
-  const { query: careersQuery } = useCareers()
+  const { query: careersQuery } = useCareers(100, 1) // Obtener todas las carreras para el select con un límite alto
   const { data: careersData, isLoading: isCareersLoading, isError: isCareersError } = careersQuery
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -44,7 +44,7 @@ export const AdminSupervisorEdit = () => {
           accountNumber: String(supervisor.accountNumber),
           identityNumber: supervisor.identityNumber,
           career:
-            careersData?.data.find((career) => career.name === supervisor.career)?.id.toString() ||
+            careersData?.data?.data?.find((career) => career.name === supervisor.career)?.id.toString() ||
             "",
         })
       }
@@ -204,7 +204,7 @@ export const AdminSupervisorEdit = () => {
                 ) : isCareersError ? (
                   <option disabled>Error al cargar carreras</option>
                 ) : (
-                  careersData?.data?.map((career: { id: number; name: string }) => (
+                  careersData?.data?.data?.map((career: { id: number; name: string }) => (
                     <option key={career.id} value={career.id}>
                       {career.name}
                     </option>

@@ -2,25 +2,115 @@ import { useState, useMemo, useEffect, useRef } from "react"
 import { useCareers } from "@/articulo-140/hooks/activities/admin/useCareers"
 import { CustomImput } from "@/components/custom/CustomImput"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Loader2, PenLine, Lock, PlusCircle, ArrowLeft, Unlock } from "lucide-react"
-import { Link } from "react-router"
+import { Link, useSearchParams } from "react-router"
 import { ConfirmActionModal } from "@/articulo-140/admin/components/custom/ConfirmActionModal"
 import { deleteCareer, restoreCareer } from "../../actions/softDeleteCareer"
 import { toast } from "sonner"
 import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
+import { CustomPagination } from "@/components/custom/CustomPagination"
+import { GuidedTour } from "../../components/custom/GuidedTour"
+import type { TourStep } from "../../components/custom/GuidedTour"
+
+const LIMIT = 5
+
+// ─── Pasos del tour ───────────────────────────────────────────────────────────
+
+const CAREERS_STEPS: TourStep[] = [
+  {
+    target: "body",
+    title: "👋 ¡Bienvenido!",
+    content: "Este es el módulo de Gestión de Carreras. Aquí puedes administrar las carreras registradas en el sistema.",
+    placement: "center",
+    disableBeacon: true,
+    pumaLabel: "¡Hola!",
+  },
+  {
+    target: '[data-tour="careers-search"]',
+    title: "Buscador",
+    content: "Filtra carreras por código, nombre o facultad. También puedes usar Ctrl+K para enfocarlo rápidamente.",
+    placement: "bottom",
+    disableBeacon: true,
+    pumaMood: "search",
+    pumaLabel: "Busca aquí",
+  },
+  {
+    target: '[data-tour="add-career-btn"]',
+    title: "Agregar Carrera",
+    content: "Haz clic aquí para registrar una nueva carrera en el sistema.",
+    placement: "bottom",
+    disableBeacon: true,
+    pumaPosition: "right",
+    pumaMood: "point",
+    pumaLabel: "¡Agregar!",
+  },
+  {
+    target: '[data-tour="careers-table"]',
+    title: "Tabla de Carreras",
+    content: "Aquí se listan todas las carreras con su código, nombre y facultad. Las deshabilitadas aparecen en rojo con el código tachado.",
+    placement: "top",
+    disableBeacon: true,
+    pumaMood: "inspect",
+    pumaLabel: "¡Aquí están las carreras!",
+  },
+  {
+    target: '[data-tour="action-edit"]',
+    title: "Editar Carrera",
+    content: "Usa este botón para modificar el nombre, código o facultad de la carrera.",
+    placement: "left",
+    disableBeacon: true,
+    pumaPosition: "right",
+    pumaMood: "look_right",
+    pumaLabel: "Editar",
+  },
+  {
+    target: '[data-tour="action-toggle"]',
+    title: "Habilitar / Deshabilitar",
+    content: "Cambia el estado de la carrera. Si está activa la deshabilita, y si está deshabilitada la vuelve a habilitar.",
+    placement: "left",
+    disableBeacon: true,
+    pumaPosition: "right",
+    pumaMood: "look_right",
+    pumaLabel: "Estado",
+  },
+  {
+    target: '[data-tour="careers-pagination"]',
+    title: "¡Todo listo! 🎉",
+    content: "Ya conoces el módulo de carreras. Usa la paginación para navegar entre páginas cuando haya muchas carreras.",
+    placement: "top",
+    disableBeacon: true,
+    pumaMood: "celebrate",
+    pumaLabel: "¡Listo!",
+  },
+]
 
 export const AdminCareers = () => {
-  const { query } = useCareers()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const currentPage = parseInt(searchParams.get('page') || '1', 10)
+
+  const { query } = useCareers(LIMIT, currentPage)
   const { data, isLoading, isError } = query
 
   const [selectedCareer, setSelectedCareer] = useState<any | null>(null)
   const [openModal, setOpenModal] = useState(false)
   const [isRestoreAction, setIsRestoreAction] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [changingStateId, setChangingStateId] = useState<string | null>(null)
+  const [animatingId, setAnimatingId] = useState<string | null>(null)
 
   const searchInputRef = useRef<HTMLInputElement>(null)
+
+  const totalPages = data?.data?.pagination?.totalPage || 1
+  const totalCareers = data?.data?.pagination?.total || 0
+  const hasCareers = data?.data?.data && data.data.data.length > 0
+
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      setSearchParams({ page: '1' })
+    }
+  }, [searchQuery, setSearchParams])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -29,24 +119,24 @@ export const AdminCareers = () => {
         searchInputRef.current?.focus()
       }
     }
-
+    
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
 
   const filteredCareers = useMemo(() => {
-    if (!data?.data) return []
-    
-    if (!searchQuery.trim()) return data.data
+    if (!data?.data?.data) return []
+
+    if (!searchQuery.trim()) return data.data.data
 
     const query = searchQuery.toLowerCase().trim()
-    
-    return data.data.filter((career) => 
+
+    return data.data.data.filter((career) =>
       career.code.toLowerCase().includes(query) ||
       career.name.toLowerCase().includes(query) ||
       career.faculty.toLowerCase().includes(query)
     )
-  }, [data?.data, searchQuery])
+  }, [data?.data?.data, searchQuery])
 
   const handleActionClick = (career: any) => {
     setSelectedCareer(career)
@@ -56,8 +146,12 @@ export const AdminCareers = () => {
 
   const handleConfirmAction = async () => {
     if (!selectedCareer) return
-
+    const careerId = selectedCareer.code.toString()
+    setChangingStateId(careerId)
+    setOpenModal(false)
     try {
+      setAnimatingId(careerId)
+      await new Promise(resolve => setTimeout(resolve, 400))
       if (isRestoreAction) {
         await restoreCareer(selectedCareer.id)
         toast.success(`Carrera ${selectedCareer.name} habilitada correctamente`)
@@ -66,45 +160,83 @@ export const AdminCareers = () => {
         toast.success(`Carrera ${selectedCareer.name} deshabilitada correctamente`)
       }
 
-      query.refetch?.()
+      await query.refetch?.()
+      await new Promise(resolve => setTimeout(resolve, 200))
     } catch (error) {
       toast.error(`Error al ${isRestoreAction ? "habilitar" : "deshabilitar"} la carrera`)
     } finally {
-      setOpenModal(false)
+      setChangingStateId(null)
+      setAnimatingId(null)
       setSelectedCareer(null)
     }
   }
 
   return (
     <div className="p-4">
+
+      {/* Tour guiado — primera vez automático, F1 para repetir */}
+      <GuidedTour tourId="admin-careers" steps={CAREERS_STEPS} />
+
       <Card className="bg-white shadow-lg border-0 w-full">
         {/* Header */}
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <Link to="/admin">
-              <Button
-                variant="ghost"
-                className="text-gray-600"
-                onMouseEnter={e => { e.currentTarget.style.color = UNAH_BLUE; e.currentTarget.style.background = UNAH_BLUE_SOFT }}
-                onMouseLeave={e => { e.currentTarget.style.color = ''; e.currentTarget.style.background = '' }}
-              >
-                <ArrowLeft className="w-5 h-5 mr-2" />
-                Regresar
-              </Button>
-            </Link>
-            <CustomImput 
-              ref = {searchInputRef}
-              value={searchQuery}
-              onChange={setSearchQuery}
-              placeholder="Buscar por código, nombre o facultad..."
-            />
+        <CardHeader className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* Título y badge */}
+            <div className="flex items-center gap-3">
+              <Link to="/admin">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-gray-600"
+                  onMouseEnter={e => { e.currentTarget.style.color = UNAH_BLUE; e.currentTarget.style.background = UNAH_BLUE_SOFT }}
+                  onMouseLeave={e => { e.currentTarget.style.color = ''; e.currentTarget.style.background = '' }}
+                >
+                  <ArrowLeft className="w-5 h-5 mr-2" />
+                </Button>
+              </Link>
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  Gestión de Carreras
+                </h2>
+                {hasCareers && (
+                  <span
+                    className="inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full"
+                    style={{ background: UNAH_BLUE_SOFT, color: UNAH_BLUE }}
+                  >
+                    {totalCareers}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* data-tour en buscador y botón agregar (agrupados) */}
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="w-full sm:min-w-[300px]" data-tour="careers-search">
+                <CustomImput
+                  ref = {searchInputRef}
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  placeholder="Buscar por código, nombre o facultad..."
+                />
+              </div>
+              <Link to="/admin/careers/create" data-tour="add-career-btn">
+                <Button className="text-white flex items-center whitespace-nowrap" style={{ background: UNAH_BLUE }}>
+                  <PlusCircle className="w-4 h-4 mr-1" />
+                  Agregar Carrera
+                </Button>
+              </Link>
+            </div>
           </div>
-          <Link to="/admin/careers/create">
-            <Button className="text-white flex items-center" style={{ background: UNAH_BLUE }}>
-              <PlusCircle className="w-4 h-4 mr-1" />
-              Agregar Carrera
-            </Button>
-          </Link>
+
+          {/* Contador de búsqueda */}
+          {searchQuery && hasCareers && (
+            <div className="flex items-center gap-2 text-sm text-gray-600 px-4 py-2 rounded-md" style={{ background: UNAH_BLUE_SOFT }}>
+              <span className="font-medium">{filteredCareers.length}</span>
+              <span>de</span>
+              <span className="font-medium">{totalCareers}</span>
+              <span>carreras encontradas</span>
+            </div>
+          )}
         </CardHeader>
 
         {/* Contenido */}
@@ -126,74 +258,124 @@ export const AdminCareers = () => {
                   }
                 </div>
               )}
-
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader style={{ background: UNAH_BLUE_SOFT }}>
+            
+            <div className="overflow-x-auto" data-tour="careers-table">
+              <Table>
+                <TableHeader style={{ background: UNAH_BLUE_SOFT }}>
+                  <TableRow>
+                    <TableHead><span className="font-semibold text-black"># Código</span></TableHead>
+                    <TableHead><span className="font-semibold text-black">Nombre</span></TableHead>
+                    <TableHead><span className="font-semibold text-black">Facultad</span></TableHead>
+                    <TableHead className="text-center"><span className="font-semibold text-black">Acciones</span></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredCareers.length === 0 ? (
                     <TableRow>
-                      <TableHead><span className="font-semibold text-black"># Código</span></TableHead>
-                      <TableHead><span className="font-semibold text-black">Nombre</span></TableHead>
-                      <TableHead><span className="font-semibold text-black">Facultad</span></TableHead>
-                      <TableHead className="text-center"><span className="font-semibold text-black">Acciones</span></TableHead>
+                      <TableCell colSpan={4} className="text-center py-10 text-gray-500">
+                        {searchQuery
+                          ? "No se encontraron carreras que coincidan con tu búsqueda"
+                          : "No hay carreras registradas"
+                        }
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredCareers.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={4} className="text-center py-10 text-gray-500">
-                          {searchQuery 
-                            ? "No se encontraron carreras que coincidan con tu búsqueda" 
-                            : "No hay carreras registradas"
-                          }
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      filteredCareers.map((career) => (
-                        <TableRow key={career.code} style={{ background: UNAH_BLUE_SOFT }}>
-                          <TableCell><span className="font-medium">{career.code}</span></TableCell>
-                          <TableCell>{career.name}</TableCell>
-                          <TableCell>{career.faculty}</TableCell>
+                  ) : (
+                    filteredCareers.map((career, index) => {
+                      const careerId = career.code.toString()
+                      const isChangingState = changingStateId === careerId
+                      const isAnimating = animatingId === careerId
+                      const isDisabled = career.isDisabled === "true"
+
+                      return (
+                        <TableRow
+                          key={career.code}
+                          style={!isAnimating && !isDisabled ? { background: UNAH_BLUE_SOFT } : undefined}
+                          className={`transition-all duration-400 ${
+                            isAnimating
+                              ? 'animate-pulse bg-yellow-50 scale-[0.98]'
+                              : isDisabled
+                                ? 'bg-red-50/30 hover:bg-red-50/50'
+                                : ''
+                          }`}
+                        >
+                          <TableCell>
+                            <span className={`font-medium ${isDisabled ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                              {career.code}
+                            </span>
+                          </TableCell>
+                          <TableCell className={isDisabled ? 'text-gray-400' : 'text-gray-900'}>
+                            {career.name}
+                          </TableCell>
+                          <TableCell className={isDisabled ? 'text-gray-400' : 'text-gray-600'}>
+                            {career.faculty}
+                          </TableCell>
                           <TableCell>
                             <div className="flex justify-center gap-2">
-                              <Link to={`/admin/careers/edit/${career.code}`}>
+
+                              {/* data-tour en el primer botón Editar */}
+                              <Link
+                                to={`/admin/careers/edit/${career.code}`}
+                                {...(index === 0 ? { "data-tour": "action-edit" } : {})}
+                              >
                                 <Button
                                   variant="outline"
                                   style={{ borderColor: UNAH_BLUE, color: UNAH_BLUE }}
-                                  className="flex items-center"
+                                  className="flex items-center font-medium shadow-sm transition-all duration-200"
+                                  disabled={changingStateId !== null}
                                 >
                                   <PenLine className="w-4 h-4 mr-1" />
                                   Editar
                                 </Button>
                               </Link>
 
-                              {career.isDisabled === "true" ? (
+                              {/* data-tour en el primer botón Habilitar/Deshabilitar */}
+                              {isDisabled ? (
                                 <Button
                                   onClick={() => handleActionClick(career)}
-                                  className="bg-green-600 hover:bg-green-700 text-white flex items-center"
+                                  className="bg-green-600 hover:bg-green-700 text-white flex items-center font-medium shadow-sm transition-all duration-200"
+                                  disabled={changingStateId !== null}
+                                  {...(index === 0 ? { "data-tour": "action-toggle" } : {})}
                                 >
-                                  <Unlock className="w-4 h-4 mr-1" />
+                                  {isChangingState
+                                    ? <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                    : <Unlock className="w-4 h-4 mr-1" />
+                                  }
                                   Habilitar
                                 </Button>
                               ) : (
                                 <Button
                                   onClick={() => handleActionClick(career)}
-                                  className="bg-gray-500 hover:bg-gray-600 text-white flex items-center"
+                                  className="bg-gray-500 hover:bg-gray-600 text-white flex items-center font-medium shadow-sm transition-all duration-200"
+                                  disabled={changingStateId !== null}
+                                  {...(index === 0 ? { "data-tour": "action-toggle" } : {})}
                                 >
-                                  <Lock className="w-4 h-4 mr-1" />
+                                  {isChangingState
+                                    ? <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                    : <Lock className="w-4 h-4 mr-1" />
+                                  }
                                   Deshabilitar
                                 </Button>
                               )}
+
                             </div>
                           </TableCell>
                         </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
+                      )
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </div>
             </>
           )}
         </CardContent>
+
+        {/* data-tour en la paginación */}
+        {!searchQuery && hasCareers && (
+          <CardFooter className="flex justify-center pt-4" data-tour="careers-pagination">
+            <CustomPagination totalPages={totalPages} />
+          </CardFooter>
+        )}
       </Card>
 
       {/* Modal de confirmación */}
@@ -201,9 +383,9 @@ export const AdminCareers = () => {
         open={openModal}
         onOpenChange={setOpenModal}
         title={
-          isRestoreAction
-            ? "¿Deseas habilitar esta carrera?"
-            : "¿Deseas deshabilitar esta carrera?"
+          isRestoreAction 
+          ? "¿Deseas habilitar esta carrera?" 
+          : "¿Deseas deshabilitar esta carrera?"
         }
         message={
           <>
@@ -212,17 +394,17 @@ export const AdminCareers = () => {
                 La carrera{" "}
                 <span className="font-semibold text-gray-900">
                   {selectedCareer?.name}
-                </span>{" "}
-                será habilitada nuevamente.
-              </>
+                  </span>{" "}
+                  será habilitada nuevamente.
+                  </>
             ) : (
               <>
-                Esta acción no se puede deshacer. La carrera{" "}
+                Esta acción no se puede deshacer. La carrera{" "} 
                 <span className="font-semibold text-gray-900">
                   {selectedCareer?.name}
-                </span>{" "}
-                será deshabilitada.
-              </>
+                  </span>{" "}
+                  será deshabilitada.
+                  </>
             )}
           </>
         }

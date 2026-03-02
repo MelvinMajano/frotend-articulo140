@@ -14,12 +14,93 @@ import { articulo140Api } from "@/articulo-140/api/articulo140Api"
 import { ConfirmActionModal } from "../../components/custom/ConfirmActionModal"
 import { CustomPagination } from "@/components/custom/CustomPagination"
 import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
+import { GuidedTour } from "../../components/custom/GuidedTour"
+import type { TourStep } from "../../components/custom/GuidedTour"
+
+// ─── Pasos del tour — modo normal (Ver asistencias) ───────────────────────────
+const ACTIVITIES_STEPS: TourStep[] = [
+  {
+    target: "body",
+    title: "👋 ¡Bienvenido!",
+    content: "Este es el módulo de Gestión de Actividades VOAE. Te guiaremos por sus funciones principales.",
+    placement: "center",
+    disableBeacon: true,
+  },
+  {
+    target: '[data-tour="activities-search"]',
+    title: "Buscador",
+    content: "Filtra actividades por título, horas VOAE, ámbitos o supervisor. También puedes usar Ctrl+K para enfocarlo.",
+    placement: "bottom",
+    disableBeacon: true,
+  },
+  {
+    target: '[data-tour="activities-table"]',
+    title: "Tabla de Actividades",
+    content: "Aquí se listan todas las actividades registradas con su información: fechas, horas VOAE, ámbitos y supervisor responsable.",
+    placement: "top",
+    disableBeacon: true,
+    pumaLabel: "¡Revisa tus actividades aquí!"
+  },
+  {
+    target: '[data-tour="action-attendance"]',
+    title: "Ver Asistencias",
+    content: "Haz clic aquí para consultar la lista completa de asistentes registrados en esta actividad.",
+    placement: "right",
+    disableBeacon: true,
+    pumaPosition: "right",
+    pumaLabel: "Consulta las asistencias de cada actividad"
+  },
+  {
+    target: '[data-tour="activities-pagination"]',
+    title: "Paginación",
+    content: "Navega entre páginas cuando la lista de actividades sea extensa.",
+    placement: "top",
+    disableBeacon: true,
+    pumaMood: "celebrate",
+    pumaLabel: "¡Navega por las páginas!"
+  },
+]
+
+// ─── Pasos del tour — modo selección de imagen (isFromFiles) ─────────────────
+const ACTIVITIES_FROM_FILES_STEPS: TourStep[] = [
+  {
+    target: "body",
+    title: "📎 Asignar Imagen",
+    content: "Estás en modo selección. Elige la actividad a la que quieres asignar la imagen que seleccionaste.",
+    placement: "center",
+    disableBeacon: true,
+  },
+  {
+    target: '[data-tour="activities-search"]',
+    title: "Buscador",
+    content: "Usa el buscador para encontrar rápidamente la actividad a la que quieres asignar la imagen.",
+    placement: "bottom",
+    disableBeacon: true,
+  },
+  {
+    target: '[data-tour="activities-table"]',
+    title: "Tabla de Actividades",
+    content: "Aquí se listan todas las actividades disponibles. Revisa el título y los datos antes de seleccionar.",
+    placement: "top",
+    disableBeacon: true,
+    pumaLabel: "¡Aquí están tus actividades!"
+  },
+  {
+    target: '[data-tour="action-select"]',
+    title: "Seleccionar Actividad",
+    content: "Presiona este botón para asignar la imagen que elegiste a esta actividad. Si ya tiene imagen, podrás reemplazarla.",
+    placement: "left",
+    disableBeacon: true,
+    pumaPosition: "right",
+    pumaMood: "celebrate",
+    pumaLabel: "¡Selecciona una actividad!"
+  },
+]
 
 export const AdminActivities = () => {
   const [searchParams, setSearchParams] = useSearchParams()
-  const currentPage = searchParams.get('page') || '1'
-
-  const { query } = useActivities(currentPage)
+  
+  const { query } = useActivities()
   const { data, isLoading, isError } = query
 
   const [searchQuery, setSearchQuery] = useState("")
@@ -146,6 +227,13 @@ export const AdminActivities = () => {
 
   return (
     <div className="p-4">
+
+      {/* Tour guiado — cambia pasos según el modo de la vista */}
+      <GuidedTour
+        tourId={isFromFiles ? "admin-activities-files" : "admin-activities"}
+        steps={isFromFiles ? ACTIVITIES_FROM_FILES_STEPS : ACTIVITIES_STEPS}
+      />
+
       <Card className="bg-white shadow-lg border-0 w-full">
         {/* Header */}
         <CardHeader className="space-y-4">
@@ -173,8 +261,8 @@ export const AdminActivities = () => {
               </div>
             </div>
 
-            {/* Buscador */}
-            <div className="w-full sm:w-auto sm:min-w-[300px]">
+            {/* data-tour en el buscador */}
+            <div className="w-full sm:w-auto sm:min-w-[300px]" data-tour="activities-search">
               <CustomImput
                 ref={searchInputRef}
                 value={searchQuery}
@@ -206,7 +294,7 @@ export const AdminActivities = () => {
               Error al cargar las actividades
             </p>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto" data-tour="activities-table">
               <TooltipProvider>
                 <Table>
                   <TableHeader style={{ background: UNAH_BLUE_SOFT }}>
@@ -231,7 +319,7 @@ export const AdminActivities = () => {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      filteredActivities.map((activity: any) => (
+                      filteredActivities.map((activity: any, index: number) => (
                         <TableRow
                           key={activity.id}
                           style={{ background: UNAH_BLUE_SOFT }}
@@ -245,6 +333,7 @@ export const AdminActivities = () => {
                           <TableCell>
                             <div className="flex justify-center gap-2">
                               {isFromFiles ? (
+                                //  data-tour en primer botón Seleccionar (modo imagen)
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <Button
@@ -257,6 +346,7 @@ export const AdminActivities = () => {
                                       className="hover:text-white transition-all duration-200"
                                       onMouseEnter={e => { e.currentTarget.style.background = UNAH_BLUE }}
                                       onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
+                                      {...(index === 0 ? { "data-tour": "action-select" } : {})}
                                     >
                                       <Plus className="w-4 h-4 mr-1" />
                                       Seleccionar
@@ -267,9 +357,13 @@ export const AdminActivities = () => {
                                   </TooltipContent>
                                 </Tooltip>
                               ) : (
+                                // data-tour en primer botón Ver asistencias (modo normal)
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <Link to={`/admin/activities/${activity.id}/attendance`}>
+                                    <Link
+                                      to={`/admin/activities/${activity.id}/attendance`}
+                                      {...(index === 0 ? { "data-tour": "action-attendance" } : {})}
+                                    >
                                       <Button
                                         style={{ background: UNAH_BLUE, color: 'white' }}
                                         className="transition-all duration-200"
@@ -296,9 +390,9 @@ export const AdminActivities = () => {
           )}
         </CardContent>
 
-        {/* Footer con paginación */}
+        {/* data-tour en la paginación */}
         {!searchQuery && hasActivities && totalPages > 1 && (
-          <CardFooter className="flex justify-center pt-4">
+          <CardFooter className="flex justify-center pt-4" data-tour="activities-pagination">
             <CustomPagination totalPages={totalPages} />
           </CardFooter>
         )}

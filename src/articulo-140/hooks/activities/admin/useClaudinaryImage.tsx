@@ -26,8 +26,8 @@ export const useCloudinaryGallery = () => {
     setIsLoading(true)
     try {
       const { data } = await articulo140Api.get("/activities/images/files", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`
+        headers: { 
+          Authorization: `Bearer ${localStorage.getItem("token")}` 
         },
       })
       setImages(
@@ -95,15 +95,23 @@ export const useCloudinaryGallery = () => {
     }
   }
 
-  const handleDelete = async (publicId: string) => {
+  const requestDelete = (img: CloudinaryImage) => {
+    setImageToDelete(img)
+    setConfirmOpen(true)
+  }
+
+  const handleDelete = async () => {
     if (!imageToDelete) return
+
+    const publicId = imageToDelete.publicId
+    setDeletingId(publicId) // spinner antes de la llamada
+
     try {
       const response = await articulo140Api.delete(`/activities/images/delete`, {
         data: { public_id: publicId },
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
       })
       if (response.status !== 200) throw new Error(response.data?.message || "No se pudo eliminar la imagen")
-      setDeletingId(publicId)
 
       setImages(prev => prev.filter(img => img.publicId !== publicId))
       toast.success("Imagen eliminada exitosamente")
@@ -111,6 +119,7 @@ export const useCloudinaryGallery = () => {
       console.error(error)
       toast.error(error instanceof Error ? error.message : "Error al eliminar la imagen")
     } finally {
+      setDeletingId(null)
       setConfirmOpen(false)
       setImageToDelete(null)
     }
@@ -130,7 +139,8 @@ export const useCloudinaryGallery = () => {
     setImageToDelete,
     loadImages,
     handleUpload,
-    handleDelete,
+    requestDelete,   
+    handleDelete,    
     deletingId
   }
 }

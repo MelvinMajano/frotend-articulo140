@@ -1,6 +1,11 @@
 export interface CareersResponse {
   message: string
-  data: Career[]
+  data: Data
+}
+
+export interface Data { 
+  data:      Career[]
+  pagination: Pagination
 }
 
 export interface Career {
@@ -9,4 +14,11 @@ export interface Career {
   name: string
   faculty: string
   isDisabled: string
+}
+
+export interface Pagination {
+    total:     number;
+    page:      string;
+    limit:     string;
+    totalPage: number;
 }

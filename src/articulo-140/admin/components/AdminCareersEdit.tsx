@@ -12,7 +12,7 @@ import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
 export const AdminCareerEdit = () => {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { query } = useCareers()
+  const { query } = useCareers(100,1)
   const { data, isLoading } = query
 
   const [formData, setFormData] = useState({
@@ -26,7 +26,7 @@ export const AdminCareerEdit = () => {
 
   useEffect(() => {
     if (data?.data && id) {
-      const career = data.data.find((c) => String(c.code) === String(id))
+      const career = data.data.data.find((c) => String(c.code) === String(id))
       if (career) {
         setFormData({
           code: career.code,
