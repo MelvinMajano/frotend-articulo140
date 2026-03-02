@@ -7,13 +7,15 @@ import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { useParams} from "react-router";
+import { useParams, useSearchParams } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod"; 
 
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useActivyByid } from "@/articulo-140/hooks/activities/activities/useActivityById";
 import { activitySchema, type ActivityFormValues } from "./zod/FormControlZone.schema";
+import { gestionActivitiesStore } from "../../stores/gestionActivitiesStore";
+import type { Estado } from "@/articulo-140/types/types";
 
 
 
@@ -72,6 +74,18 @@ export const GeneralSeccionAdActivities = () => {
 };
 
 const GeneralSeccionForm = ({ activities, scopesFromApi, updateActivityMutation, id }: any) => {
+  const { getStatusColor, getStatusLabel, getActivityEstatus } = gestionActivitiesStore();
+  const [searchParams] = useSearchParams();
+
+  const getValidStatus = (value: string | null): Estado => {
+    if (value === 'pendiente' || value === 'en-progreso' || value === 'finalizado') return value;
+    return 'pendiente';
+  };
+
+  const savedStatus = id ? getActivityEstatus(id) : null;
+  const queryStatus = searchParams.get('Status');
+  const estadoURL: Estado = savedStatus ?? getValidStatus(queryStatus);
+
   const {
     register,
     handleSubmit,
@@ -130,8 +144,8 @@ const onSubmit = handleSubmit(async (data: ActivityFormValues) => {
         {/* Encabezado */}
         <div className="flex flex-row justify-between">
           <h1 className="text-2xl font-bold mb-2">General</h1>
-          <Badge className="h-min my-auto mr-6 w-fit bg-yellow-300 text-black">
-            Pendiente
+          <Badge className={`h-min my-auto mr-6 w-fit border ${getStatusColor(estadoURL)}`}>
+            {getStatusLabel(estadoURL)}
           </Badge>
         </div>
 
