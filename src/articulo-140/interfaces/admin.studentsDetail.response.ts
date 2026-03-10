@@ -18,6 +18,9 @@ export interface ActivitiesDataResponse {
 }
 
 export interface ActivityData {
+  id: string
   studentName: string
   activitiesParticipated: string
+  voaeHours: string
+  scopes: string
 }

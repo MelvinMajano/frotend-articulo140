@@ -1,11 +1,11 @@
-import { useState, useMemo, useEffect, useRef } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useStudents } from "@/articulo-140/hooks/activities/admin/useStudents"
 import { CustomImput } from "@/components/custom/CustomImput"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Loader2, UserRoundSearch, PlusCircle, ArrowLeft, Users } from "lucide-react"
+import { Loader2, UserRoundSearch, PlusCircle, ArrowLeft} from "lucide-react"
 import { Link, useSearchParams } from "react-router"
 import { AddActivityModal } from "../../components/AddActivityModel"
 import { CustomPagination } from "@/components/custom/CustomPagination"
@@ -83,23 +83,20 @@ export const AdminStudents = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   
   const currentPage = parseInt(searchParams.get('page') || '1', 10)
+  const searchQuery = searchParams.get('search') || ''
   const limit = 5
   
-  const { query } = useStudents(limit, currentPage)
+  const { query } = useStudents(limit, currentPage, searchQuery)
   const { data, isLoading, isError } = query
   
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState("")
   
   const searchInputRef = useRef<HTMLInputElement>(null)
 
-  // Resetear a página 1 cuando cambie la búsqueda
-  useEffect(() => {
-    if (searchQuery.trim()) {
-      setSearchParams({ page: '1' })
-    }
-  }, [searchQuery, setSearchParams])
+  const handleSearch = (value: string) => {
+    setSearchParams({ page: '1', ...(value.trim() ? { search: value } : {}) })
+  }
 
   // Atajo de teclado Cmd+K / Ctrl+K
   useEffect(() => {
@@ -114,34 +111,19 @@ export const AdminStudents = () => {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  // Filtrado local para la búsqueda
-  const filteredStudents = useMemo(() => {
-    if (!data?.data?.data) return []
-    
-    const students = data.data.data
-    
-    if (!searchQuery.trim()) return students
-
-    const query = searchQuery.toLowerCase().trim()
-    
-    return students.filter((student) => 
-      student.accountNumber.toString().toLowerCase().includes(query) ||
-      student.name.toLowerCase().includes(query) ||
-      student.email.toLowerCase().includes(query) ||
-      student.identityNumber.toLowerCase().includes(query) ||
-      student.career.toLowerCase().includes(query)
-    )
-  }, [data?.data?.data, searchQuery])
+  
 
   const handleAddActivity = (studentId: string) => {
     setSelectedStudentId(studentId)
     setModalOpen(true)
   }
 
-  // Total de páginas y estudiantes desde la paginación del backend
-  const totalPages = data?.data?.pagination?.totalPage || 1
+  // Filtrado de estudiantes desde backend
+  const filteredStudents = data?.data?.data ?? []
+
+  const totalPages = data?.data?.pagination?.totalPage || 1 
   const totalStudents = data?.data?.pagination?.total || 0
-  const hasStudents = data?.data?.data && data.data.data.length > 0
+  const hasStudents = filteredStudents.length > 0
 
   return (
     <div className="p-4">
@@ -182,19 +164,17 @@ export const AdminStudents = () => {
               <CustomImput 
                 ref={searchInputRef}
                 value={searchQuery}
-                onChange={setSearchQuery}
+                onChange={handleSearch}
                 placeholder="Buscar estudiantes..."
               />
             </div>
           </div>
 
           {/* Segunda fila: Contador de búsqueda y Botón Agregar */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between right-0 top-full mt-2 lg:mt-0 gap-4">
             {/* Contador de búsqueda*/}
-            {searchQuery && hasStudents ? (
+            {searchQuery && totalStudents > 0 ? (
               <div className="flex items-center gap-2 text-sm text-gray-600 px-4 py-2 rounded-md" style={{ background: UNAH_BLUE_SOFT }}>
-                <span className="font-medium">{filteredStudents.length}</span>
-                <span>de</span>
                 <span className="font-medium">{totalStudents}</span>
                 <span>estudiantes encontrados</span>
               </div>
@@ -219,19 +199,21 @@ export const AdminStudents = () => {
               <Loader2 className="w-8 h-8 animate-spin" style={{ color: UNAH_BLUE }} />
             </div>
           ) : isError ? (
-            <p className="text-red-500 text-center py-6">Error al cargar los estudiantes</p>
-          ) : !hasStudents ? (
-            /* Estado vacío */
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="text-gray-400 mb-4">
-                <Users className="w-16 h-16" />
-              </div>
-              <p className="text-gray-600 text-lg font-medium mb-2">
-                No hay estudiantes registrados
-              </p>
-              <p className="text-gray-500 text-sm">
-                Agrega un estudiante para comenzar
-              </p>
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="text-gray-400 mb-4">
+                 <UserRoundSearch className="w-16 h-16" />
+               </div>
+                  <p className="text-gray-600 text-lg font-medium mb-2">
+                    {searchQuery 
+                       ? "No se encontraron estudiantes que coincidan con tu búsqueda"
+                       : "No hay estudiantes registrados"
+                    }
+                  </p>
+                {searchQuery && (
+                  <p className="text-gray-500 text-sm">
+                     Intenta con otro término de búsqueda
+                  </p>
+                )}
             </div>
           ) : (
             <>
@@ -329,10 +311,10 @@ export const AdminStudents = () => {
         </CardContent>
 
         {/*  data-tour en la paginación — solo si aplica */}
-        {!searchQuery && hasStudents && (
+        { hasStudents && totalPages > 1 && (
           <CardFooter className="flex justify-center pt-4" data-tour="pagination">
             <CustomPagination totalPages={totalPages} />
-          </CardFooter>
+          </CardFooter> 
         )}
       </Card>
 
