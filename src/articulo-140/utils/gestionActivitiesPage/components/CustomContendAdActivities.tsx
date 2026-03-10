@@ -3,7 +3,6 @@ import { SidebarProvider} from "@/components/ui/sidebar"
 import { CustomSidebarAdActivities } from "./CustomSidebarAdActivities"
 import { GeneralSeccionAdActivities } from "./sectionsActivities/GeneralSeccionAdActivities"
 import { SideBarActivitiesContext } from "../context/SideBarActivitiesContext"
-import { StudentsAdActivities } from "./sectionsActivities/StudentsSecctionActivities"
 import { ControlZoneAdActivities } from "./sectionsActivities/ControlZone"
 import { use } from "react"
 
@@ -33,9 +32,7 @@ export const CustomContendAdActivities = () => {
                 <div className="p-6 pt-4 space-y-8">
                   {itemsSelected==='controlZona'?(
                     <ControlZoneAdActivities/>
-                  ):itemsSelected==='Students'?(
-                  <StudentsAdActivities/>):
-                  (<GeneralSeccionAdActivities/>)}
+                  ):(<GeneralSeccionAdActivities/>)}
                 </div>
               </div>
             </div>

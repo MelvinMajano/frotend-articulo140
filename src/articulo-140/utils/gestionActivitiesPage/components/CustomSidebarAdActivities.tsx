@@ -1,5 +1,5 @@
 import { SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
-import { GraduationCap, Settings, UserCog, type LucideProps } from "lucide-react"
+import { Settings, UserCog, type LucideProps } from "lucide-react"
 import { SideBarActivitiesContext, type item } from "../context/SideBarActivitiesContext";
 import { use, type ForwardRefExoticComponent } from "react";
 import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors";
@@ -18,12 +18,6 @@ const sections:detailsActivities[] = [
         id: "General",
         title: "General",
         icon: Settings,
-        group: "Access",
-    },
-    {
-        id: "Students",
-        title: "Estudiantes",
-        icon: GraduationCap,
         group: "Access",
     },
     {

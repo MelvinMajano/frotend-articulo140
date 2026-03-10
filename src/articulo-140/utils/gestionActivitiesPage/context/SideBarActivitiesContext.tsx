@@ -2,7 +2,7 @@ import type { PropsWithChildren } from "react"
 import { createContext, useMemo, useCallback} from "react"
 import { useSearchParams } from "react-router";
 
-export type item = 'General' | 'Students' | 'controlZona';
+export type item = 'General' | 'controlZona';
 
 interface SideBarActivitiesContext{
    //props
