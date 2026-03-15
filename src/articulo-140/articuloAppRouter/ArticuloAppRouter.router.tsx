@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate } from "react-router";
 import { DashboardActivitiesLayout } from "../layout/DashboardActivitiesLayout";
 import { AuthLayout } from "../layout/AuthLayout";
-import { AboutPage } from "../home/aboutPage/AboutPage";
+import { AboutPage } from "../home/about/AboutPage";
 import { HomePage } from "../home/HomePage";
 import { LoginPage } from "../auth/pages/login/LoginPage";
 import { RegisterPage } from "../auth/pages/register/RegisterPage";
