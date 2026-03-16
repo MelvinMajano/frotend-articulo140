@@ -1,4 +1,4 @@
-import { ImportActivityAttendance } from "@/articulo-140/admin/actions/ImportActivityAttendance";
+import { ImportActivityAttendance } from "@/articulo-140/admin/actions/importActivityAttendance";
 import type { AttendanceImportResponse, AttendanceImportSummary } from "@/articulo-140/interfaces/admin.attendanceImport.response";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";

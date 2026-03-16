@@ -7,6 +7,12 @@ interface props{
 };
 
 export const updateActivityStatus = async({actividadId,status}:props):Promise<string>=>{
-    const {data}= await articulo140Api.put(`/activities/${actividadId}/status?status=${status}`);
+    const {data}= await articulo140Api.put(`/activities/${actividadId}/status`,null,
+        {
+            params: {
+                status
+            }
+        }
+    );
     return data.message;
 };
