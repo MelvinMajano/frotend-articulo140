@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Image, RefreshCw, X, Upload, Check, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { UNAH_BLUE } from "@/lib/colors"
@@ -11,10 +11,16 @@ interface Props {
 }
 
 export const CloudinaryPicker = ({ open, onClose, onSelect }: Props) => {
-  const { images, isLoading, isUploading, handleUpload, loadImages } = useCloudinaryGallery()
+  const { images, isLoading, isUploading, handleUpload, loadImages } = useCloudinaryGallery({lazy: true, showToast: false})
   const fileRef = useRef<HTMLInputElement>(null)
   const [selected, setSelected] = useState<string | null>(null)
 
+  useEffect(() => {
+    if (open && images.length === 0) {
+      loadImages()
+    }
+  }, [open])
+  
   if (!open) return null
 
   return (

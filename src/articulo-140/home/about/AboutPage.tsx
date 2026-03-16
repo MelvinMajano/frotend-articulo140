@@ -14,7 +14,7 @@ import { useAboutSections } from "@/articulo-140/hooks/activities/admin/useAbout
 import { useAboutPosts } from "@/articulo-140/hooks/activities/admin/useAboutPosts"
 
 // ── Subcomponentes ────────────────────────────────────────────────────────────
-import { PostCard, CATEGORY_CONFIG, toBool } from "./components/postCard"
+import { PostCard, toBool, CATEGORY_CONFIG } from "./components/PostCard"
 import { PostModal } from "./components/PostModal"
 import { AdminPanel } from "./components/AdminPanel"
 import { CloudinaryPicker } from "./components/CloudinaryPicker"

@@ -83,7 +83,7 @@ export const AdminFilesPage = () => {
     images, isLoading, isUploading, selectedImage, setSelectedImage,
     confirmOpen, setConfirmOpen,
     loadImages, handleUpload, handleDelete, requestDelete, deletingId
-  } = useCloudinaryGallery()
+  } = useCloudinaryGallery({lazy: false, showToast: true})
 
   return (
     <div className="w-full space-y-6">

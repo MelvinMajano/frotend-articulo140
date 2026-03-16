@@ -1,6 +1,11 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { toast } from "sonner"
 import { articulo140Api } from "@/articulo-140/api/articulo140Api"
+
+interface Options {
+  lazy?: boolean        
+  showToast?: boolean   
+}
 
 export interface CloudinaryImage {
   publicId: string
@@ -13,42 +18,52 @@ export interface CloudinaryImage {
   height?: number
 }
 
-export const useCloudinaryGallery = () => {
+export const useCloudinaryGallery = ({ lazy = false, showToast = true }: Options) => {
   const [images, setImages] = useState<CloudinaryImage[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [selectedImage, setSelectedImage] = useState<CloudinaryImage | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [imageToDelete, setImageToDelete] = useState<CloudinaryImage | null>(null)
-  const [deletingId,setDeletingId] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  const hasFetched = useRef(false)
 
   const loadImages = async () => {
     setIsLoading(true)
     try {
       const { data } = await articulo140Api.get("/activities/images/files", {
-        headers: { 
-          Authorization: `Bearer ${localStorage.getItem("token")}` 
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
         },
       })
       setImages(
         data.data.map((img: any) => ({
-          publicId: img.public_id,
-          url: img.url,
+          publicId:  img.public_id,
+          url:       img.url,
           secureUrl: img.secure_url,
           thumbnail: img.secure_url.replace("/upload/", "/upload/c_thumb,w_300,h_300/"),
           createdAt: img.created_at,
-          format: img.format,
-          width: img.width,
-          height: img.height,
+          format:    img.format,
+          width:     img.width,
+          height:    img.height,
         }))
       )
-      toast.success(`${data.data.length} imágenes cargadas`)
+  
+      if (showToast) toast.success(`${data.data.length} imágenes cargadas`)
     } catch (error) {
       toast.error("Error al cargar las imágenes")
     } finally {
       setIsLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (!lazy && !hasFetched.current) {
+      loadImages()
+      hasFetched.current = true
+    }
+  }, [])
 
   const handleUpload = async (file: File | null) => {
     if (!file) return
@@ -124,8 +139,6 @@ export const useCloudinaryGallery = () => {
       setImageToDelete(null)
     }
   }
-
-  useEffect(() => { loadImages() }, [])
 
   return {
     images,
