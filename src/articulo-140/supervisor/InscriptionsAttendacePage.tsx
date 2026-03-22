@@ -1,4 +1,3 @@
-import { CustomImput } from "@/components/custom/CustomImput"
 import { CustomMainCard } from "@/components/custom/CustomMainCard"
 import { Button } from "@/components/ui/button"
 import { CardHeader } from "@/components/ui/card"
@@ -21,7 +20,6 @@ export const InscriptionsAttendacePage = () => {
               Regresar
             </Button>
             </Link>
-            <CustomImput />
           </div>
         </CardHeader>
     <CustomMainCard Contentd={<TableIncriptionsActivty />} CustomFooter={<CustomFooterInscription/>}/>

@@ -31,7 +31,7 @@ export const Articulo140App = () => {
       <CheckAuthProvider>
         <RouterProvider router={router} />
         </CheckAuthProvider>
-    <ReactQueryDevtools initialIsOpen={false} />
+    {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   )
 };

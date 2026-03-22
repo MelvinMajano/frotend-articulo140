@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { Newspaper, X, Calendar, Image, Trash2, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
-import { toBool, CATEGORY_CONFIG } from "./postCard"
+import { toBool, CATEGORY_CONFIG } from "./PostCard"
 import type { Post, PostCategory, CreatePostBody } from "@/articulo-140/interfaces/about.response"
 
 interface Props {

@@ -27,7 +27,7 @@ export const CustomCombobox=({value: externalValue, onChange}: ComboboxProps)=> 
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState(externalValue || "")
   
-  const {query} = useSupervisors(100, 1)
+  const {query} = useSupervisors(100, 1,'')
 
   const supervisors = query?.data?.data?.data || []
 

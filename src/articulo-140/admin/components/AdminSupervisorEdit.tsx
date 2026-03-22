@@ -15,10 +15,10 @@ export const AdminSupervisorEdit = () => {
   const navigate = useNavigate()
   
   // Obtener todos los supervisores y carreras sin paginación para la búsqueda
-  const { query } = useSupervisors(1000, 1) // Límite alto para obtener todos
+  const { query } = useSupervisors(1000, 1, '') // Límite alto para obtener todos
   const { data, isLoading } = query
 
-  const { query: careersQuery } = useCareers(100, 1) // Obtener todas las carreras para el select con un límite alto
+  const { query: careersQuery } = useCareers(100, 1,'') // Obtener todas las carreras para el select con un límite alto
   const { data: careersData, isLoading: isCareersLoading, isError: isCareersError } = careersQuery
   const [isSubmitting, setIsSubmitting] = useState(false)
 

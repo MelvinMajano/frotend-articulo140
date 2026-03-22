@@ -7,57 +7,67 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Save } from "lucide-react"
-import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
+import { UNAH_BLUE } from "@/lib/colors"
+
+interface Supervisor {
+  accountNumber: string | number
+  name: string
+}
 
 interface EditActivityModalProps {
   activity: any
   isOpen: boolean
   onClose: () => void
 }
-const scopes = ["Cultural", "Deportivo", "Académico", "Social"]
+
+const SCOPES = ["Cultural", "Deportivo", "Académico", "Social"]
 
 export const EditActivityModal = ({ activity, isOpen, onClose }: EditActivityModalProps) => {
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    supervisor: "",
-    startDate: null as Date | null,
-    endDate: null as Date | null,
-    voaeHours: 0,
-    scopes: [] as string[],
+    title:          "",
+    description:    "",
+    supervisor:     "",
+    startDate:      null as Date | null,
+    endDate:        null as Date | null,
+    voaeHours:      0,
+    scopes:         [] as string[],
     availableSpots: 0,
   })
 
-  const { query } = useSupervisors()
+  const { query } = useSupervisors(1000, 1, "")
   const { data, isLoading, isError } = query
-  const supervisors = data?.data || []
+
+  // Extraer supervisores con tipo explícito
+  const supervisors: Supervisor[] = Array.isArray(data?.data?.data)
+    ? (data.data.data as Supervisor[])
+    : []
 
   useEffect(() => {
     if (activity) {
       setFormData({
-        title: activity.title || "",
+        title:       activity.title       || "",
         description: activity.description || "",
-        supervisor: activity.supervisor || "",
-        startDate: activity.startDate ? new Date(activity.startDate) : null,
-        endDate: activity.endDate ? new Date(activity.endDate) : null,
-        voaeHours: activity.voaeHours || 0,
+        supervisor:  activity.supervisor  || "",
+        startDate:   activity.startDate   ? new Date(activity.startDate) : null,
+        endDate:     activity.endDate     ? new Date(activity.endDate)   : null,
+        voaeHours:      activity.voaeHours      || 0,
+        availableSpots: activity.availableSpots || 0,
         scopes: Array.isArray(activity.scopes)
           ? activity.scopes
           : (activity.scopes || "").split(",").map((s: string) => s.trim()),
-        availableSpots: activity.availableSpots || 0,
       })
     }
   }, [activity])
 
-  const handleChange = (field: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+  const handleChange = (field: string, value: unknown) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
   }
 
   const handleScopeChange = (scope: string) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       scopes: prev.scopes.includes(scope)
-        ? prev.scopes.filter((s) => s !== scope)
+        ? prev.scopes.filter(s => s !== scope)
         : [...prev.scopes, scope],
     }))
   }
@@ -77,13 +87,14 @@ export const EditActivityModal = ({ activity, isOpen, onClose }: EditActivityMod
         </DialogHeader>
 
         <div className="space-y-4 py-4">
+
           {/* Título */}
           <div className="space-y-2">
             <Label htmlFor="title">Título</Label>
             <Input
               id="title"
               value={formData.title}
-              onChange={(e) => handleChange("title", e.target.value)}
+              onChange={e => handleChange("title", e.target.value)}
               placeholder="Título de la actividad"
             />
           </div>
@@ -94,7 +105,7 @@ export const EditActivityModal = ({ activity, isOpen, onClose }: EditActivityMod
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) => handleChange("description", e.target.value)}
+              onChange={e => handleChange("description", e.target.value)}
               placeholder="Descripción de la actividad"
             />
           </div>
@@ -105,7 +116,7 @@ export const EditActivityModal = ({ activity, isOpen, onClose }: EditActivityMod
             <select
               id="supervisor"
               value={formData.supervisor}
-              onChange={(e) => handleChange("supervisor", e.target.value)}
+              onChange={e => handleChange("supervisor", e.target.value)}
               className="w-full border rounded-md p-2 border-gray-300 focus:border-blue-700"
             >
               <option value="">Seleccionar supervisor</option>
@@ -114,7 +125,7 @@ export const EditActivityModal = ({ activity, isOpen, onClose }: EditActivityMod
               ) : isError ? (
                 <option disabled>Error al cargar supervisores</option>
               ) : (
-                supervisors.map((sup) => (
+                supervisors.map((sup: Supervisor) => (
                   <option key={sup.accountNumber} value={sup.accountNumber}>
                     {sup.name}
                   </option>
@@ -126,29 +137,29 @@ export const EditActivityModal = ({ activity, isOpen, onClose }: EditActivityMod
           {/* Fechas */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2 min-w-0">
-              <Label htmlFor="startDate">Fecha de Inicio</Label>
+              <Label>Fecha de Inicio</Label>
               <div className="w-full overflow-visible">
                 <DateTimePicker
-                  date={formData.startDate || undefined}
-                  setDate={(date) => handleChange("startDate", date)}
+                  date={formData.startDate ?? undefined}
+                  setDate={date => handleChange("startDate", date)}
                   placeholder="Seleccionar fecha y hora"
                   className="w-full truncate"
                 />
               </div>
             </div>
             <div className="space-y-2 min-w-0">
-              <Label htmlFor="endDate">Fecha de Fin</Label>
+              <Label>Fecha de Fin</Label>
               <div className="w-full overflow-visible">
                 <DateTimePicker
-                  date={formData.endDate || undefined}
-                  setDate={(date) => handleChange("endDate", date)}
+                  date={formData.endDate ?? undefined}
+                  setDate={date => handleChange("endDate", date)}
                   placeholder="Seleccionar fecha y hora"
                   className="w-full truncate"
                 />
               </div>
             </div>
           </div>
-         
+
           {/* Horas VOAE y Espacios */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -157,7 +168,7 @@ export const EditActivityModal = ({ activity, isOpen, onClose }: EditActivityMod
                 id="voaeHours"
                 type="number"
                 value={formData.voaeHours}
-                onChange={(e) => handleChange("voaeHours", parseInt(e.target.value) || 0)}
+                onChange={e => handleChange("voaeHours", parseInt(e.target.value) || 0)}
               />
             </div>
             <div className="space-y-2">
@@ -166,7 +177,7 @@ export const EditActivityModal = ({ activity, isOpen, onClose }: EditActivityMod
                 id="availableSpots"
                 type="number"
                 value={formData.availableSpots}
-                onChange={(e) => handleChange("availableSpots", parseInt(e.target.value) || 0)}
+                onChange={e => handleChange("availableSpots", parseInt(e.target.value) || 0)}
               />
             </div>
           </div>
@@ -175,13 +186,14 @@ export const EditActivityModal = ({ activity, isOpen, onClose }: EditActivityMod
           <div className="space-y-2">
             <Label>Ámbitos</Label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {scopes.map((scope) => (
+              {SCOPES.map(scope => (
                 <label key={scope} className="flex items-center space-x-2 text-gray-700">
                   <input
                     type="checkbox"
                     checked={formData.scopes.includes(scope)}
                     onChange={() => handleScopeChange(scope)}
-                    className="h-4 w-4 border-gray-300 rounded focus:ring-blue-700" style={{ accentColor: UNAH_BLUE }}
+                    className="h-4 w-4 border-gray-300 rounded focus:ring-blue-700"
+                    style={{ accentColor: UNAH_BLUE }}
                   />
                   <span>{scope}</span>
                 </label>

@@ -23,7 +23,7 @@ export const AdminSupervisorForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const navigate = useNavigate()
 
-  const { query } = useCareers(100,1) // Obtener todas las carreras para el select con un límite alto
+  const { query } = useCareers(100,1,'') // Obtener todas las carreras para el select con un límite alto
   const { data, isLoading, isError } = query
   const careers = data?.data?.data || []
 

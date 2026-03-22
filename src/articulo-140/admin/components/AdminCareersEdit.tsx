@@ -12,7 +12,7 @@ import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
 export const AdminCareerEdit = () => {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { query } = useCareers(100,1)
+  const { query } = useCareers(100,1,'')
   const { data, isLoading } = query
 
   const [formData, setFormData] = useState({

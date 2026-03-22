@@ -32,7 +32,7 @@ interface ActivityFormProps {
 
 export const ActivityForm = ({ onClose }: ActivityFormProps) => {
 
-  const { query } = useSupervisors(100, 1) // Obtener supervisores para el select
+  const { query } = useSupervisors(100, 1, '') // Obtener supervisores para el select
   const supervisors = query?.data?.data?.data;
   const {createActivityMutation} = useActivities();
 
