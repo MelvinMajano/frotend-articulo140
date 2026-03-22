@@ -5,6 +5,7 @@ export const useStudents = (limit: number, page: number, search: string) => {
   const query = useQuery({
     queryKey: ["students", limit, page, search],
     queryFn: () => getStudents(limit, page, search),
+    retry: false
   })
 
   return { query }

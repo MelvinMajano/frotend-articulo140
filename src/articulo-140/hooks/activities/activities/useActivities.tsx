@@ -8,17 +8,18 @@ import { updateActivityStatus } from "@/articulo-140/utils/gestionActivitiesPage
 import { useEffect } from "react";
 import { deleteActivity } from "@/articulo-140/utils/gestionActivitiesPage/actions/deleteActivity.action";
 
-export const useActivities = (overridePage?: string, overrideLimit?: string) => {
+export const useActivities = (overridePage?: string, overrideLimit?: string, search?: string) => {
   const {disbaleActivity} = gestionActivitiesStore();
   const [searchParams] = useSearchParams();
    const queryClient = useQueryClient();
 
   const page = overridePage ?? searchParams.get('page') ?? '1';
   const limit = overrideLimit ?? searchParams.get('limit') ?? '6';
-  
+  const searchQuery = search ?? searchParams.get('search') ?? '';
+
    const query = useQuery({
-    queryKey:['activities',{limit,page}],
-    queryFn:()=>getActivities(+limit,+page),
+    queryKey:['activities',{limit,page,searchQuery}],
+    queryFn:()=>getActivities(+limit,+page,searchQuery),
     retry:false,
     refetchInterval: 5*60*1000,
   });

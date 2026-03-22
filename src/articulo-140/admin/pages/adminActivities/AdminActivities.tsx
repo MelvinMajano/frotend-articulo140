@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useActivities } from '@/articulo-140/hooks/activities/activities/useActivities'
 import { CustomImput } from "@/components/custom/CustomImput"
 import { Button } from "@/components/ui/button"
@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Link, useSearchParams } from "react-router"
-import { ArrowLeft, Eye, Loader2, Plus } from 'lucide-react'
+import { ArrowLeft, Eye, Loader2, Plus, SearchX } from 'lucide-react'
 import { useQueryClient, useMutation } from "@tanstack/react-query"
 import { addImageToActivity, replaceImageActivity } from "../../actions/addImageToActivity.action"
 import { toast } from "sonner"
@@ -17,7 +17,7 @@ import { UNAH_BLUE, UNAH_BLUE_SOFT } from "@/lib/colors"
 import { GuidedTour } from "../../components/custom/GuidedTour"
 import type { TourStep } from "../../components/custom/GuidedTour"
 
-// ─── Pasos del tour — modo normal (Ver asistencias) ───────────────────────────
+// ─── Pasos del tour — modo normal ────────────────────────────────────────────
 const ACTIVITIES_STEPS: TourStep[] = [
   {
     target: "body",
@@ -39,7 +39,7 @@ const ACTIVITIES_STEPS: TourStep[] = [
     content: "Aquí se listan todas las actividades registradas con su información: fechas, horas VOAE, ámbitos y supervisor responsable.",
     placement: "top",
     disableBeacon: true,
-    pumaLabel: "¡Revisa tus actividades aquí!"
+    pumaLabel: "¡Revisa tus actividades aquí!",
   },
   {
     target: '[data-tour="action-attendance"]',
@@ -48,7 +48,7 @@ const ACTIVITIES_STEPS: TourStep[] = [
     placement: "right",
     disableBeacon: true,
     pumaPosition: "right",
-    pumaLabel: "Consulta las asistencias de cada actividad"
+    pumaLabel: "Consulta las asistencias de cada actividad",
   },
   {
     target: '[data-tour="activities-pagination"]',
@@ -57,11 +57,11 @@ const ACTIVITIES_STEPS: TourStep[] = [
     placement: "top",
     disableBeacon: true,
     pumaMood: "celebrate",
-    pumaLabel: "¡Navega por las páginas!"
+    pumaLabel: "¡Navega por las páginas!",
   },
 ]
 
-// ─── Pasos del tour — modo selección de imagen (isFromFiles) ─────────────────
+// ─── Pasos del tour — modo selección de imagen ───────────────────────────────
 const ACTIVITIES_FROM_FILES_STEPS: TourStep[] = [
   {
     target: "body",
@@ -83,7 +83,7 @@ const ACTIVITIES_FROM_FILES_STEPS: TourStep[] = [
     content: "Aquí se listan todas las actividades disponibles. Revisa el título y los datos antes de seleccionar.",
     placement: "top",
     disableBeacon: true,
-    pumaLabel: "¡Aquí están tus actividades!"
+    pumaLabel: "¡Aquí están tus actividades!",
   },
   {
     target: '[data-tour="action-select"]',
@@ -93,63 +93,52 @@ const ACTIVITIES_FROM_FILES_STEPS: TourStep[] = [
     disableBeacon: true,
     pumaPosition: "right",
     pumaMood: "celebrate",
-    pumaLabel: "¡Selecciona una actividad!"
+    pumaLabel: "¡Selecciona una actividad!",
   },
 ]
 
 export const AdminActivities = () => {
   const [searchParams, setSearchParams] = useSearchParams()
-  
-  const { query } = useActivities()
+
+  // ── Leer búsqueda y página desde la URL ──────────────────────────────────────
+  const searchQuery = searchParams.get("search") || ""
+  const currentPage = searchParams.get("page") || "1"
+
+  const { query } = useActivities(currentPage, undefined, searchQuery)
   const { data, isLoading, isError } = query
 
-  const [searchQuery, setSearchQuery] = useState("")
   const searchInputRef = useRef<HTMLInputElement>(null)
 
   const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null)
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
   const [replaceImageDialogOpen, setReplaceImageDialogOpen] = useState(false)
 
-  const isFromFiles = searchParams.get('from') === 'files'
+  const isFromFiles = searchParams.get("from") === "files"
 
-  const totalPages = data?.data?.pagination?.totalPage || 1
-  const totalActivities = data?.data?.pagination?.total || 0
-  const hasActivities = data?.data?.data && data.data.data.length > 0
+  // ── Actualizar URL al buscar — resetea a página 1 ────────────────────────────
+  const handleSearch = (value: string) => {
+    setSearchParams({ page: "1", ...(value.trim() ? { search: value } : {}), ...(isFromFiles ? { from: "files" } : {}) })
+  }
 
-  useEffect(() => {
-    if (searchQuery.trim()) {
-      setSearchParams(prev => {
-        const next = new URLSearchParams(prev)
-        next.set('page', '1')
-        return next
-      })
-    }
-  }, [searchQuery])
-
+  // ── Atajo de teclado Ctrl+K / Cmd+K ─────────────────────────────────────────
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault()
         searchInputRef.current?.focus()
       }
     }
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
   }, [])
 
-  const filteredActivities = useMemo(() => {
-    if (!data?.data?.data) return []
-    if (!searchQuery.trim()) return data.data.data
+  // ── Datos desde el backend ────────────────────────────────────────────────────
+  const activities      = data?.data?.data ?? []
+  const totalPages      = data?.data?.pagination?.totalPage || 1
+  const totalActivities = data?.data?.pagination?.total || 0
+  const hasActivities   = activities.length > 0
 
-    const q = searchQuery.toLowerCase().trim()
-    return data.data.data.filter((activity: any) =>
-      activity.title.toLowerCase().includes(q) ||
-      activity.voaeHours.toString().includes(q) ||
-      activity.scopes.toLowerCase().includes(q) ||
-      activity.Supervisor.toLowerCase().includes(q)
-    )
-  }, [data?.data?.data, searchQuery])
-
+  // ── Imagen mutations ─────────────────────────────────────────────────────────
   const queryClient = useQueryClient()
 
   const addImageMutation = useMutation({
@@ -228,7 +217,6 @@ export const AdminActivities = () => {
   return (
     <div className="p-4">
 
-      {/* Tour guiado — cambia pasos según el modo de la vista */}
       <GuidedTour
         tourId={isFromFiles ? "admin-activities-files" : "admin-activities"}
         steps={isFromFiles ? ACTIVITIES_FROM_FILES_STEPS : ACTIVITIES_STEPS}
@@ -236,51 +224,41 @@ export const AdminActivities = () => {
 
       <Card className="bg-white shadow-lg border-0 w-full">
         {/* Header */}
-        <CardHeader className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            {/* Título y badge */}
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+          {/* Título y badge */}
+          <div className="flex items-center gap-3">
+            <Link to="/admin">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-gray-600 hover:text-teal-600 hover:bg-teal-50"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            </Link>
             <div className="flex items-center gap-3">
-              <Link to="/admin">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-gray-600 hover:text-teal-600 hover:bg-teal-50"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-              </Link>
-              <div className="flex items-center gap-3">
-                <h2 className="text-xl font-semibold text-gray-800">
-                  Gestión de Actividades
-                </h2>
-                {hasActivities && (
-                  <span className="inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full bg-teal-100 text-teal-700">
-                    {totalActivities}
-                  </span>
-                )}
-              </div>
+              <h2 className="text-xl font-semibold text-gray-800">
+                Gestión de Actividades
+              </h2>
+              {hasActivities && (
+                <span className="inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full bg-teal-100 text-teal-700">
+                  {totalActivities}
+                </span>
+              )}
             </div>
+          </div>
 
-            {/* data-tour en el buscador */}
-            <div className="w-full sm:w-auto sm:min-w-[300px]" data-tour="activities-search">
+          {/* Buscador*/}
+          <div className="flex items-center gap-3 mt-2 lg:mt-0">
+            <div className="w-full sm:min-w-[300px]" data-tour="activities-search">
               <CustomImput
                 ref={searchInputRef}
                 value={searchQuery}
-                onChange={setSearchQuery}
+                onChange={handleSearch}
                 placeholder="Buscar por título, horas, ámbitos o supervisor..."
               />
             </div>
           </div>
-
-          {/* Contador de búsqueda */}
-          {searchQuery && hasActivities && (
-            <div className="flex items-center gap-2 text-sm text-gray-600 bg-teal-50 px-4 py-2 rounded-md">
-              <span className="font-medium">{filteredActivities.length}</span>
-              <span>de</span>
-              <span className="font-medium">{totalActivities}</span>
-              <span>actividades encontradas</span>
-            </div>
-          )}
         </CardHeader>
 
         {/* Contenido */}
@@ -290,9 +268,22 @@ export const AdminActivities = () => {
               <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
             </div>
           ) : isError ? (
-            <p className="text-red-500 text-center py-6">
-              Error al cargar las actividades
-            </p>
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="text-gray-400 mb-4">
+                <SearchX className="w-16 h-16" />
+              </div>
+              <p className="text-gray-600 text-lg font-medium mb-2">
+                {searchQuery
+                  ? "No se encontraron actividades que coincidan con tu búsqueda"
+                  : "No hay actividades disponibles"
+                }
+              </p>
+              {searchQuery && (
+                <p className="text-gray-500 text-sm">
+                  Intenta con otro término de búsqueda
+                </p>
+              )}
+            </div>
           ) : (
             <div className="overflow-x-auto" data-tour="activities-table">
               <TooltipProvider>
@@ -309,7 +300,7 @@ export const AdminActivities = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredActivities.length === 0 ? (
+                    {activities.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={7} className="text-center py-10 text-gray-500">
                           {searchQuery
@@ -319,7 +310,7 @@ export const AdminActivities = () => {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      filteredActivities.map((activity: any, index: number) => (
+                      activities.map((activity: any, index: number) => (
                         <TableRow
                           key={activity.id}
                           style={{ background: UNAH_BLUE_SOFT }}
@@ -333,7 +324,6 @@ export const AdminActivities = () => {
                           <TableCell>
                             <div className="flex justify-center gap-2">
                               {isFromFiles ? (
-                                //  data-tour en primer botón Seleccionar (modo imagen)
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <Button
@@ -357,7 +347,6 @@ export const AdminActivities = () => {
                                   </TooltipContent>
                                 </Tooltip>
                               ) : (
-                                // data-tour en primer botón Ver asistencias (modo normal)
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <Link
@@ -390,8 +379,8 @@ export const AdminActivities = () => {
           )}
         </CardContent>
 
-        {/* data-tour en la paginación */}
-        {!searchQuery && hasActivities && totalPages > 1 && (
+        {/* Paginación */}
+        {hasActivities && totalPages > 1 && (
           <CardFooter className="flex justify-center pt-4" data-tour="activities-pagination">
             <CustomPagination totalPages={totalPages} />
           </CardFooter>

@@ -1,10 +1,10 @@
-import { useState, useMemo, useEffect, useRef } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useCareers } from "@/articulo-140/hooks/activities/admin/useCareers"
 import { CustomImput } from "@/components/custom/CustomImput"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Loader2, PenLine, Lock, PlusCircle, ArrowLeft, Unlock } from "lucide-react"
+import { Loader2, PenLine, Lock, PlusCircle, ArrowLeft, Unlock, SearchX } from "lucide-react"
 import { Link, useSearchParams } from "react-router"
 import { ConfirmActionModal } from "@/articulo-140/admin/components/custom/ConfirmActionModal"
 import { deleteCareer, restoreCareer } from "../../actions/softDeleteCareer"
@@ -17,7 +17,6 @@ import type { TourStep } from "../../components/custom/GuidedTour"
 const LIMIT = 5
 
 // ─── Pasos del tour ───────────────────────────────────────────────────────────
-
 const CAREERS_STEPS: TourStep[] = [
   {
     target: "body",
@@ -88,56 +87,46 @@ const CAREERS_STEPS: TourStep[] = [
 
 export const AdminCareers = () => {
   const [searchParams, setSearchParams] = useSearchParams()
+
+  // ── Leer búsqueda y página desde la URL ──────────────────────────────────────
+  const searchQuery = searchParams.get("search") || ""
   const currentPage = parseInt(searchParams.get('page') || '1', 10)
 
-  const { query } = useCareers(LIMIT, currentPage)
+  const { query } = useCareers(LIMIT, currentPage, searchQuery)
   const { data, isLoading, isError } = query
 
   const [selectedCareer, setSelectedCareer] = useState<any | null>(null)
   const [openModal, setOpenModal] = useState(false)
   const [isRestoreAction, setIsRestoreAction] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
   const [changingStateId, setChangingStateId] = useState<string | null>(null)
   const [animatingId, setAnimatingId] = useState<string | null>(null)
 
   const searchInputRef = useRef<HTMLInputElement>(null)
 
-  const totalPages = data?.data?.pagination?.totalPage || 1
-  const totalCareers = data?.data?.pagination?.total || 0
-  const hasCareers = data?.data?.data && data.data.data.length > 0
+  // ── Actualizar URL al buscar — resetea a página 1 ────────────────────────────
+  const handleSearch = (value: string) => {
+    setSearchParams({ page: "1", ...(value.trim() ? { search: value } : {}) })
+  }
 
-  useEffect(() => {
-    if (searchQuery.trim()) {
-      setSearchParams({ page: '1' })
-    }
-  }, [searchQuery, setSearchParams])
-
+  // ── Atajo de teclado Ctrl+K / Cmd+K ─────────────────────────────────────────
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault()
         searchInputRef.current?.focus()
       }
     }
-    
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
   }, [])
 
-  const filteredCareers = useMemo(() => {
-    if (!data?.data?.data) return []
+  // ── Datos desde el backend ────────────────────────────────────────────────────
+  const careers      = data?.data?.data ?? []
+  const totalPages   = data?.data?.pagination?.totalPage || 1
+  const totalCareers = data?.data?.pagination?.total || 0
+  const hasCareers   = careers.length > 0
 
-    if (!searchQuery.trim()) return data.data.data
-
-    const query = searchQuery.toLowerCase().trim()
-
-    return data.data.data.filter((career) =>
-      career.code.toLowerCase().includes(query) ||
-      career.name.toLowerCase().includes(query) ||
-      career.faculty.toLowerCase().includes(query)
-    )
-  }, [data?.data?.data, searchQuery])
-
+  // ── Handlers de habilitar / deshabilitar ─────────────────────────────────────
   const handleActionClick = (career: any) => {
     setSelectedCareer(career)
     setIsRestoreAction(career.isDisabled === "true")
@@ -159,7 +148,6 @@ export const AdminCareers = () => {
         await deleteCareer(selectedCareer.id)
         toast.success(`Carrera ${selectedCareer.name} deshabilitada correctamente`)
       }
-
       await query.refetch?.()
       await new Promise(resolve => setTimeout(resolve, 200))
     } catch (error) {
@@ -174,24 +162,23 @@ export const AdminCareers = () => {
   return (
     <div className="p-4">
 
-      {/* Tour guiado — primera vez automático, F1 para repetir */}
       <GuidedTour tourId="admin-careers" steps={CAREERS_STEPS} />
 
       <Card className="bg-white shadow-lg border-0 w-full">
-        {/* Header */}
-        <CardHeader className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            {/* Título y badge */}
+
+        {/* ── Header ──────────────────────────────────────────────────────── */}
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+
+          {/* Título, badge y buscador */}
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div className="flex items-center gap-3">
               <Link to="/admin">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-gray-600"
-                  onMouseEnter={e => { e.currentTarget.style.color = UNAH_BLUE; e.currentTarget.style.background = UNAH_BLUE_SOFT }}
-                  onMouseLeave={e => { e.currentTarget.style.color = ''; e.currentTarget.style.background = '' }}
+                  className="text-gray-600 hover:text-teal-600 hover:bg-teal-50"
                 >
-                  <ArrowLeft className="w-5 h-5 mr-2" />
+                  <ArrowLeft className="w-5 h-5" />
                 </Button>
               </Link>
               <div className="flex items-center gap-3">
@@ -209,34 +196,26 @@ export const AdminCareers = () => {
               </div>
             </div>
 
-            {/* data-tour en buscador y botón agregar (agrupados) */}
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              <div className="w-full sm:min-w-[300px]" data-tour="careers-search">
-                <CustomImput
-                  ref = {searchInputRef}
-                  value={searchQuery}
-                  onChange={setSearchQuery}
-                  placeholder="Buscar por código, nombre o facultad..."
-                />
-              </div>
-              <Link to="/admin/careers/create" data-tour="add-career-btn">
-                <Button className="text-white flex items-center whitespace-nowrap" style={{ background: UNAH_BLUE }}>
-                  <PlusCircle className="w-4 h-4 mr-1" />
-                  Agregar Carrera
-                </Button>
-              </Link>
+            {/* Buscador */}
+            <div className="w-full lg:w-auto lg:min-w-[320px]" data-tour="careers-search">
+              <CustomImput
+                ref={searchInputRef}
+                value={searchQuery}
+                onChange={handleSearch}
+                placeholder="Buscar por código, nombre o facultad..."
+              />
             </div>
           </div>
 
-          {/* Contador de búsqueda */}
-          {searchQuery && hasCareers && (
-            <div className="flex items-center gap-2 text-sm text-gray-600 px-4 py-2 rounded-md" style={{ background: UNAH_BLUE_SOFT }}>
-              <span className="font-medium">{filteredCareers.length}</span>
-              <span>de</span>
-              <span className="font-medium">{totalCareers}</span>
-              <span>carreras encontradas</span>
-            </div>
-          )}
+          {/* botón agregar */}
+          <div className="flex items-center justify-between right-0 top-full mt-2 lg:mt-0 gap-4">
+            <Link to="/admin/careers/create" data-tour="add-career-btn">
+              <Button className="text-white flex items-center shadow-sm" style={{ background: UNAH_BLUE }}>
+                <PlusCircle className="w-4 h-4 mr-2" />
+                Agregar Carrera
+              </Button>
+            </Link>
+          </div>
         </CardHeader>
 
         {/* Contenido */}
@@ -246,19 +225,23 @@ export const AdminCareers = () => {
               <Loader2 className="w-8 h-8 animate-spin" style={{ color: UNAH_BLUE }} />
             </div>
           ) : isError ? (
-            <p className="text-red-500 text-center py-6">Error al cargar las carreras</p>
-          ) : (
-            <>
-              {/* Mostrar contador de resultados */}
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="text-gray-400 mb-4">
+                <SearchX className="w-16 h-16" />
+              </div>
+              <p className="text-gray-600 text-lg font-medium mb-2">
+                {searchQuery
+                  ? "No se encontraron carreras que coincidan con tu búsqueda"
+                  : "No hay carreras registradas"
+                }
+              </p>
               {searchQuery && (
-                <div className="mb-4 text-sm text-gray-600">
-                  {filteredCareers.length === 0 
-                    ? "No se encontraron resultados" 
-                    : `Mostrando ${filteredCareers.length} resultado${filteredCareers.length > 1 ? "s" : ""}`
-                  }
-                </div>
+                <p className="text-gray-500 text-sm">
+                  Intenta con otro término de búsqueda
+                </p>
               )}
-            
+            </div>
+          ) : (
             <div className="overflow-x-auto" data-tour="careers-table">
               <Table>
                 <TableHeader style={{ background: UNAH_BLUE_SOFT }}>
@@ -270,7 +253,7 @@ export const AdminCareers = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredCareers.length === 0 ? (
+                  {careers.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={4} className="text-center py-10 text-gray-500">
                         {searchQuery
@@ -280,11 +263,11 @@ export const AdminCareers = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredCareers.map((career, index) => {
-                      const careerId = career.code.toString()
+                    careers.map((career, index) => {
+                      const careerId        = career.code.toString()
                       const isChangingState = changingStateId === careerId
-                      const isAnimating = animatingId === careerId
-                      const isDisabled = career.isDisabled === "true"
+                      const isAnimating     = animatingId     === careerId
+                      const isDisabled      = career.isDisabled === "true"
 
                       return (
                         <TableRow
@@ -292,27 +275,26 @@ export const AdminCareers = () => {
                           style={!isAnimating && !isDisabled ? { background: UNAH_BLUE_SOFT } : undefined}
                           className={`transition-all duration-400 ${
                             isAnimating
-                              ? 'animate-pulse bg-yellow-50 scale-[0.98]'
+                              ? "animate-pulse bg-yellow-50 scale-[0.98]"
                               : isDisabled
-                                ? 'bg-red-50/30 hover:bg-red-50/50'
-                                : ''
+                                ? "bg-red-50/30 hover:bg-red-50/50"
+                                : ""
                           }`}
                         >
                           <TableCell>
-                            <span className={`font-medium ${isDisabled ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                            <span className={`font-medium ${isDisabled ? "text-gray-400 line-through" : "text-gray-900"}`}>
                               {career.code}
                             </span>
                           </TableCell>
-                          <TableCell className={isDisabled ? 'text-gray-400' : 'text-gray-900'}>
+                          <TableCell className={isDisabled ? "text-gray-400" : "text-gray-900"}>
                             {career.name}
                           </TableCell>
-                          <TableCell className={isDisabled ? 'text-gray-400' : 'text-gray-600'}>
+                          <TableCell className={isDisabled ? "text-gray-400" : "text-gray-600"}>
                             {career.faculty}
                           </TableCell>
                           <TableCell>
                             <div className="flex justify-center gap-2">
 
-                              {/* data-tour en el primer botón Editar */}
                               <Link
                                 to={`/admin/careers/edit/${career.code}`}
                                 {...(index === 0 ? { "data-tour": "action-edit" } : {})}
@@ -328,7 +310,6 @@ export const AdminCareers = () => {
                                 </Button>
                               </Link>
 
-                              {/* data-tour en el primer botón Habilitar/Deshabilitar */}
                               {isDisabled ? (
                                 <Button
                                   onClick={() => handleActionClick(career)}
@@ -366,12 +347,11 @@ export const AdminCareers = () => {
                 </TableBody>
               </Table>
             </div>
-            </>
           )}
         </CardContent>
 
-        {/* data-tour en la paginación */}
-        {!searchQuery && hasCareers && (
+        {/* Paginación */}
+        {hasCareers && totalPages > 1 && (
           <CardFooter className="flex justify-center pt-4" data-tour="careers-pagination">
             <CustomPagination totalPages={totalPages} />
           </CardFooter>
@@ -383,28 +363,24 @@ export const AdminCareers = () => {
         open={openModal}
         onOpenChange={setOpenModal}
         title={
-          isRestoreAction 
-          ? "¿Deseas habilitar esta carrera?" 
-          : "¿Deseas deshabilitar esta carrera?"
+          isRestoreAction
+            ? "¿Deseas habilitar esta carrera?"
+            : "¿Deseas deshabilitar esta carrera?"
         }
         message={
           <>
             {isRestoreAction ? (
               <>
                 La carrera{" "}
-                <span className="font-semibold text-gray-900">
-                  {selectedCareer?.name}
-                  </span>{" "}
-                  será habilitada nuevamente.
-                  </>
+                <span className="font-semibold text-gray-900">{selectedCareer?.name}</span>{" "}
+                será habilitada nuevamente.
+              </>
             ) : (
               <>
-                Esta acción no se puede deshacer. La carrera{" "} 
-                <span className="font-semibold text-gray-900">
-                  {selectedCareer?.name}
-                  </span>{" "}
-                  será deshabilitada.
-                  </>
+                Esta acción no se puede deshacer. La carrera{" "}
+                <span className="font-semibold text-gray-900">{selectedCareer?.name}</span>{" "}
+                será deshabilitada.
+              </>
             )}
           </>
         }

@@ -5,8 +5,8 @@ import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ArrowLeft, FileSpreadsheet, Loader2, Send, CheckCircle2, Clock } from "lucide-react"
-import { useRef, useState, useEffect, type ChangeEvent } from "react"
+import { ArrowLeft, FileSpreadsheet, Loader2, Send, CheckCircle2, Clock, Check, X } from "lucide-react"
+import { useRef, useState, useEffect, useCallback, type ChangeEvent } from "react"
 import { useImportActivityAttendance } from "@/articulo-140/hooks/activities/activities/useImportActivityAttendance"
 import { useUpdateHoursAwarded } from "@/articulo-140/hooks/activities/activities/useUpdateHoursAwarded"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
@@ -42,6 +42,8 @@ export const ActivityAttendance = () => {
   const { id } = useParams()
   const queryClient = useQueryClient()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  // Refs de los inputs de horas — para hacer focus al primer disponible tras importar
+  const inputRefs = useRef<Record<string, HTMLInputElement | null>>({})
 
   // ── Data ────────────────────────────────────────────────────────────────────
   const { data, isLoading, isError } = useStudentsAttendaceByActivity(id)
@@ -54,43 +56,54 @@ export const ActivityAttendance = () => {
   const students    = data?.message?.data ?? []
   const status      = activity?.status ?? ""
 
-  // ── Estado de edición de horas ───────────────────────────────────────────────
-  const [editingHours, setEditingHours] = useState<Record<string, number | null>>({})
+  // ── Estado de edición ─────────────────────────────────────────────────────────
+  // editingHours: valor local del input (cambio pendiente de confirmar)
+  const [editingHours,   setEditingHours]   = useState<Record<string, number | null>>({})
+  // confirmedHours: set de attendanceIds cuyo valor ya fue guardado en el backend en esta sesión
+  const [confirmedHours, setConfirmedHours] = useState<Set<string>>(new Set())
+  // focusedId: attendanceId del input que tiene el foco activo
+  const [focusedId,      setFocusedId]      = useState<string | null>(null)
+  // savingId: attendanceId del input que está guardando actualmente
+  const [savingId,       setSavingId]       = useState<string | null>(null)
 
-  // ── Autocompletar horas al cargar estudiantes ────────────────────────────────
-  // Solo rellena los que aún no tienen horas asignadas (hoursAwarded === null o 0)
+  // ── Autocompletar horas al cargar — SOLO LOCAL, sin llamar al endpoint ────────
   useEffect(() => {
-  if (!students.length || !maxHours) return
+    if (!students.length || !maxHours) return
 
-  const toAutoFill: Array<{ attendanceId: string; hours: number }> = []
+    const initialHours: Record<string, number> = {}
+    students.forEach((s) => {
+      if (!s.hoursAwarded || s.hoursAwarded === 0) {
+        initialHours[s.attendanceId] = maxHours
+      }
+    })
 
-  students.forEach((s) => {
-    if (!s.hoursAwarded || s.hoursAwarded === 0) {
-      toAutoFill.push({ attendanceId: s.attendanceId, hours: maxHours })
+    if (Object.keys(initialHours).length > 0) {
+      setEditingHours(prev => ({ ...initialHours, ...prev }))
     }
-  })
+  }, [students.length, maxHours])
 
-  if (toAutoFill.length === 0) return
+  // ── Focus al primer input tras importar ───────────────────────────────────────
+  useEffect(() => {
+    if (!importMutation.isSuccess) return
+    // Esperar a que React renderice la tabla actualizada
+    const timer = setTimeout(() => {
+      const firstStudent = students[0]
+      if (firstStudent) {
+        inputRefs.current[firstStudent.attendanceId]?.focus()
+      }
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [importMutation.isSuccess])
 
-  // 1. Actualizar el estado local para que se vean en los inputs
-  const initialHours: Record<string, number> = {}
-  toAutoFill.forEach(({ attendanceId, hours }) => {
-    initialHours[attendanceId] = hours
-  })
-  setEditingHours(prev => ({ ...initialHours, ...prev }))
-
-  // 2. Persistir en el backend cada uno que fue autocompletado
-  toAutoFill.forEach(({ attendanceId, hours }) => {
-    updateHoursMutation.mutate({ attendanceId, hoursAwarded: hours })
-  })
-
-}, [students.length, maxHours])
-
-  // ── Validación: todos los estudiantes deben tener horas > 0 ─────────────────
+  // ── Validacion: todos los estudiantes tienen horas confirmadas en el backend ──
+  // Un estudiante cuenta como listo si:
+  //   a) ya tenia hoursAwarded > 0 desde el servidor (dato previo), O
+  //   b) fue confirmado exitosamente en esta sesión (confirmedHours)
+  // Los valores solo en editingHours (locales sin confirmar) no cuentan.
   const allHoursAssigned = students.length > 0 && students.every((s) => {
-    const editing = editingHours[s.attendanceId]
-    const current = editing !== undefined ? editing : s.hoursAwarded
-    return current !== null && current > 0
+    const alreadySaved  = s.hoursAwarded !== null && s.hoursAwarded > 0
+    const justConfirmed = confirmedHours.has(s.attendanceId)
+    return alreadySaved || justConfirmed
   })
 
   // ── Modales de confirmación ──────────────────────────────────────────────────
@@ -128,27 +141,70 @@ export const ActivityAttendance = () => {
       return
     }
     const num = parseFloat(value)
-    // No permitir valores fuera del rango [0, maxHours]
     const clamped = Math.min(Math.max(0, num), maxHours)
     setEditingHours(prev => ({ ...prev, [attendanceId]: clamped }))
   }
 
-  const handleHoursBlur = (attendanceId: string, currentValue: number | null) => {
+  const handleFocus = (attendanceId: string) => {
+    setFocusedId(attendanceId)
+  }
+
+  // ── Confirmar: llama al endpoint y limpia el focus ─────────────────────────────
+  const handleConfirm = useCallback((attendanceId: string, currentSaved: number | null) => {
     const newValue = editingHours[attendanceId]
 
-    if (newValue !== undefined && newValue !== currentValue && newValue !== null && newValue >= 0) {
-      updateHoursMutation.mutate({ attendanceId, hoursAwarded: newValue })
+    // Si el valor no cambió o es inválido, solo cerrar el flotante
+    if (newValue === undefined || newValue === currentSaved) {
+      setFocusedId(null)
+      return
     }
 
-    // Limpiar solo si ya fue guardado (no si sigue en edición)
-    if (newValue === currentValue || newValue === null) {
-      setEditingHours(prev => {
-        const updated = { ...prev }
-        delete updated[attendanceId]
-        return updated
-      })
+    if (newValue === null || newValue < 0) {
+      setFocusedId(null)
+      return
     }
-  }
+
+    setSavingId(attendanceId)
+    updateHoursMutation.mutate(
+      { attendanceId, hoursAwarded: newValue },
+      {
+        onSuccess: () => {
+          setSavingId(null)
+          setFocusedId(null)
+          // Marcar como confirmado para que allHoursAssigned lo cuente
+          setConfirmedHours(prev => new Set(prev).add(attendanceId))
+          // Limpiar del estado local ya que el valor quedó guardado en el backend
+          setEditingHours(prev => {
+            const next = { ...prev }
+            delete next[attendanceId]
+            return next
+          })
+          // Desplazar foco al siguiente input disponible
+          const currentIndex = students.findIndex(s => s.attendanceId === attendanceId)
+          const nextStudent  = students[currentIndex + 1]
+          if (nextStudent) {
+            setTimeout(() => {
+              inputRefs.current[nextStudent.attendanceId]?.focus()
+            }, 50)
+          }
+        },
+        onError: () => {
+          setSavingId(null)
+          // No cerrar el flotante para que el usuario pueda reintentar
+        },
+      }
+    )
+  }, [editingHours, updateHoursMutation, students])
+
+  // ── Cancelar: revierte el valor local al guardado en el backend ───────────────
+  const handleCancel = useCallback((attendanceId: string) => {
+    setEditingHours(prev => {
+      const next = { ...prev }
+      delete next[attendanceId]
+      return next
+    })
+    setFocusedId(null)
+  }, [])
 
   const getDisplayValue = (attendanceId: string, currentValue: number | null) => {
     if (editingHours[attendanceId] !== undefined) {
@@ -166,7 +222,6 @@ export const ActivityAttendance = () => {
     }
   }
 
-  // ── ¿Se puede editar? — solo si no fue enviado/aprobado ─────────────────────
   const isEditable = status === "finished"
 
   // ── Render ───────────────────────────────────────────────────────────────────
@@ -213,11 +268,10 @@ export const ActivityAttendance = () => {
               disabled={importMutation.isPending}
               className="border-teal-600 text-teal-700 hover:bg-teal-600 hover:text-white flex items-center font-medium shadow-sm transition-all duration-200"
             >
-              {importMutation.isPending ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Importando...</>
-              ) : (
-                <><FileSpreadsheet className="w-4 h-4 mr-2" />Importar asistencia desde Excel</>
-              )}
+              {importMutation.isPending
+                ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Importando...</>
+                : <><FileSpreadsheet className="w-4 h-4 mr-2" />Importar asistencia desde Excel</>
+              }
             </Button>
           </div>
         </CardHeader>
@@ -295,6 +349,12 @@ export const ActivityAttendance = () => {
                       const displayVal = getDisplayValue(student.attendanceId, student.hoursAwarded)
                       const isOverMax  = typeof displayVal === "number" && displayVal > maxHours
                       const isEmpty    = displayVal === "" || displayVal === null
+                      const isFocused   = focusedId === student.attendanceId
+                      const isSaving    = savingId  === student.attendanceId
+                      // Pendiente = editable + sin horas confirmadas (backend previo o sesión actual)
+                      const isPending   = isEditable
+                        && !(student.hoursAwarded !== null && student.hoursAwarded > 0)
+                        && !confirmedHours.has(student.attendanceId)
 
                       return (
                         <TableRow key={student.attendanceId} className="hover:bg-gray-50 transition-colors duration-200">
@@ -303,23 +363,62 @@ export const ActivityAttendance = () => {
                           <TableCell>{new Date(student.entryTime).toLocaleString("es-HN")}</TableCell>
                           <TableCell>{new Date(student.exitTime).toLocaleString("es-HN")}</TableCell>
                           <TableCell className="text-center">
-                            <div className="flex flex-col items-center gap-1">
+                            {/* Contenedor relativo para posicionar el flotante */}
+                            <div className="relative inline-flex flex-col items-center gap-1">
                               <Input
+                                ref={el => { inputRefs.current[student.attendanceId] = el }}
                                 type="number"
                                 min="0"
                                 max={maxHours}
                                 step="1"
-                                disabled={!isEditable}
+                                disabled={!isEditable || isSaving}
                                 value={displayVal}
                                 onChange={(e) => handleHoursChange(student.attendanceId, e.target.value)}
-                                onBlur={() => handleHoursBlur(student.attendanceId, student.hoursAwarded)}
+                                onFocus={() => handleFocus(student.attendanceId)}
                                 className={`w-20 text-center transition-colors ${
-                                  isOverMax  ? "border-red-400 focus:ring-red-300" :
-                                  isEmpty    ? "border-amber-400 focus:ring-amber-300" :
-                                              "border-gray-200"
-                                } ${!isEditable ? "opacity-60 cursor-not-allowed bg-gray-50" : ""}`}
+                                  isOverMax           ? "border-red-400 focus:ring-red-300" :
+                                  isEmpty || isPending ? "border-amber-400 focus:ring-amber-300" :
+                                                        "border-gray-200"
+                                } ${!isEditable ? "opacity-60 cursor-not-allowed bg-gray-50" : ""}
+                                  ${isFocused ? "ring-2 ring-blue-300" : ""}
+                                `}
                                 placeholder="0"
                               />
+
+                              {/* ── Botones flotantes de confirmar/cancelar ── */}
+                              {isFocused && isEditable && (
+                                <div
+                                  className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10"
+                                  // Evitar que el click en los botones dispare onBlur del input
+                                  onMouseDown={(e) => e.preventDefault()}
+                                >
+                                  {/* Confirmar */}
+                                  <button
+                                    onClick={() => handleConfirm(student.attendanceId, student.hoursAwarded)}
+                                    disabled={isSaving || isOverMax}
+                                    className="flex items-center justify-center w-6 h-6 rounded-full text-white transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                                    style={{ background: "#16a34a" }}
+                                    title="Confirmar"
+                                  >
+                                    {isSaving
+                                      ? <Loader2 className="w-3 h-3 animate-spin" />
+                                      : <Check className="w-3 h-3" />
+                                    }
+                                  </button>
+
+                                  {/* Cancelar */}
+                                  <button
+                                    onClick={() => handleCancel(student.attendanceId)}
+                                    disabled={isSaving}
+                                    className="flex items-center justify-center w-6 h-6 rounded-full text-white transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                                    style={{ background: "#dc2626" }}
+                                    title="Cancelar"
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              )}
+
                               {isOverMax && (
                                 <span className="text-xs text-red-500">Máx. {maxHours}h</span>
                               )}
@@ -358,11 +457,10 @@ export const ActivityAttendance = () => {
                   <span className="flex items-center gap-1.5 text-amber-600 font-medium">
                     <Clock className="w-4 h-4" />
                     {students.filter(s => {
-                      const val = editingHours[s.attendanceId] !== undefined
-                        ? editingHours[s.attendanceId]
-                        : s.hoursAwarded
-                      return !val || val <= 0
-                    }).length} estudiante(s) sin horas asignadas
+                      const alreadySaved  = s.hoursAwarded !== null && s.hoursAwarded > 0
+                      const justConfirmed = confirmedHours.has(s.attendanceId)
+                      return !alreadySaved && !justConfirmed
+                    }).length} estudiante(s) sin horas confirmadas
                   </span>
                 )
               )}
@@ -383,13 +481,13 @@ export const ActivityAttendance = () => {
             {/* Botones de acción según status */}
             <div className="flex gap-3">
 
-              {/* Enviar a SUDECAD — solo si status es finished y todos tienen horas */}
+              {/* Enviar a SUDECAD — solo si status es finished y todos tienen horas confirmadas*/}   
               {status === "finished" && (
                 <Button
-                  disabled={!allHoursAssigned || statusMutation.isPending}
+                  disabled={!allHoursAssigned || statusMutation.isPending || !!focusedId}
                   onClick={() => setSubmitToSudecadOpen(true)}
                   className="flex items-center gap-2 font-semibold shadow-sm transition-all hover:opacity-90 disabled:opacity-50"
-                  style={{ background: allHoursAssigned ? "#5b21b6" : "#e5e7eb", color: allHoursAssigned ? "#fff" : "#9ca3af" }}
+                  style={{ background: allHoursAssigned && !focusedId ? "#5b21b6" : "#e5e7eb", color: allHoursAssigned && !focusedId ? "#fff" : "#9ca3af" }}
                 >
                   {statusMutation.isPending
                     ? <><Loader2 className="w-4 h-4 animate-spin" />Enviando...</>
@@ -398,7 +496,7 @@ export const ActivityAttendance = () => {
                 </Button>
               )}
 
-              {/* Marcar como aprobada — solo si status es submittedToSudecad */}
+              {/* Marcar como aprobada — solo si status es submittedToSudecad */}              
               {status === "submittedToSudecad" && (
                 <Button
                   disabled={statusMutation.isPending}

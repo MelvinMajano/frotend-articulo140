@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from "react"
+import { useRef, useEffect } from "react"
+import { useSearchParams } from "react-router"
 import { CustomImput } from "@/components/custom/CustomImput"
 import { Button } from "@/components/ui/button"
 import { ActivitiesPage } from "./activitiesPage/ActivitiesPage"
@@ -7,23 +8,40 @@ import { MinimalModal } from "@/components/custom/CustomModal"
 import { ActivityForm } from "./activitiesPage/components/custom/CustomFormActivities"
 import { UNAH_BLUE, UNAH_GOLD_DARK } from "@/lib/colors"
 import { Plus } from "lucide-react"
+import { useState } from "react"
 
 export const HomePage = () => {
   const { state, isAdmin } = authStore()
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchParams, setSearchParams] = useSearchParams()
   const searchInputRef = useRef<HTMLInputElement>(null)
   const [formOpen, setFormOpen] = useState(false)
 
+  // Leer búsqueda desde la URL
+  const searchQuery = searchParams.get("search") || ""
+
+  // Actualizar URL al buscar — resetea a página 1
+  const handleSearch = (value: string) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev)
+      if (value.trim()) {
+        next.set("search", value.trim())
+      } else {
+        next.delete("search")
+      }
+      next.set("page", "1")
+      return next
+    })
+  }
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault()
         searchInputRef.current?.focus()
       }
     }
-
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
   }, [])
 
   return (
@@ -34,8 +52,8 @@ export const HomePage = () => {
             <CustomImput
               ref={searchInputRef}
               value={searchQuery}
-              onChange={setSearchQuery}
-              placeholder="Buscar actividades por título, descripción, ámbitos, cupos o horas VOAE"
+              onChange={handleSearch}
+              placeholder="Buscar actividades por título, ámbitos, supervisor o horas VOAE"
             />
             {isAdmin() && (
               <MinimalModal
@@ -70,7 +88,7 @@ export const HomePage = () => {
               </MinimalModal>
             )}
           </div>
-          <ActivitiesPage searchQuery={searchQuery} />
+          <ActivitiesPage />
         </div>
       )}
     </>

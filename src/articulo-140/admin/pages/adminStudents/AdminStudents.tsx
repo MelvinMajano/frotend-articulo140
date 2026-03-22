@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Loader2, UserRoundSearch, PlusCircle, ArrowLeft} from "lucide-react"
+import { Loader2, SearchX, UserRoundSearch, PlusCircle, ArrowLeft} from "lucide-react"
 import { Link, useSearchParams } from "react-router"
 import { AddActivityModal } from "../../components/AddActivityModel"
 import { CustomPagination } from "@/components/custom/CustomPagination"
@@ -84,7 +84,7 @@ export const AdminStudents = () => {
   
   const currentPage = parseInt(searchParams.get('page') || '1', 10)
   const searchQuery = searchParams.get('search') || ''
-  const limit = 5
+  const limit = 7
   
   const { query } = useStudents(limit, currentPage, searchQuery)
   const { data, isLoading, isError } = query
@@ -172,16 +172,6 @@ export const AdminStudents = () => {
 
           {/* Segunda fila: Contador de búsqueda y Botón Agregar */}
           <div className="flex items-center justify-between right-0 top-full mt-2 lg:mt-0 gap-4">
-            {/* Contador de búsqueda*/}
-            {searchQuery && totalStudents > 0 ? (
-              <div className="flex items-center gap-2 text-sm text-gray-600 px-4 py-2 rounded-md" style={{ background: UNAH_BLUE_SOFT }}>
-                <span className="font-medium">{totalStudents}</span>
-                <span>estudiantes encontrados</span>
-              </div>
-            ) : (
-              <div></div> // Espacio vacío cuando no hay búsqueda
-            )}
-
             {/*data-tour en el botón de agregar */}
             <Link to="/admin/students/create" data-tour="add-student-btn">
               <Button className="text-white flex items-center shadow-sm" style={{ background: UNAH_BLUE }}>
@@ -201,7 +191,7 @@ export const AdminStudents = () => {
           ) : isError ? (
               <div className="flex flex-col items-center justify-center py-12">
                 <div className="text-gray-400 mb-4">
-                 <UserRoundSearch className="w-16 h-16" />
+                 <SearchX className="w-16 h-16" />
                </div>
                   <p className="text-gray-600 text-lg font-medium mb-2">
                     {searchQuery 
