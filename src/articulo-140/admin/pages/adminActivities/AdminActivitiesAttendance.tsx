@@ -1,11 +1,12 @@
 import { useParams, Link } from "react-router"
 import { useStudentsAttendaceByActivity } from "@/articulo-140/hooks/activities/activities/useStudentsAttendaceByActivity"
 import { useActivyByid } from "@/articulo-140/hooks/activities/activities/useActivityById"
+import { exportAttendanceToExcel } from "@/articulo-140/utils/gestionActivitiesPage/actions/exportAttendanceToExcel"
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ArrowLeft, FileSpreadsheet, Loader2, Send, CheckCircle2, Clock, Check, X } from "lucide-react"
+import { ArrowLeft, FileSpreadsheet, Loader2, Send, CheckCircle2, Clock, Check, X, Download } from "lucide-react"
 import { useRef, useState, useEffect, useCallback, type ChangeEvent } from "react"
 import { useImportActivityAttendance } from "@/articulo-140/hooks/activities/activities/useImportActivityAttendance"
 import { useUpdateHoursAwarded } from "@/articulo-140/hooks/activities/activities/useUpdateHoursAwarded"
@@ -123,8 +124,6 @@ export const ActivityAttendance = () => {
   })
 
   const handleSubmitToSudecad = () => {
-    // TODO: Generar el Excel con los datos de asistencia antes de enviar
-    // exportAttendanceToExcel(students, activity)
     statusMutation.mutate({ actividadId: id!, status: 4 }) // 4 = submittedToSudecad
     setSubmitToSudecadOpen(false)
   }
@@ -256,7 +255,21 @@ export const ActivityAttendance = () => {
           </div>
 
           {/* Derecha: importar Excel */}
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
+
+            {(status === "submittedToSudecad" || status === "approvedBySudecad") && (
+              <div className="ml-auto">
+                <Button
+                  onClick={() => exportAttendanceToExcel(students, activity?.title ?? "actividad", maxHours)}
+                  variant="outline"
+                  className="flex items-ri gap-2 font-medium border-emerald-600 text-emerald-700 hover:bg-emerald-600 hover:text-white shadow-sm transition-all"
+                >
+                  <Download className="w-4 h-4" />
+                  Exportar Excel
+                </Button>
+              </div>
+            )}
+
             <input
               ref={fileInputRef} type="file"
               accept=".xlsx,.xls,.csv" className="hidden"
@@ -481,7 +494,7 @@ export const ActivityAttendance = () => {
             {/* Botones de acción según status */}
             <div className="flex gap-3">
 
-              {/* Enviar a SUDECAD — solo si status es finished y todos tienen horas confirmadas*/}   
+              {/* Enviar a SUDECAD — solo si status es finished y todos tienen horas confirmadas*/}  
               {status === "finished" && (
                 <Button
                   disabled={!allHoursAssigned || statusMutation.isPending || !!focusedId}

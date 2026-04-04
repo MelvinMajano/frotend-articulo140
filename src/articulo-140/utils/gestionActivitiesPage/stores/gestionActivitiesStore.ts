@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { disableActivity } from '../actions/DesableActivitie.action';
 import { getIsDisableActivy } from '../actions/getIsDisableActivy.action';
+import { updateActivityStatus } from '../actions/updateActivityStatus.action';
 import { REVERSE_STATUS_MAP, STATUS_CONFIG, STATUS_MAP, DB_STATUS_MAP, type Estado, type statusNumber, type DBStatus } from '@/articulo-140/types/types';
 
 interface props{
@@ -13,6 +14,7 @@ type gestionStore = {
   isDisableget: string | null; 
   isDisable:number|null;
   activityStatuses:Record<string,Estado>;
+  updateStatus: (activityId:string, status:statusNumber) => Promise<string>;
 
   getStatusColor:(estado:Estado)=>string;
   getStatusCircleColor:(estado:Estado)=>string;
@@ -60,6 +62,18 @@ export const gestionActivitiesStore = create<gestionStore>()((set,get) => ({
         [activityId]:estado
       }
     }))
+  },
+
+  updateStatus: async(activityId, status)=>{
+    const message = await updateActivityStatus({actividadId:activityId,status});
+    
+    set((state)=>({
+      activityStatuses:{
+        ...state.activityStatuses,
+        [activityId]:get().numberToStatus(status)
+      }
+    }))
+    return message;
   },
 
 

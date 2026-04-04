@@ -20,14 +20,15 @@ import type { Estado } from "@/articulo-140/types/types";
 
 
 const scopes = [
-  { id: "1", name: "Deporte", value: "1" as const },
-  { id: "2", name: "Cultural", value: "2" as const },
-  { id: "3", name: "CientificoAcademico", value: "3" as const },
+  { id: "1", name: "Cultural", value: "1" as const },
+  { id: "2", name: "CientificoAcademico", value: "2" as const },
+  { id: "3", name: "Deportivo", value: "3" as const },
   { id: "4", name: "Social", value: "4" as const },
 ];
 
+
 const SCOPE_MAP: Record<string, "1" | "2" | "3" | "4"> = {
-  deportivo: "1", cultural: "2", cientificoacademico: "3", social: "4"
+  cultural: "1", cientificoacademico: "2", deportivo: "3", social: "4"
 };
 
 const normalizeScopes = (scopesRaw: any): ("1" | "2" | "3" | "4")[] => {

@@ -56,8 +56,8 @@ export const ActivityForm = ({ onClose }: ActivityFormProps) => {
 
   const scopes = [
     { id: "1", name: "Cultural", value: "1" },
-    { id: "2", name: "Deportivo", value: "2" },
-    { id: "3", name: "Científico Académico", value: "3" },
+    { id: "2", name: "Cientifico Académico", value: "2" },
+    { id: "3", name: "Deportivo", value: "3" },
     { id: "4", name: "Social", value: "4" },
   ]
 

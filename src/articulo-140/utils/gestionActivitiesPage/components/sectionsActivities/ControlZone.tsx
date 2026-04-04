@@ -20,7 +20,7 @@ export const ControlZoneAdActivities = () => {
   const navigate = useNavigate();
 
   const { id } = useParams();
-  const { getStatusColor, getActivityEstatus, setActivityEstatus, stateFunDisableActivity, stateFunEnableActivity, isDisable } = gestionActivitiesStore();
+  const { getStatusColor, getActivityEstatus,  stateFunDisableActivity, stateFunEnableActivity,updateStatus,statusToNumber, isDisable } = gestionActivitiesStore();
   const { activityMutation, deleteActivityMutation } = useActivities();
   const { activityByIDquery, updateActivityMutation} = useActivyByid(id);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -68,69 +68,76 @@ export const ControlZoneAdActivities = () => {
   }
 
   const handleConfirmUpdate = async () => {
-    if (!startDate || !endDate || !nextStatus) return;
-    if (endDate <= startDate) {
-      toast.error("La fecha de finalización debe ser posterior a la fecha de inicio.");
-      return;
-    }
+  if (!startDate || !endDate || !nextStatus || !id) return;
 
-    const activity = activityByIDquery.data;
-    if (!activity) {
-      toast.error("No se pudo obtener la información de la actividad.");
-      return;
-    }
+  if (endDate <= startDate) {
+    toast.error("La fecha de finalización debe ser posterior a la fecha de inicio.");
+    return;
+  }
 
-    const scopeMap: Record<string, string> = {
-      "cultural": "1",
-      "social": "2",
-      "deportivo": "3",
-      "academico": "4"
-    };
+  const activity = activityByIDquery.data;
+  if (!activity) {
+    toast.error("No se pudo obtener la información de la actividad.");
+    return;
+  }
 
-    let scopesArr: string[];
-    if (Array.isArray(activity.scopes)) {
-      scopesArr = activity.scopes.map(s => scopeMap[s.toLowerCase()] || s).filter(s => ["1","2","3","4"].includes(s));
-    } else if (typeof activity.scopes === 'string') {
-      scopesArr = activity.scopes.split(",").map(s => {
-        const trimmed = s.trim().toLowerCase();
-        return scopeMap[trimmed] || s.trim();
-      }).filter(s => ["1","2","3","4"].includes(s));
-    } else {
-      scopesArr = [];
-    }
-
-    if (!scopesArr.length) {
-      toast.error("La actividad debe tener al menos un scope válido.");
-      return;
-    }
-
-    const payload = {
-      actividadId: activity.id,
-      title: activity.title,
-      description: activity.description,
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-      voaeHours: activity.voaeHours,
-      availableSpots: activity.availableSpots,
-      supervisorId: activity.SupervisorId,
-      scopes: scopesArr,
-      isDisable: activity.isDisabled === "true" ? 1 : 0,
-    };
-
-    try {
-      await updateActivityMutation.mutateAsync(payload);
-      toast.success("Actividad actualizada correctamente");
-      setConfirmOpen(false);
-      if (id) setActivityEstatus(id, nextStatus as Estado);
-      setSearchParams((prev) => {
-        prev.set('Status', nextStatus);
-        return prev;
-      });
-    } catch (error: any) {
-      const messageError = error?.response?.data?.message || error?.message || 'Error al actualizar la actividad';
-      toast.error(messageError);
-    }
+  const scopeMap: Record<string, string> = {
+    "cultural": "1", 
+    "social": "2", 
+    "deportivo": "3", 
+    "academico": "4"
   };
+
+  let scopesArr: string[];
+  if (Array.isArray(activity.scopes)) {
+    scopesArr = activity.scopes.map(s => scopeMap[s.toLowerCase()] || s).filter(s => ["1","2","3","4"].includes(s));
+  } else if (typeof activity.scopes === 'string') {
+    scopesArr = activity.scopes.split(",").map(s => {
+      const trimmed = s.trim().toLowerCase();
+      return scopeMap[trimmed] || s.trim();
+    }).filter(s => ["1","2","3","4"].includes(s));
+  } else {
+    scopesArr = [];
+  }
+
+  if (!scopesArr.length) {
+    toast.error("La actividad debe tener al menos un scope válido.");
+    return;
+  }
+
+  const payload = {
+    actividadId: activity.id,
+    title: activity.title,
+    description: activity.description,
+    startDate: startDate.toISOString(),
+    endDate: endDate.toISOString(),
+    voaeHours: activity.voaeHours,
+    availableSpots: activity.availableSpots,
+    supervisorId: activity.SupervisorId,
+    scopes: scopesArr,
+    isDisable: activity.isDisabled === "true" ? 1 : 0,
+  };
+
+  try {
+    await updateActivityMutation.mutateAsync(payload);
+
+    const statusNumber = statusToNumber(nextStatus as Estado);
+    await updateStatus(activity.id, statusNumber);
+
+    toast.success("Actividad actualizada correctamente");
+    setConfirmOpen(false);
+    setSearchParams((prev) => {
+      prev.set('Status', nextStatus);
+      return prev;
+    });
+
+  } catch (error: any) {
+    const messageError = error?.response?.data?.message 
+      || error?.message 
+      || 'Error al actualizar la actividad';
+    toast.error(messageError);
+  }
+};
 
   const handleDeshabiltar = () => {
     setDisableConfirmOpen(true);
