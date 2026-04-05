@@ -3,14 +3,16 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Link, useNavigate } from "react-router"
-import { type FormEvent } from "react"
+import { type FormEvent, useState } from "react"
 import { authStore } from "@/articulo-140/auth/store/authStore"
 import { toast } from "sonner"
 import { UNAH_BLUE, UNAH_GOLD } from "@/lib/colors"
+import { Eye, EyeOff } from "lucide-react"
 
 export const LoginForm = () => {
   const {login} = authStore();
   const navigate = useNavigate()
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -18,17 +20,17 @@ export const LoginForm = () => {
     const formData = new FormData(form);
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
-    
+
     const isValid = await login(email,password);
 
     if(isValid){
       // Limpiar el formulario cuando el login sea exitoso
       form.reset();
-      
+
       navigate('/activities')
       toast.success(`Bienvenido`, {
         style: {
-          background: '#10b981', 
+          background: '#10b981',
           color: 'white',
           border: '1px solid #059669'
         }
@@ -36,7 +38,7 @@ export const LoginForm = () => {
     } else {
       toast.error('Credenciales incorrectas', {
         style: {
-          background: '#ef4444', 
+          background: '#ef4444',
           color: 'white',
           border: '1px solid #dc2626'
         }
@@ -68,15 +70,25 @@ export const LoginForm = () => {
           </div>
           <div className="space-y-2">
             <Label htmlFor="password" style={{ color: UNAH_BLUE }}>Contraseña</Label>
-            <Input
-              id="password"
-              type="password"
-              name="password"
-              placeholder="••••••••"
-              required
-              className="focus-visible:ring-2"
-              style={{ "--tw-ring-color": UNAH_BLUE } as React.CSSProperties}
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="••••••••"
+                required
+                className="focus-visible:ring-2 pr-10"
+                style={{ "--tw-ring-color": UNAH_BLUE } as React.CSSProperties}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(prev => !prev)}
+                className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-4 m-2 mt-4">

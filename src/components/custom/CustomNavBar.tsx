@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Link } from "react-router"
-import LogoSistemas from "@/assest/Ingenieria-en-Sistemas-Logo.png.jpeg"
+import LogoSistemas from "@/assest/Ingenieria-en-Sistemas-Logo.png"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu} from "lucide-react"
